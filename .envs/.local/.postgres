@@ -1,0 +1,7 @@
+# PostgreSQL
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=biocrust_app
+POSTGRES_USER=vASiIdpcSHrNwDtUxbZHETFZBgKiuqsM
+POSTGRES_PASSWORD=rYy8a4BgnJ4kS8O8xym3rwbe5VghIVBigcAyTiDPi40GOCQI2iFEMkIe3L1rYja2
