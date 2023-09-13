@@ -31,6 +31,8 @@ services:
     volumes:
       - biocrust_app_local_postgres_data:/var/lib/postgresql/data
       - biocrust_app_local_postgres_data_backups:/backups
+    ports:
+      - '5432:5432'
     env_file:
       - ./.envs/.local/.postgres
 
@@ -63,3 +65,19 @@ services:
       - ./frontend/nginx:/etc/nginx/conf.d
     ports:
       - '81:80'
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: biocrust_app_local_pgadmin
+    depends_on:
+      - postgres
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@mail.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+      - PGADMIN_LISTEN_PORT=5050
+    ports:
+      - '5050:5050'
+    volumes:
+      - biocrust_app_local_postgres_data:/var/lib/postgresql/data
+      - biocrust_app_local_postgres_data_backups:/backups
+
