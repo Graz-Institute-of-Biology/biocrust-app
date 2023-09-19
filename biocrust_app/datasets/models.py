@@ -3,23 +3,27 @@ from io import BytesIO
 from PIL import Image
 from django.core.files import File
 
+
 class Dataset_Model(models.Model):
-    name = models.CharField(max_length=255, blank=True)
+    dataset_name = models.CharField(max_length=255, blank=True)
     slug = models.SlugField()
+    coordinates = models.CharField(max_length=255, blank=True)
     dataset_created = models.DateTimeField(auto_now_add=True)
+    description = models.TextField(blank=True, null=True)
+    dataset_type = models.CharField(max_length=255, blank=True)
     
     class Meta:
         ordering = ('-dataset_created',)
 
     def __str__(self):
-        return self.name
+        return self.dataset_name
     
     def get_absolute_url(self):
         return f'/{self.slug}/'
 
 
 class Image_Model(models.Model):
-    dataset = models.ForeignKey(Dataset_Model, related_name='dataset', on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset_Model, related_name='images', on_delete=models.CASCADE)
     name = models.CharField(max_length=255, blank=True)
     slug = models.SlugField()
     description = models.TextField(blank=True, null=True)
@@ -56,13 +60,13 @@ class Image_Model(models.Model):
             else:
                 return ''
             
-    def make_thumbnail(self, size=(300,200)):
-        img = Image.open(self.img)
+    def make_thumbnail(self, image, size=(300,200)):
+        img = Image.open(image)
         img.convert('RGB')
-        img.thumbnail(size, Image.ANTIALIAS)
+        img.thumbnail(size)
 
         thumb_io = BytesIO()
         img.save(thumb_io, 'JPEG', quality=85)
-        thumbnail = File(thumb_io, name=self.img.name)
+        thumbnail = File(thumb_io, name=image.name)
 
         return thumbnail

@@ -227,7 +227,7 @@ EMAIL_TIMEOUT = 5
 # Django Admin URL.
 ADMIN_URL = "admin/"
 # https://docs.djangoproject.com/en/dev/ref/settings/#admins
-ADMINS = [("""Daniel Roy Greenfeld""", "philipp.faulhammer@gmail.com")]
+ADMINS = [("philipp.faulhammer@gmail.com")]
 # https://docs.djangoproject.com/en/dev/ref/settings/#managers
 MANAGERS = ADMINS
 # https://cookiecutter-django.readthedocs.io/en/latest/settings.html#other-environment-settings
@@ -281,5 +281,17 @@ SOCIALACCOUNT_FORMS = {"signup": "biocrust_app.users.forms.UserSocialSignupForm"
 # ------------------------------------------------------------------------------
 
 
-# CORS_ALLOWED_ORIGINS = ['http://127.0.0.1:8080']
+# CORS_ALLOWED_ORIGINS = [
+#     "http://127.0.0.1:8080",
+#     "http://localhost:8080",
+#     ]
 CORS_ALLOW_ALL_ORIGINS = True
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         'rest_framework.authentication.TokenAuthentication',
+#     ),
+#     'DEFAULT_PERMISSION_CLASSES': (
+#         'rest_framework.authentication.BasicAuthentication',
+#         'rest_framework_simplejwt.authentication.JWTAuthentication'
+#     )
+# }

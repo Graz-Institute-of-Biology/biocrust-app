@@ -1,11 +1,12 @@
 <template>
-    About view
-</template>
+    <div class="container">
+        <section class ="section" id="app">
+            <h2 class="is-size-2 has-text-centered">About</h2>
+            <p> About this project some example text</p>
+        </section>
+    </div>
+  </template>
 
 <script setup>
 
-// import { computed } from 'vue';
-// import store from '../store';
-
-// const data_set = computed(() => store.state.data_set)
 </script>

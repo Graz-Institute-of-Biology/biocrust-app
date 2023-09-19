@@ -3,9 +3,15 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.conf import settings
 from datasets import views
+from rest_framework.routers import DefaultRouter
 
+router = DefaultRouter()
+router.register('datasets', views.Dataset_ModelViewSet)
+router.register('images', views.Image_ModelViewSet)
 
 app_name = "datasets"
 urlpatterns = [
-    path('images/', views.Image_ModelList.as_view()),
+    path('', include(router.urls)),
+    # path('datasets/', views.Dataset_ModelList.as_view()),
+    # path('uploaddataset/', views.uploadDataset, name='dataset-upload'),
 ]

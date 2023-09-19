@@ -4,6 +4,9 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+# python manage.py makemigrations
+python manage.py migrate
+
 # if [ "$DJANGO_SUPERUSER_USERNAME" ]
 # then
 #     python manage.py createsuperuser \
@@ -13,6 +16,5 @@ set -o nounset
 # fi
 
 # $@
-python manage.py makemigrations
-python manage.py migrate
+
 exec python manage.py runserver_plus 0.0.0.0:8000

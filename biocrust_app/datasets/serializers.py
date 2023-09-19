@@ -13,3 +13,15 @@ class Image_ModelSerializer(serializers.ModelSerializer):
                   'date_added',
                   'dataset'
                   )
+        
+class Dataset_ModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dataset_Model
+        fields = ('id',
+                  'dataset_name',
+                  'slug',
+                  'coordinates',
+                  'dataset_created',
+                  'description',
+                  'dataset_type'
+                  )
