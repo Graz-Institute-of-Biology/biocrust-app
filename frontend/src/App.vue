@@ -27,7 +27,23 @@
     </section>
 
     <footer class="footer">
-      <p class="has-text-centered"> Copyright (c) 2023</p>
+      <div class="columns is-multiline">
+        <div class="col is-12 footerbox-left"> 
+          <p>&copy; 2023</p>
+          <p>CC-Explorer</p>
+        </div>
+        <div class="col is-12 footerbox-center">
+          <h1>Created by</h1>
+          <p>philipp.faulhammer@uni-graz.at</p>
+          <p>stefan.herdy@uni-graz.at</p>
+        </div>
+        <div class="col is-12 footerbox-right">
+          <h1>Contact</h1>
+          <p>Institut für Biologie</p>
+          <p>Holteigasse 6</p>
+          <p>8010 Graz, Austria</p>
+        </div>
+      </div>
     </footer>
   </div>
 </template>
@@ -65,5 +81,22 @@ export default {
 .navbar-item {
   font-size: 1.2rem;
   color: lightgrey;
+}
+.footer {
+  height: 50px;
+  background-color: #333;
+  color: #fff;
+}
+.footerbox-left {
+  padding-left: 10%;
+  text-align: center;
+}
+.footerbox-center {
+  padding-left: 25%;
+  text-align: center;
+}
+.footerbox-right {
+  padding-left: 25%;
+  text-align: center;
 }
 </style>
