@@ -1,7 +1,13 @@
 <template>
-    <div class="page-dataset">
-        <h2 class="is-size-2 has-text-centered">Datasets</h2>
-        <RouterLink :to="{ name: 'AddDataset' }" class="button is-primary">Add Dataset</RouterLink>
+    <div class="is-fullheight">
+        <div class="columns is-multiline">
+            <div class="column is-10 header-col">
+                <h2 class="is-size-2">Datasets</h2>
+            </div>
+            <div class="column is-2 button-col">
+                <RouterLink :to="{ name: 'AddDataset' }" class="button is-primary">Add Dataset</RouterLink>
+            </div>
+        </div>
             <div class="columns is-multiline">
                 <div 
                     class="column is-3"
@@ -54,9 +60,16 @@ export default {
 
 <style scoped>
 
-page-dataset {
-    display: grid;
+.header-col {
+    text-align: center;
+}
+.button-col {
+    text-align: right;
+    margin-top: 10px;
 }
 
+.hero {
+    min-height: 50hv;
+}
 
 </style>
