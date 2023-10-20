@@ -1,51 +1,51 @@
 
 <template>
-  <div id="wrapper">
-    <nav class="navbar is-dark">
-      <div class="navbar-brand">
-        <RouterLink to="/" class="navbar-item">Home</RouterLink>
-      </div>
-        <div class="navbar-menu">
-          <div class="navbar-end">
-            <template v-if="$store.state.isAuthenticated">
-              <RouterLink to="/datasets" class="navbar-item">Datasets</RouterLink>
-              <RouterLink to="/logout" class="navbar-item">My Account</RouterLink>
-              <RouterLink to="/about" class="navbar-item">About</RouterLink>
-            </template>
+    <div id="wrapper" class="body">
+      <nav class="navbar is-dark is-fixed-top">
+        <div class="navbar-brand">
+          <RouterLink to="/" class="navbar-item">Home</RouterLink>
+        </div>
+          <div class="navbar-menu">
+            <div class="navbar-end">
+              <template v-if="$store.state.isAuthenticated">
+                <RouterLink to="/datasets" class="navbar-item">Datasets</RouterLink>
+                <RouterLink to="/logout" class="navbar-item">My Account</RouterLink>
+                <RouterLink to="/about" class="navbar-item">About</RouterLink>
+              </template>
 
-            <template v-else>
-              <RouterLink to="/signup" class="navbar-item">Sign Up</RouterLink>
-              <RouterLink to="/login" class="navbar-item">Log in</RouterLink>
-              <RouterLink to="/about" class="navbar-item">About</RouterLink>
-            </template>
+              <template v-else>
+                <RouterLink to="/signup" class="navbar-item">Sign Up</RouterLink>
+                <RouterLink to="/login" class="navbar-item">Log in</RouterLink>
+                <RouterLink to="/about" class="navbar-item">About</RouterLink>
+              </template>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
 
-    <section class="section">
-        <router-view></router-view>
-    </section>
+        <div class="section">
+            <router-view></router-view>
+        </div>
 
-    <footer class="footer">
-      <div class="columns is-multiline">
-        <div class="col is-12 footerbox-left"> 
-          <p>&copy; 2023</p>
-          <p>CC-Explorer</p>
-        </div>
-        <div class="col is-12 footerbox-center">
-          <h1>Created by</h1>
-          <p>philipp.faulhammer@uni-graz.at</p>
-          <p>stefan.herdy@uni-graz.at</p>
-        </div>
-        <div class="col is-12 footerbox-right">
-          <h1>Contact</h1>
-          <p>Institut für Biologie</p>
-          <p>Holteigasse 6</p>
-          <p>8010 Graz, Austria</p>
-        </div>
-      </div>
-    </footer>
-  </div>
+        <footer class="footer is-fixed-bottom">
+          <div class="columns is-multiline">
+            <div class="col is-4 footerbox-left"> 
+              <p>&copy; 2023</p>
+              <p>CC-Explorer</p>
+            </div>
+            <div class="col is-4 footerbox-center">
+              <h1>Created by</h1>
+              <p>philipp.faulhammer@uni-graz.at</p>
+              <p>stefan.herdy@uni-graz.at</p>
+            </div>
+            <div class="col is-4 footerbox-right">
+              <h1>Contact</h1>
+              <p>Institut für Biologie</p>
+              <p>Holteigasse 6</p>
+              <p>8010 Graz, Austria</p>
+            </div>
+          </div>
+        </footer>
+    </div>
 </template>
 
 <script>
@@ -82,21 +82,35 @@ export default {
   font-size: 1.2rem;
   color: lightgrey;
 }
-.footer {
+.is-fixed-bottom {
   height: 50px;
+  width: 100%;
   background-color: #333;
   color: #fff;
+  bottom: 0;
+  left: 0;
+  position: fixed;
+  right: 0;
+  z-index: 30;
 }
 .footerbox-left {
-  padding-left: 10%;
   text-align: center;
+  justify-content: center;
+  flex: auto;
 }
 .footerbox-center {
-  padding-left: 25%;
   text-align: center;
+  justify-content: center;
+  flex: auto;
 }
 .footerbox-right {
-  padding-left: 25%;
   text-align: center;
+  justify-content: center;
+  flex: auto;
+}
+.wrapper {
+  display: flex;
+  min-height: calc(100vh + 50px);
+  flex-direction: column;
 }
 </style>
