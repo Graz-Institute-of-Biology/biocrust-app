@@ -34,8 +34,8 @@
             </div>
             <div class="col is-4 footerbox-center">
               <h1>Created by</h1>
-              <p>stefan.herdy@uni-graz.at</p>
               <p>philipp.faulhammer@uni-graz.at</p>
+              <p>stefan.herdy@uni-graz.at</p>
             </div>
             <div class="col is-4 footerbox-right">
               <h1>Contact</h1>
