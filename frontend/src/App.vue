@@ -34,14 +34,13 @@
             </div>
             <div class="col is-4 footerbox-center">
               <h1>Created by</h1>
-              <p>philipp.faulhammer@uni-graz.at</p>
               <p>stefan.herdy@uni-graz.at</p>
+              <p>philipp.faulhammer@uni-graz.at</p>
             </div>
             <div class="col is-4 footerbox-right">
               <h1>Contact</h1>
               <p>Institut für Biologie</p>
-              <p>Holteigasse 6</p>
-              <p>8010 Graz, Austria</p>
+              <p>Holteigasse 6 - 8010 Graz, Austria</p>
             </div>
           </div>
         </footer>
@@ -83,7 +82,7 @@ export default {
   color: lightgrey;
 }
 .is-fixed-bottom {
-  height: 50px;
+  height: 10px;
   width: 100%;
   background-color: #333;
   color: #fff;
@@ -92,6 +91,8 @@ export default {
   position: fixed;
   right: 0;
   z-index: 30;
+  padding: 1rem 0rem 3rem;
+  line-height: 1
 }
 .footerbox-left {
   text-align: center;

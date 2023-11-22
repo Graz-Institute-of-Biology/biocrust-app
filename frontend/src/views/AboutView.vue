@@ -7,8 +7,7 @@
     </div>
     <div class="container has-text-centered">
         <header class="container">
-        <h1>About Us</h1>
-        <img src="@/assets/logo.jpg" alt="Work Group" class="container" />
+        <img src="@/assets/logo.png" alt="Work Group" class="container" />
         </header>
 
         <div class="container">
@@ -25,13 +24,12 @@
         <div class="center-vertically">
         <div class="column">
             <div class="card">
-            <img src="@/assets/logo.jpg" alt="Stefan Herdy" style="width:100%">
+            <img src="@/assets/logo.png" alt="Stefan Herdy" style="width:100%">
             <div class="container">
                 <h2>Stefan Herdy</h2>
                 <p class="title">Co-Founder</p>
                 <p>Some text that describes me lorem ipsum ipsum lorem.</p>
-                <p>stefan.herdy@uni-graz.at</p>
-                <p><button class="button">Contact</button></p>
+                <p><button class="button" onclick="window.location.href='mailto:stefan.herdy@uni-graz.at';">Contact</button></p>
             </div>
             </div>
         </div>
@@ -39,13 +37,12 @@
 
         <div class="column">
             <div class="card">
-            <img src="@/assets/logo.jpg" alt="Philipp Faulhammer" style="width:100%">
+            <img src="@/assets/logo.png" alt="Philipp Faulhammer" style="width:100%">
             <div class="container">
                 <h2>Philipp Faulhammer</h2>
                 <p class="title">Co-Founder</p>
                 <p>Some text that describes me lorem ipsum ipsum lorem.</p>
-                <p>philipp.faulhammer@uni-graz.at</p>
-                <p><button class="button">Contact</button></p>
+                <p><button class="button" onclick="window.location.href='mailto:philipp.faulhammer@uni-graz.at';">Contact</button></p>
             </div>
             </div>
         </div>
