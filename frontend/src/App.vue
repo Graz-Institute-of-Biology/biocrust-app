@@ -9,6 +9,8 @@
             <div class="navbar-end">
               <template v-if="$store.state.isAuthenticated">
                 <RouterLink to="/datasets" class="navbar-item">Datasets</RouterLink>
+                <RouterLink to="/models" class="navbar-item">Models</RouterLink>
+
                 <RouterLink to="/logout" class="navbar-item">My Account</RouterLink>
                 <RouterLink to="/about" class="navbar-item">About</RouterLink>
               </template>
