@@ -1,8 +1,14 @@
 <template>
-    <div class="page-dataset">
-        <h2 class="is-size-2 has-text-centered">Datasets</h2>
-        <RouterLink :to="{ name: 'AddDataset' }" class="button is-primary">Add Dataset</RouterLink>
-            <div class="column is-12">
+    <div class="is-fullheight">
+        <div class="columns is-multiline">
+            <div class="column is-10 header-col">
+                <h2 class="is-size-2">Datasets</h2>
+            </div>
+            <div class="column is-2 button-col">
+                <RouterLink :to="{ name: 'AddDataset' }" class="button is-primary">Add Dataset</RouterLink>
+            </div>
+        </div>
+            <div class="columns is-multiline">
                 <div 
                     class="column is-3"
                     v-for="dataset in datasets"
@@ -52,6 +58,18 @@ export default {
 </script>
 
 
-<style>
+<style scoped>
+
+.header-col {
+    text-align: center;
+}
+.button-col {
+    text-align: right;
+    margin-top: 10px;
+}
+
+.hero {
+    min-height: 50hv;
+}
 
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container hero is-fullheight">
       <section class ="section" id="app">
           <h2 class="is-size-2 has-text-centered">Home</h2>
           <p> About this project some example text</p>
