@@ -10,6 +10,7 @@ import SignUpView from '../views/SignUpView.vue'
 import LogInView from '../views/LogInView.vue'
 import LogOutView from '../views/LogOutView.vue'
 import ModelsView from '../views/ModelsView.vue'
+import ModelView from '../views/ModelView.vue'
 import AddModelView from '../views/AddModelView.vue'
 import store from '../store'
 
@@ -60,9 +61,14 @@ const routes = [
         component: AddModelView
     },
     {
-        path: '/models',
+        path: '/models/',
         name: 'models',
         component: ModelsView
+    },
+    {
+        path: '/model/:id',
+        name: 'ModelView',
+        component: ModelView
     },
     {
         path: '/addImage/:id',

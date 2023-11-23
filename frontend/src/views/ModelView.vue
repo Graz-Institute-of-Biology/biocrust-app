@@ -2,8 +2,8 @@
     <div class="page-dataset">
         <div class="columns is-multiline">
             <div class="column is-12">
-                <h1 class="title is-1">{{ dataset.dataset_name }}</h1>
-                <RouterLink :to="{ name: 'AddImageView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add images</RouterLink>
+                <h1 class="title is-1">{{ model.model_name }}</h1>
+                <RouterLink :to="{ name: 'AddImageView', params: { id: model.id }}" class="button is-link" v-if="!this.$store.loading">Add images</RouterLink>
                 <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div>
             </div>
         </div>
@@ -33,7 +33,7 @@ import 'viewerjs/dist/viewer.css'
 import { directive as viewer } from "v-viewer"
 
 export default defineComponent({
-    name: 'DataSetView',
+    name: 'ModelView',
     directives: {
       viewer: viewer({
         debug: true
@@ -43,8 +43,8 @@ export default defineComponent({
         return {
             Images: [],
             items: [],
-            dataset: {},
-            dataset_name: this.$route.params.name,
+            model: {},
+            model_name: this.$route.params.name,
             index: null,
             options: {
                         ready: () => {
@@ -74,29 +74,29 @@ export default defineComponent({
     },
     created () {
         this.$store.commit('setLoading', true)
-        this.getDataset()
+        this.getModel()
     },
     methods: {
         show () {
         const viewer = this.$el.querySelector('.images').$viewer
         viewer.show()
       },
-        async getDataset() {
-            await axios.get(`api/v1/datasets/${this.$route.params.id}`)
+        async getModel() {
+            await axios.get(`api/v1/model/${this.$route.params.id}`)
             .then(response => {
-                this.dataset = response.data
+                this.model = response.data
             })
             .catch(error => {
                 console.log(error)
             })
-            console.log("Dataset loaded")
+            console.log("Model loaded")
             this.getImages()
     },
         async getImages() {
                 await axios.get('api/v1/images/')
                 .then(response => {
-                    this.Images = response.data.filter(image => image.dataset == this.$route.params.id)
-                    let img_items = response.data.filter(image => image.dataset == this.$route.params.id)
+                    this.Images = response.data.filter(image => image.model == this.$route.params.id)
+                    let img_items = response.data.filter(image => image.model == this.$route.params.id)
                     for (let i = 0; i < img_items.length; i++) {
                         this.items.push(img_items[i].img)
                     }
@@ -121,7 +121,7 @@ export default defineComponent({
 
 
 <style scoped>
-.page-dataset {
+.page-model {
     margin-bottom: 10%;
 }
 .image-small {

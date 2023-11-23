@@ -6,7 +6,7 @@
             </div>
             <div class="column is-6">
                     <div class="field">
-                        <label class="label">Model Name</label>
+                        <label class="label">Model-Name</label>
                         <div class="control">
                             <input class="input" type="text" placeholder="Model Name" v-model="model.model_name">
                         </div>
@@ -23,7 +23,7 @@
                     <div class="field">
                         <label class="label">Model Type</label>
                         <div class="control">
-                            <input class="input" type="text" placeholder="Model Type eg. Biocrust" v-model="model.dataset_type">
+                            <input class="input" type="text" placeholder="Model Type eg. Biocrust" v-model="model.model_type">
                         </div>
                     </div>
                 </div>

@@ -9,3 +9,8 @@
 Migrate:
 docker compose -f local.yml run --rm django python manage.py makemigrations
 docker compose -f local.yml run --rm django python manage.py migrate
+
+Restart Django:
+docker compose -f local.yml run --rm django touch wsgi.py
+
+(docker compose -f local.yml run --rm django python manage.py migrate runserver)
