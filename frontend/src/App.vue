@@ -1,17 +1,18 @@
 
 <template>
-  <div id="wrapper">
-    <nav class="navbar is-dark">
-      <div class="navbar-brand">
-        <RouterLink to="/" class="navbar-item">Home</RouterLink>
-      </div>
-        <div class="navbar-menu">
-          <div class="navbar-end">
-            <template v-if="$store.state.isAuthenticated">
-              <RouterLink to="/datasets" class="navbar-item">Datasets</RouterLink>
-              <RouterLink to="/logout" class="navbar-item">My Account</RouterLink>
-              <RouterLink to="/about" class="navbar-item">About</RouterLink>
-            </template>
+    <div id="wrapper" class="body">
+      <nav class="navbar is-dark is-fixed-top">
+        <div class="navbar-brand">
+          <RouterLink to="/" class="navbar-item">Home</RouterLink>
+        </div>
+          <div class="navbar-menu">
+            <div class="navbar-end">
+              <template v-if="$store.state.isAuthenticated">
+                <RouterLink to="/datasets" class="navbar-item">Datasets</RouterLink>
+                <RouterLink to="/models" class="navbar-item">Models</RouterLink>
+                <RouterLink to="/logout" class="navbar-item">My Account</RouterLink>
+                <RouterLink to="/about" class="navbar-item">About</RouterLink>
+              </template>
 
             <template v-else>
               <RouterLink to="/signup" class="navbar-item">Sign Up</RouterLink>
