@@ -18,6 +18,12 @@ class Dataset_ModelList(APIView):
         data = Dataset_ModelSerializer(datasets, many=True).data
         return Response(data)
     
+class Model_ModelList(APIView):
+    def get(self, request, format=None):
+        datasets = Model_Model.objects.all()
+        data = Model_ModelSerializer(datasets, many=True).data
+        return Response(data)
+    
 
 class Dataset_ModelViewSet(viewsets.ModelViewSet):
     queryset = Dataset_Model.objects.all()
