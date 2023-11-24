@@ -23,11 +23,14 @@ class Dataset_Model(models.Model):
     
 class Model_Model(models.Model):
     model_name = models.CharField(max_length=255, blank=True)
-    slug = models.SlugField()
+    slug = models.SlugField(blank=True)
     coordinates = models.CharField(max_length=255, blank=True)
     model_created = models.DateTimeField(auto_now_add=True)
     description = models.TextField(blank=True, null=True)
     model_type = models.CharField(max_length=255, blank=True)
+    file = models.FileField(upload_to='models/', blank=True)
+    belongs_to_dset = models.CharField(max_length=255, blank=True)
+
     
     class Meta:
         ordering = ('-model_created',)

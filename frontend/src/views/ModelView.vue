@@ -3,8 +3,6 @@
         <div class="columns is-multiline">
             <div class="column is-12">
                 <h1 class="title is-1">{{ model.model_name }}</h1>
-                <RouterLink :to="{ name: 'AddImageView', params: { id: model.id }}" class="button is-link" v-if="!this.$store.loading">Add images</RouterLink>
-                <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div>
             </div>
         </div>
         <div  v-if="!this.$store.loading">
@@ -82,7 +80,7 @@ export default defineComponent({
         viewer.show()
       },
         async getModel() {
-            await axios.get(`api/v1/model/${this.$route.params.id}`)
+            await axios.get(`api/v1/models/${this.$route.params.id}`)
             .then(response => {
                 this.model = response.data
             })
@@ -90,24 +88,7 @@ export default defineComponent({
                 console.log(error)
             })
             console.log("Model loaded")
-            this.getImages()
     },
-        async getImages() {
-                await axios.get('api/v1/images/')
-                .then(response => {
-                    this.Images = response.data.filter(image => image.model == this.$route.params.id)
-                    let img_items = response.data.filter(image => image.model == this.$route.params.id)
-                    for (let i = 0; i < img_items.length; i++) {
-                        this.items.push(img_items[i].img)
-                    }
-                    console.log(this.items)
-                })
-                .catch(error => {
-                    console.log(error)
-                })
-                console.log("Images loaded")
-                this.$store.commit('setLoading', false)
-            },
         getUrl(image) {
             const url = `${axios.defaults.baseURL}${image.img}`
             return url

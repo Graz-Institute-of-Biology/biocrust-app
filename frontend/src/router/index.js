@@ -66,7 +66,7 @@ const routes = [
         component: ModelsView
     },
     {
-        path: '/model/:id',
+        path: '/models/:id',
         name: 'ModelView',
         component: ModelView
     },

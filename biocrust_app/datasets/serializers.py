@@ -34,6 +34,8 @@ class Model_ModelSerializer(serializers.ModelSerializer):
                   'slug',
                   'coordinates',
                   'model_created',
+                  'file',
                   'description',
-                  'model_type'
+                  'model_type',
+                  'belongs_to_dset'
                   )
