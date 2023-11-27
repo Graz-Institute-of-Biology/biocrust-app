@@ -3,6 +3,7 @@
 node_modules
 dist
 frontend/package-lock.json
+website_notes.txt
 
 # local env files
 .env.local
