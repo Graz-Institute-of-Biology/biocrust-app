@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Dataset_Model, Image_Model
+from .models import Dataset_Model, Image_Model, Model_Model
 
 class Image_ModelSerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,4 +24,18 @@ class Dataset_ModelSerializer(serializers.ModelSerializer):
                   'dataset_created',
                   'description',
                   'dataset_type'
+                  )
+        
+class Model_ModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Model_Model
+        fields = ('id',
+                  'model_name',
+                  'slug',
+                  'coordinates',
+                  'model_created',
+                  'file',
+                  'description',
+                  'model_type',
+                  'belongs_to_dset'
                   )

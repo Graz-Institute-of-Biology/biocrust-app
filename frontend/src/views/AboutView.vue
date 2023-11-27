@@ -20,6 +20,7 @@
         </li>
         </ul>
 
+        
         <h2 style="text-align:center">Our Team</h2>
         <div class="center-vertically">
         <div class="column">

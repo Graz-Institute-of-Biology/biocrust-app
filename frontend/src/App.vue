@@ -9,6 +9,8 @@
             <div class="navbar-end">
               <template v-if="$store.state.isAuthenticated">
                 <RouterLink to="/datasets" class="navbar-item">Datasets</RouterLink>
+                <RouterLink to="/models" class="navbar-item">Models</RouterLink>
+
                 <RouterLink to="/logout" class="navbar-item">My Account</RouterLink>
                 <RouterLink to="/about" class="navbar-item">About</RouterLink>
               </template>
@@ -34,8 +36,8 @@
             </div>
             <div class="col is-4 footerbox-center">
               <h1>Created by</h1>
-              <p>stefan.herdy@uni-graz.at</p>
               <p>philipp.faulhammer@uni-graz.at</p>
+              <p>stefan.herdy@uni-graz.at</p>
             </div>
             <div class="col is-4 footerbox-right">
               <h1>Contact</h1>

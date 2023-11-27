@@ -1,49 +1,42 @@
 <template>
     <div class="container">
         <div class="page-add-dataset">
-        <div class="columns is-multiline">
-            <div class="column is-12">
-                <h1 class="title is-1">Add Image(s)</h1>
+            <div class="columns is-multiline">
+                <div class="column is-12">
+                    <h1 class="title is-1">Add Image(s)</h1>
+                </div>
+                <div class="column is-6">
+                        <div class="field">
+                            <label class="label">Image Name</label>
+                            <div class="control">
+                                <input class="input" type="text" placeholder="Image Name" v-model="image.name">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Description</label>
+                            <div class="control">
+                                <input class="input" type="text" placeholder="Description" v-model="image.description">
+                            </div>
+                        </div>
+                </div>
             </div>
-            <div class="column is-6">
-                    <div class="field">
-                        <label class="label">Image Name</label>
-                        <div class="control">
-                            <input class="input" type="text" placeholder="Image Name" v-model="image.name">
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label class="label">Description</label>
-                        <div class="control">
-                            <input class="input" type="text" placeholder="Description" v-model="image.description">
-                        </div>
-                    </div>
+            <div v-if="document" class="progress mb-6">
+                <progress class="progress is-primary" :value="progress" max="100">50%</progress>
             </div>
         </div>
-                <div
-                    v-if="document"
-                    class="progress mb-6"
-                >
-                    <!-- <progress class="progress is-primary" :value="progress" max="100">{{ progress }}%</progress> -->
-                    <progress class="progress is-primary" :value="progress" max="100">50%</progress>
-                </div>
-            </div>
-                <div class="file">
-                    <label class="file-label">
-                        <input type="file" ref="file" class="file-input" @change="selectFile">
+        <div class="file">
+            <label class="file-label">
+                <input type="file" ref="file" class="file-input" @change="selectFile">
 
-                        <span class="file-cta">
-                            <span class="file-label">Choose a file...</span>
-                        </span>
-                    </label>
-                </div>
-                <button class="button is-primary mt-2" v-if="document" @click="imageUpload">Upload</button>
-                <div
-                    class="notification mt-6"
-                    v-if="message"
-                    >
-                    {{ message }}
-                </div>
+                <span class="file-cta">
+                    <span class="file-label">Choose a file...</span>
+                </span>
+            </label>
+        </div>
+        <button class="button is-primary mt-2" v-if="document" @click="imageUpload">Upload</button>
+        <div class="notification mt-6" v-if="message">
+            {{ message }}
+        </div>
     </div>
 </template>
 
@@ -125,7 +118,7 @@ export default {
             formData.append('description', this.image.description)
             formData.append('slug', this.image.slug)
             formData.append('dataset', this.image.dataset)
-
+            console.log(formData)
             return axios.post('api/v1/images/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',

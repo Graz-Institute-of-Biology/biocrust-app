@@ -9,6 +9,9 @@ import AddDatasetView from '../views/AddDatasetView.vue'
 import SignUpView from '../views/SignUpView.vue'
 import LogInView from '../views/LogInView.vue'
 import LogOutView from '../views/LogOutView.vue'
+import ModelsView from '../views/ModelsView.vue'
+import ModelView from '../views/ModelView.vue'
+import AddModelView from '../views/AddModelView.vue'
 import store from '../store'
 
 const routes = [
@@ -51,6 +54,21 @@ const routes = [
         path: '/dataset/:id',
         name: 'DataSetView',
         component: DataSetView
+    },
+    {
+        path: '/AddModel',
+        name: 'AddModel',
+        component: AddModelView
+    },
+    {
+        path: '/models/',
+        name: 'models',
+        component: ModelsView
+    },
+    {
+        path: '/models/:id',
+        name: 'ModelView',
+        component: ModelView
     },
     {
         path: '/addImage/:id',
