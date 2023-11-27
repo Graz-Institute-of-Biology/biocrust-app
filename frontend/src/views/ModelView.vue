@@ -1,15 +1,36 @@
 <template>
-    <div class="page-dataset">
-        <div class="columns is-multiline">
-            <div class="column is-12">
-                <h1 class="title is-1">{{ model.model_name }}</h1>
-                <h1 class="title is-3">Coordinates:         {{ model.coordinates }}</h1>
-                <h1 class="title is-3">Description:         {{ model.description }}</h1>
-                <h1 class="title is-3">Training Dataset:    {{ model.belongs_to_dset }}</h1>
-                <h1 class="title is-3">Created:             {{ date }} {{ time }}</h1>
-                <h1 class="title is-3">Model Type:          {{ model.model_type }}</h1>
-                <button class="button" @click="downloadImage(model.file)"><img class= "svg-icon" src="@/assets/download.png" alt="Download Model" /></button> 
+    <div class="container page-dataset">
+            <div class="columns">
+                <div class="column">
+                    <h1 class="title is-1">{{ model.model_name }}</h1>
+                <div class="columns is-mobile">
+                    <div class="column is-half">
+                    <div class="column is-12">
+                        <h1 class="title is-3">Coordinates:         {{ model.coordinates }}</h1>
+                        <h1 class="title is-3">Description:         {{ model.description }}</h1>
+                        <h1 class="title is-3">Training Dataset:    {{ model.belongs_to_dset }}</h1>
+                        <h1 class="title is-3">Created:             {{ date }} {{ time }}</h1>
+                        <h1 class="title is-3">Model Type:          {{ model.model_type }}</h1>
+                        <button class="button" @click="downloadImage(model.file)"><img class= "svg-icon" src="@/assets/download.png" alt="Download Model" /></button> 
+                    </div>
+                    </div>
+                    <div class="column is-half">
+                    <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading">Delete model</div>
+                    </div>
+                </div>
             </div>
+        </div>
+        <div class="modal is-active modal-background" v-if="deleteAlert">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+            <p class="modal-card-title">Sure you want to delete dataset?</p>
+            </header>
+            <footer class="modal-card-foot">
+            <button class="button is-danger" @click="deleteModel">Delete</button>
+            <button class="button" @click="setDeleteAlert">Cancel</button>
+            </footer>
+        </div>
         </div>
     </div>
 </template>
@@ -18,48 +39,20 @@
 import axios from 'axios'
 import { defineComponent } from 'vue'
 import 'viewerjs/dist/viewer.css'
-import { directive as viewer } from "v-viewer"
 
 export default defineComponent({
     name: 'ModelView',
     directives: {
-      viewer: viewer({
-        debug: true
-      })
  },
     data () {
         return {
             Images: [],
-            items: [],
+            deleteAlert: false,
             model: {},
             model_name: this.$route.params.name,
             index: null,
             date: '',
             time: '',
-            options: {
-                        ready: () => {
-                        this.$viewer = this.$el.querySelector(".images").$viewer;
-                        },
-                        inline: false,
-                        toolbar: {
-                                    oneToOne: true,
-                                    movable: true,
-                                    prev: () => {
-                                    this.$viewer.prev(true);
-                                    },
-                                    play: false,
-                                    next: () => {
-                                    this.$viewer.next(true);
-                                    },
-                                    overlay: () => {
-                                        const viewer = this.$viewer;
-                                        const a = document.createElement("a");
-                                        a.href = viewer.image.src;
-                                        a.download = viewer.image.alt;
-                                        
-                                    }
-                                },
-   },
         }
     },
     created () {
@@ -67,10 +60,25 @@ export default defineComponent({
         this.getModel()
     },
     methods: {
-        show () {
-        const viewer = this.$el.querySelector('.images').$viewer
-        viewer.show()
-      },
+        setDeleteAlert() {
+            if (this.deleteAlert == true) {
+                this.deleteAlert = false
+            } else {
+                this.deleteAlert = true
+            }
+        },
+        async deleteModel() {
+            await axios.delete(`api/v1/models/${this.$route.params.id}/`, 
+                        { headers: {
+                        'X-CSRFToken': '{{ csrftoken }}'
+                                    } 
+                        },
+                        )
+            .then(response => {
+                console.log(response)
+                this.$router.push('/models')
+            })
+        },
         async getModel() {
             await axios.get(`api/v1/models/${this.$route.params.id}`)
             .then(response => {
@@ -150,5 +158,8 @@ export default defineComponent({
 
 .button {
     margin-right: 10px;
+}
+.delete-button {
+    float: right;
 }
 </style>
