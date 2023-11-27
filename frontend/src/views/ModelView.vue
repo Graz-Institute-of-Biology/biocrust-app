@@ -3,26 +3,16 @@
         <div class="columns is-multiline">
             <div class="column is-12">
                 <h1 class="title is-1">{{ model.model_name }}</h1>
-            </div>
-        </div>
-        <div  v-if="!this.$store.loading">
-        <div class="images" v-viewer="options">
-            <img class="image-small" v-for="src in items" :src="src" :key="src">
-            </div>
-        </div>
-        <div v-else>
-            <div class="columns is-multiline">
-                <div class="column is-12">
-                    <h1 class="title is-1">Loading...</h1>
-                </div>
+                <h1 class="title is-3">Coordinates:         {{ model.coordinates }}</h1>
+                <h1 class="title is-3">Description:         {{ model.description }}</h1>
+                <h1 class="title is-3">Training Dataset:    {{ model.belongs_to_dset }}</h1>
+                <h1 class="title is-3">Created:             {{ date }} {{ time }}</h1>
+                <h1 class="title is-3">Model Type:          {{ model.model_type }}</h1>
+                <button class="button" @click="downloadImage(model.file)"><img class= "svg-icon" src="@/assets/download.png" alt="Download Model" /></button> 
             </div>
         </div>
     </div>
-
-
-
 </template>
-
 
 <script>
 import axios from 'axios'
@@ -44,6 +34,8 @@ export default defineComponent({
             model: {},
             model_name: this.$route.params.name,
             index: null,
+            date: '',
+            time: '',
             options: {
                         ready: () => {
                         this.$viewer = this.$el.querySelector(".images").$viewer;
@@ -83,6 +75,10 @@ export default defineComponent({
             await axios.get(`api/v1/models/${this.$route.params.id}`)
             .then(response => {
                 this.model = response.data
+                //console.log(this.model.model_created)
+                this.date = this.model.model_created.split('T')[0]
+                this.time = this.model.model_created.split('T')[1].split('.')[0]
+
             })
             .catch(error => {
                 console.log(error)
@@ -92,16 +88,42 @@ export default defineComponent({
         getUrl(image) {
             const url = `${axios.defaults.baseURL}${image.img}`
             return url
-        }
+        },
+        getFilename(path) {
+        console.log(path)
+        var filename = path.replace(/^.*[\\]/, '')
+        return filename
+        },
+        downloadImage(url) {
+        fetch(url)
+          .then(response => response.blob())
+          .then(blob => {
+            const objectURL = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = objectURL;
+            link.download = this.model.model_name;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.click();
+          })
+        },
     }
 })
-
-
 </script>
 
-
-
 <style scoped>
+.svg-icon {
+    width: 60px;
+    display: inline-block;
+    fill: rgb(71, 62, 62);
+    background: white;
+}
+
+.button {
+    background: white;
+    border: none;
+}
+
 .page-model {
     margin-bottom: 10%;
 }

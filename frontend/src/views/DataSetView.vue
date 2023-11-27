@@ -20,9 +20,6 @@
             </div>
         </div>
     </div>
-
-
-
 </template>
 
 
@@ -114,12 +111,7 @@ export default defineComponent({
         }
     }
 })
-
-
 </script>
-
-
-
 <style scoped>
 .page-dataset {
     margin-bottom: 10%;
