@@ -79,6 +79,7 @@ coverage.xml
 
 # Django stuff:
 staticfiles/
+biocrust_app/datasets/migrations/
 
 # Sphinx documentation
 docs/_build/
@@ -305,3 +306,4 @@ biocrust_app/media/
 .env
 .envs/*
 !.envs/.local/
+
