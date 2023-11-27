@@ -1,12 +1,19 @@
 <template>
-    <div class="page-dataset">
-        <div class="columns is-multiline">
-            <div class="column is-12">
-                <h1 class="title is-1">{{ dataset.dataset_name }}</h1>
-                <RouterLink :to="{ name: 'AddImageView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add images</RouterLink>
-                <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div>
+    <div class="container page-dataset">
+            <div class="columns">
+                <div class="column">
+                    <h1 class="title is-1">{{ dataset.dataset_name }}</h1>
+                <div class="columns is-mobile">
+                    <div class="column is-half">
+                    <RouterLink :to="{ name: 'AddImageView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add images</RouterLink>
+                    <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div>
+                    </div>
+                    <div class="column is-half">
+                    <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading">Delete dataset</div>
+                    </div>
+                </div>
             </div>
-        </div>
+            </div>
         <div  v-if="!this.$store.loading">
         <div class="images" v-viewer="options">
             <img class="image-small" v-for="src in items" :src="src" :key="src">
@@ -18,6 +25,18 @@
                     <h1 class="title is-1">Loading...</h1>
                 </div>
             </div>
+        </div>
+        <div class="modal is-active modal-background" v-if="deleteAlert">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+            <p class="modal-card-title">Sure you want to delete dataset?</p>
+            </header>
+            <footer class="modal-card-foot">
+            <button class="button is-danger" @click="deleteDataset">Delete</button>
+            <button class="button" @click="setDeleteAlert">Cancel</button>
+            </footer>
+        </div>
         </div>
     </div>
 </template>
@@ -41,6 +60,7 @@ export default defineComponent({
             Images: [],
             items: [],
             dataset: {},
+            deleteAlert: false,
             dataset_name: this.$route.params.name,
             index: null,
             options: {
@@ -78,8 +98,27 @@ export default defineComponent({
         const viewer = this.$el.querySelector('.images').$viewer
         viewer.show()
       },
+      setDeleteAlert() {
+        if (this.deleteAlert == true) {
+            this.deleteAlert = false
+        } else {
+            this.deleteAlert = true
+        }
+      },
+      async deleteDataset() {
+        await axios.delete(`api/v1/datasets/${this.$route.params.id}/`, 
+                    { headers: {
+                    'X-CSRFToken': '{{ csrftoken }}'
+                                } 
+                    },
+                    )
+        .then(response => {
+            console.log(response)
+            this.$router.push('/datasets')
+        })
+    },
         async getDataset() {
-            await axios.get(`api/v1/datasets/${this.$route.params.id}`)
+            await axios.get(`api/v1/datasets/${this.$route.params.id}/`)
             .then(response => {
                 this.dataset = response.data
             })
@@ -117,7 +156,7 @@ export default defineComponent({
     margin-bottom: 10%;
 }
 .image-small {
-    height: 500px;
+    height: 250px;
     cursor:pointer;
     margin: 15px;
     display: inline-block;
@@ -139,5 +178,13 @@ export default defineComponent({
 
 .button {
     margin-right: 10px;
+}
+
+.column-header {
+    text-align: center;
+}
+
+.delete-button {
+    float: right;
 }
 </style>
