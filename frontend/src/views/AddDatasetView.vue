@@ -49,7 +49,8 @@ export default {
             dataset: {
                 dataset_name: '',
                 coordinates: '',
-                dataset_type: ''
+                dataset_type: '',
+                owner: localStorage.getItem('username'),
             }
         }
     },
