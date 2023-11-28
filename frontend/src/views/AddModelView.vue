@@ -161,6 +161,7 @@ export default {
         },
         performModelUpload(file, onUploadProgress) {
             let formData = new FormData()
+            console.log("Username uploading model: " + localStorage.getItem('username'))
             formData.append('model_name', this.model.model_name)
             formData.append('slug', this.model.slug)
             formData.append('coordinates', this.model.coordinates)
