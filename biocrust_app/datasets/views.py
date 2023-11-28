@@ -3,8 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets
 
-from biocrust_app.datasets.models import Image_Model, Dataset_Model, Model_Model
-from biocrust_app.datasets.serializers import Image_ModelSerializer, Dataset_ModelSerializer, Model_ModelSerializer
+from biocrust_app.datasets.models import Image_Model, Dataset_Model, Model_Model, Mask_Model
+from biocrust_app.datasets.serializers import Image_ModelSerializer, Dataset_ModelSerializer, Model_ModelSerializer, Mask_ModelSerializer
 
 class Image_ModelList(APIView):
     def get(self, request, format=None):
@@ -40,6 +40,17 @@ class Dataset_ModelViewSet(viewsets.ModelViewSet):
 class Image_ModelViewSet(viewsets.ModelViewSet):
     queryset = Image_Model.objects.all()
     serializer_class = Image_ModelSerializer
+
+    def get_queryset(self):
+        # return self.queryset.filter(created_by=self.request.user)
+        return self.queryset.all()
+    
+    def perform_create(self, serializer):
+        serializer.save()
+
+class Mask_ModelViewSet(viewsets.ModelViewSet):
+    queryset = Mask_Model.objects.all()
+    serializer_class = Mask_ModelSerializer
 
     def get_queryset(self):
         # return self.queryset.filter(created_by=self.request.user)

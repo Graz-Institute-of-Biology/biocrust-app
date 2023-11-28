@@ -6,6 +6,7 @@ from django.core.files import File
 
 class Dataset_Model(models.Model):
     dataset_name = models.CharField(max_length=255, blank=True)
+    owner = models.CharField(max_length=255, blank=True)
     slug = models.SlugField()
     coordinates = models.CharField(max_length=255, blank=True)
     dataset_created = models.DateTimeField(auto_now_add=True)
@@ -44,6 +45,7 @@ class Model_Model(models.Model):
 
 class Image_Model(models.Model):
     dataset = models.ForeignKey(Dataset_Model, related_name='images', on_delete=models.CASCADE)
+    owner = models.CharField(max_length=255, blank=True)
     name = models.CharField(max_length=255, blank=True)
     slug = models.SlugField()
     description = models.TextField(blank=True, null=True)
@@ -90,3 +92,26 @@ class Image_Model(models.Model):
         thumbnail = File(thumb_io, name=image.name)
 
         return thumbnail
+    
+
+
+class Mask_Model(models.Model):
+    dataset = models.ForeignKey(Dataset_Model, related_name='masks', on_delete=models.CASCADE)
+    parent_image = models.ForeignKey(Image_Model, related_name='masks', on_delete=models.CASCADE)
+    name = models.CharField(max_length=255, blank=True)
+    owner = models.CharField(max_length=255, blank=True)
+    slug = models.SlugField()
+    description = models.TextField(blank=True, null=True)
+    mask = models.ImageField(upload_to='masks/')
+    source = models.CharField(max_length=255, blank=True)
+    date_added = models.DateTimeField(auto_now_add=True)
+
+
+    class Meta:
+        ordering = ('-date_added',)
+
+    def __str__(self):
+        return self.name
+    
+    def get_absolute_url(self):
+        return f'/{self.dataset.slug}/{self.slug}/'
