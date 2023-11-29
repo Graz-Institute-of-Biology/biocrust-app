@@ -6,6 +6,7 @@
                 <div class="columns is-mobile">
                     <div class="column is-half">
                     <RouterLink :to="{ name: 'AddImageView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add images</RouterLink>
+                    <RouterLink :to="{ name: 'AddMaskView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add masks</RouterLink>
                     <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div>
                     </div>
                     <div class="column is-half">
@@ -14,11 +15,22 @@
                 </div>
             </div>
             </div>
-        <div  v-if="!this.$store.loading">
-        <div class="images" v-viewer="options">
-            <img class="image-small" v-for="src in items" :src="src" :key="src">
+        <div v-if="!this.$store.loading">
+            <div v-if="!this.setAnalyze && !enlarged" class="image-container" @click="toggleEnlarge">
+                <img :src="this.items[0]" class="image-small">
             </div>
-        </div>
+            <div v-if="this.setAnalyze && !enlarged" class="image-container" @click="toggleEnlarge">
+                <img :src="this.mask_items[0]" class="overlay-mask">
+                <img :src="this.items[0]" class="image-small">
+            </div>
+            <div v-if="!this.setAnalyze" class="image-container" @wheel="handleMouseWheel">
+                <img :src="this.items[0]" class="image-large">
+            </div>
+            <div v-if="this.setAnalyze " class="image-container" @wheel="handleMouseWheel">
+                <img :src="this.mask_items[0]" class="overlay-mask-large" :style="{ transform: `scale(${this.scale})` }">
+                <img :src="this.items[0]" class="image-large" :style="{ transform: `scale(${this.scale})` }">
+            </div>
+            </div>
         <div v-else>
             <div class="columns is-multiline">
                 <div class="column is-12">
@@ -59,6 +71,10 @@ export default defineComponent({
         return {
             Images: [],
             items: [],
+            setAnalyze: false,
+            scale: 1,
+            mask_items: [],
+            enlarged: false,
             dataset: {},
             deleteAlert: false,
             dataset_name: this.$route.params.name,
@@ -98,6 +114,33 @@ export default defineComponent({
         const viewer = this.$el.querySelector('.images').$viewer
         viewer.show()
       },
+      handleMouseWheel(event) {
+      if (this.enlarged) {
+        // Adjust the scale based on the wheel delta
+        this.scale += event.deltaY > 0 ? -0.1 : 0.1;
+
+        // Limit the scale to a reasonable range
+        this.scale = Math.min(Math.max(this.scale, 0.5), 3);
+        console.log(this.scale)
+
+        event.preventDefault();
+        }
+        },
+      toggleEnlarge() {
+        this.scale = 1; // Reset scale when toggling
+        if (this.enlarged == true) {
+            this.enlarged = false
+        } else {
+            this.enlarged = true
+        }
+      },
+      analyze() {
+        if (this.setAnalyze == true) {
+            this.setAnalyze = false
+        } else {
+            this.setAnalyze = true
+        }
+      },
       setDeleteAlert() {
         if (this.deleteAlert == true) {
             this.deleteAlert = false
@@ -112,10 +155,9 @@ export default defineComponent({
                                 } 
                     },
                     )
-        .then(response => {
-            console.log(response)
+        .then(
             this.$router.push('/datasets')
-        })
+        )
     },
         async getDataset() {
             await axios.get(`api/v1/datasets/${this.$route.params.id}/`)
@@ -127,6 +169,7 @@ export default defineComponent({
             })
             console.log("Dataset loaded")
             this.getImages()
+            this.getMasks()
     },
         async getImages() {
                 await axios.get('api/v1/images/')
@@ -136,12 +179,24 @@ export default defineComponent({
                     for (let i = 0; i < img_items.length; i++) {
                         this.items.push(img_items[i].img)
                     }
-                    console.log(this.items)
                 })
                 .catch(error => {
                     console.log(error)
                 })
-                console.log("Images loaded")
+                this.$store.commit('setLoading', false)
+            },
+            async getMasks() {
+                await axios.get('api/v1/masks/')
+                .then(response => {
+                    this.Masks = response.data.filter(mask => mask.dataset == this.$route.params.id)
+                    let mask_items = response.data.filter(mask => mask.dataset == this.$route.params.id)
+                    for (let i = 0; i < mask_items.length; i++) {
+                        this.mask_items.push(mask_items[i].mask)
+                    }
+                })
+                .catch(error => {
+                    console.log(error)
+                })
                 this.$store.commit('setLoading', false)
             },
         getUrl(image) {
@@ -155,25 +210,31 @@ export default defineComponent({
 .page-dataset {
     margin-bottom: 10%;
 }
-.image-small {
-    height: 250px;
-    cursor:pointer;
+.image-container {
+    position: relative;
+}
+.image-small,
+.overlay-mask {
+    position: absolute;
+    height: 500px;
     margin: 15px;
-    display: inline-block;
-    transition: .1s linear;
 }
-.image-small:hover {
-    transform: scale(1.1);
+.image-large,
+.overlay-mask-large {
+    position: absolute;
+    height: 1000px;
+    width: auto;
+    margin: 15px;
+    transform-origin: top left; /* Set the origin for scaling */
 }
-.viewer-overlay::before {
-  content: "download";
-  color: transparent;
-  display: block;
-  font-size: 0;
-  height: 20px;
-  line-height: 0;
-  width: 20px;
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAXBJREFUOE/VlDFLlmEUhq9ra3HoT0RDCOIQEQnVkJRQU4QQJEKBICKmNFWEODRHUxJEaDT1ExxUJFLQpSEcxJ+gIE13PPa9H6+f72cSLr7j85xz3ec+57yPnPHnGfM4x8Ak88AD4ADYVO+dpj2NlpP8AH4CM0APMAX0A88rqLrUJHAMmGQWuK7erCckmQOutc76gA9qW6At1KmS5COwrr47yWKStIRX63FHKkxSlN8CL9T1fwAnChCYVbeOVZjkPvAZWFCfddi9AYyrDzvOR4t1YFktMX/3MMkVYBF40lRZkkZgBU/yFdhRpyvgBvBG/dZkswV8rD7tcj8EjKl3K+AucEv91SVhABhRR7rcvwQuqpMVcBIYVO909OgL8B0oQo+AfeBSfaWS9JbFB4bVxfaUk6wAe8Ca+rrWn/fAVWD7sOm1wST5BNwGXqllOEcfhySlist1YGtoJfFCw5THgHn1d9fFPs3/elLMOX6+/tf6HzsPjRVd/9/RAAAAAElFTkSuQmCC);
+.overlay-mask {
+    z-index: 1;
+    opacity: 0.6;
+}
+.overlay-mask-large {
+    z-index: 1;
+    opacity: 0.6;
+    transform-origin: top left; /* Set the origin for scaling */
 }
 
 .button {

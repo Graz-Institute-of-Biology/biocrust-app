@@ -12,6 +12,7 @@ import LogOutView from '../views/LogOutView.vue'
 import ModelsView from '../views/ModelsView.vue'
 import ModelView from '../views/ModelView.vue'
 import AddModelView from '../views/AddModelView.vue'
+import AddMaskView from '../views/AddMaskView.vue'
 import store from '../store'
 
 const routes = [
@@ -74,6 +75,11 @@ const routes = [
         path: '/addImage/:id',
         name: 'AddImageView',
         component: AddImageView
+    },
+    {
+        path: '/addMask/:id',
+        name: 'AddMaskView',
+        component: AddMaskView
     },
     {
         path: '/:pathMatch(.*)*',

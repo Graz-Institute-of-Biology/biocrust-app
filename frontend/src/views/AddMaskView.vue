@@ -3,13 +3,13 @@
         <div class="page-add-dataset">
             <div class="columns is-multiline">
                 <div class="column is-12">
-                    <h1 class="title is-1">Add Image(s)</h1>
+                    <h1 class="title is-1">Add Mask(s)</h1>
                 </div>
                 <div class="column is-6">
                         <div class="field">
                             <label class="label">Description</label>
                             <div class="control">
-                                <input class="input" type="text" placeholder="Description" v-model="image.description">
+                                <input class="input" type="text" placeholder="Description" v-model="mask.description">
                             </div>
                         </div>
                 </div>
@@ -25,9 +25,10 @@
                 <span class="file-cta">
                     <span class="file-label">Choose a file...</span>
                 </span>
+                <button class="button is-primary mt-2" @click="searchParent">Search</button>
             </label>
         </div>
-        <button class="button is-primary mt-2" v-if="document" @click="imageUpload">Upload</button>
+        <button class="button is-primary mt-2" v-if="document" @click="maskUpload">Upload</button>
         <div class="notification mt-6" v-if="message">
             {{ message }}
         </div>
@@ -47,11 +48,16 @@ export default {
             document: null,
             dataset_id: this.$route.params.id,
             dataset: {},
-            image: {
+            Images: [],
+            img_names : [],
+            mask: {
                 name: '',
-                description: '',
+                owner: '',
                 slug: '',
-                dataset: ''
+                dataset: '',
+                description: '',
+                parentImage: '',
+                source: '',            
             },
             }
         },
@@ -59,13 +65,16 @@ export default {
     },
     mounted() {
         this.getDatasets()
+        this.getImages()
     },
     methods : {
         addInfos() {
-            this.image.dataset = this.$route.params.id
-            this.image.name = this.document.name.split('.')[0] // remove file extension and add filename as image name
-            this.image.slug = this.image.name.toLowerCase()
-            console.log(this.image)
+            this.mask.name = this.document.name.split('.')[0] // remove file extension and add filename as image name
+            this.mask.owner = localStorage.getItem('username')
+            this.mask.slug = this.mask.name.toLowerCase()
+            this.mask.dataset = this.$route.params.id
+            this.mask.parentImage = this.searchParent()
+            this.mask.source = 'manual upload'
 
         },
         selectFile() {
@@ -85,10 +94,10 @@ export default {
                 console.log(error)
             })
         },
-        async imageUpload() {
+        async maskUpload() {
             this.progress = 0
             this.addInfos()
-            await this.performImageUpload(this.document, event => {
+            await this.performMaskUpload(this.document, event => {
                 this.progress = Math.round((100 * event.loaded) / event.total)
             })
             .then(response => {
@@ -103,19 +112,21 @@ export default {
                 this.progress = 0
                 console.log(error)
             })
-            this.$store.commit('setImagesUploaded', 1)
+            // this.$store.commit('setMasksUploaded', 1)
             this.$router.push({ name: 'DataSetView', params: { id: this.dataset_id } })            
         },
-        performImageUpload(file, onUploadProgress) {
+        performMaskUpload(file, onUploadProgress) {
             let formData = new FormData()
-            formData.append('img', file)
-            formData.append('name', this.image.name)
-            formData.append('owner', localStorage.getItem('username'))
-            formData.append('description', this.image.description)
-            formData.append('slug', this.image.slug)
-            formData.append('dataset', this.image.dataset)
+            formData.append('mask', file)
+            formData.append('name', this.mask.name)
+            formData.append('parent_image', this.mask.parentImage)
+            formData.append('owner', this.mask.owner)
+            formData.append('description', this.mask.description)
+            formData.append('slug', this.mask.slug)
+            formData.append('dataset', this.mask.dataset)
+            formData.append('source', this.mask.source)
             console.log(formData)
-            return axios.post('api/v1/images/', formData, {
+            return axios.post('api/v1/masks/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'X-CSRFToken': '{{ csrftoken }}'
@@ -123,6 +134,32 @@ export default {
                 onUploadProgress
             })
         },
+        getParentImageName(name) {
+            var parent_image = name.split('_mask')[0]
+            return parent_image
+        },
+        searchParent() {
+            var parent_image_name = this.getParentImageName(this.document.name)
+            for (let i = 0; i < this.img_names.length; i++) {
+                if (this.img_names[i] == parent_image_name) {
+                    return this.Images[i].id
+                }
+            }
+        },
+        async getImages() {
+                await axios.get('api/v1/images/')
+                .then(response => {
+                    this.Images = response.data.filter(image => image.dataset == this.$route.params.id)
+                    let img_items = response.data.filter(image => image.dataset == this.$route.params.id)
+                    for (let i = 0; i < img_items.length; i++) {
+                        this.img_names.push(img_items[i].name)
+                    }
+                })
+                .catch(error => {
+                    console.log(error)
+                })
+                this.$store.commit('setLoading', false)
+            },
     }
 }
 
