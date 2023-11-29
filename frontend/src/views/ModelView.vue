@@ -1,5 +1,5 @@
 <template>
-    <div class="container page-dataset">
+        <div class="container page-dataset">
             <div class="columns">
                 <div class="column">
                     <h1 class="title is-1">{{ model.model_name }}</h1>
@@ -102,7 +102,7 @@ export default defineComponent({
         var filename = path.replace(/^.*[\\]/, '')
         return filename
         },
-        downloadImage(url) {
+        downloadModel(url) {
         fetch(url)
           .then(response => response.blob())
           .then(blob => {

@@ -4,17 +4,18 @@
             <div class="column is-12">
                 <h1 class="title is-1">Add Dataset</h1>
             </div>
+            <form class="columns is-multiline" @submit.prevent="submitForm">
             <div class="column is-6">
                     <div class="field">
                         <label class="label">Dataset Name</label>
                         <div class="control">
-                            <input class="input" type="text" placeholder="Dataset Name" v-model="dataset.dataset_name">
+                            <input class="input" type="text" placeholder="Dataset Name" v-model="dataset.dataset_name" required>
                         </div>
                     </div>
                     <div class="field">
                         <label class="label">Coordinates</label>
                         <div class="control">
-                            <input class="input" type="text" placeholder="Coordinates [Long / Lat]" v-model="dataset.coordinates">
+                            <input class="input" type="text" placeholder="Coordinates [Long / Lat]" v-model="dataset.coordinates" required>
                         </div>
                     </div>
             </div>
@@ -23,17 +24,19 @@
                     <div class="field">
                         <label class="label">Dataset Type</label>
                         <div class="control">
-                            <input class="input" type="text" placeholder="Dataset Type eg. Biocrust" v-model="dataset.dataset_type">
+                            <input class="input" type="text" placeholder="Dataset Type eg. Biocrust" v-model="dataset.dataset_type" required>
                         </div>
                     </div>
                 </div>
                 <div class="column is-12">
                     <div class="field">
                         <div class="control">
-                            <button class="button is-success" @click="submitForm">Submit</button>
+                            <!-- <button class="button is-success" @click="submitForm">Submit</button> -->
+                            <button class="button is-success" type="submit">Submit</button>
                         </div>
                     </div>
                 </div>
+            </form>
         </div>
     </div>
 </template>
