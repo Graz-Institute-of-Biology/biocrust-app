@@ -8,7 +8,7 @@
                 <h1 class="title is-3">Training Dataset:    {{ model.belongs_to_dset }}</h1>
                 <h1 class="title is-3">Created:             {{ date }} {{ time }}</h1>
                 <h1 class="title is-3">Model Type:          {{ model.model_type }}</h1>
-                <button class="button" @click="downloadImage(model.file)"><img class= "svg-icon" src="@/assets/download.png" alt="Download Model" /></button> 
+                <button class="button" @click="downloadModel(model.file)"><img class= "svg-icon" src="@/assets/download.png" alt="Download Model" /></button> 
             </div>
         </div>
     </div>
@@ -94,7 +94,7 @@ export default defineComponent({
         var filename = path.replace(/^.*[\\]/, '')
         return filename
         },
-        downloadImage(url) {
+        downloadModel(url) {
         fetch(url)
           .then(response => response.blob())
           .then(blob => {

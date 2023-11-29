@@ -82,8 +82,7 @@ export default defineComponent({
                                         const viewer = this.$viewer;
                                         const a = document.createElement("a");
                                         a.href = viewer.image.src;
-                                        a.download = viewer.image.alt;
-                                        
+                                        a.download = viewer.image.alt; 
                                     }
                                 },
    },

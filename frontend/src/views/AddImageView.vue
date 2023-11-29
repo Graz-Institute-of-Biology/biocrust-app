@@ -50,6 +50,7 @@ export default {
         return {
             progress: 0,
             message: '',
+            file_extension: '',
             document: null,
             dataset_id: this.$route.params.id,
             dataset: {},
@@ -75,6 +76,13 @@ export default {
         },
         selectFile() {
             this.document = this.$refs.file.files[0]
+            this.file_extension = this.document.name.split('.')[1]
+            if (this.file_extension.toLowerCase() == 'png' || this.file_extension.toLowerCase() == 'jpg') {
+                this.message = "File is valid!";
+            } else {
+                this.message = "File is invalid";
+                this.document = null
+            }
         },
         async getDatasets() {
             await axios.get('api/v1/datasets/')
@@ -93,23 +101,29 @@ export default {
         async imageUpload() {
             this.progress = 0
             this.addInfos()
-            await this.performImageUpload(this.document, event => {
-                this.progress = Math.round((100 * event.loaded) / event.total)
-            })
-            .then(response => {
-                this.message = 'File uploaded successfully!'
+            if (this.file_extension.toLowerCase() == 'png' || this.file_extension.toLowerCase() == 'jpg') {
+                this.message = "File is valid!";
+                await this.performImageUpload(this.document, event => {
+                    this.progress = Math.round((100 * event.loaded) / event.total)
+                })
+                .then(response => {
+                    this.message = 'File uploaded successfully!'
+                    this.document = null
+                    this.progress = 0
+                    console.log(response)
+                })
+                .catch(error => {
+                    this.message = 'Could not upload file!'
+                    this.document = null
+                    this.progress = 0
+                    console.log(error)
+                })
+                this.$store.commit('setImagesUploaded', 1)
+                this.$router.push({ name: 'DataSetView', params: { id: this.dataset_id } })       
+            } else {
+                this.message = "File extension is invalid. Supported file types are '.png' or '.jpg'!" ;
                 this.document = null
-                this.progress = 0
-                console.log(response)
-            })
-            .catch(error => {
-                this.message = 'Could not upload file!'
-                this.document = null
-                this.progress = 0
-                console.log(error)
-            })
-            this.$store.commit('setImagesUploaded', 1)
-            this.$router.push({ name: 'DataSetView', params: { id: this.dataset_id } })            
+            }     
         },
         performImageUpload(file, onUploadProgress) {
             let formData = new FormData()
