@@ -7,6 +7,7 @@
                     <div class="column is-half">
                     <RouterLink :to="{ name: 'AddImageView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add images</RouterLink>
                     <RouterLink :to="{ name: 'AddMaskView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add masks</RouterLink>
+                    <div class="button is-success" @click="showOverlay" v-if="!this.$store.loading">Show Overlay</div>
                     <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div>
                     </div>
                     <div class="column is-half">
@@ -16,17 +17,17 @@
             </div>
             </div>
         <div v-if="!this.$store.loading">
-            <div v-if="!this.setAnalyze && !enlarged" class="image-container" @click="toggleEnlarge">
+            <div v-if="!this.setOverly && !enlarged" class="image-container" @click="toggleEnlarge">
                 <img :src="this.items[0]" class="image-small">
             </div>
-            <div v-if="this.setAnalyze && !enlarged" class="image-container" @click="toggleEnlarge">
+            <div v-if="this.setOverly && !enlarged" class="image-container" @click="toggleEnlarge">
                 <img :src="this.mask_items[0]" class="overlay-mask">
                 <img :src="this.items[0]" class="image-small">
             </div>
-            <div v-if="!this.setAnalyze" class="image-container" @wheel="handleMouseWheel">
+            <div v-if="!this.setOverly && enlarged" class="image-container" @click="toggleEnlarge" @wheel="handleMouseWheel">
                 <img :src="this.items[0]" class="image-large">
             </div>
-            <div v-if="this.setAnalyze " class="image-container" @wheel="handleMouseWheel">
+            <div v-if="this.setOverly && enlarged" class="image-container" @click="toggleEnlarge" @wheel="handleMouseWheel">
                 <img :src="this.mask_items[0]" class="overlay-mask-large" :style="{ transform: `scale(${this.scale})` }">
                 <img :src="this.items[0]" class="image-large" :style="{ transform: `scale(${this.scale})` }">
             </div>
@@ -71,7 +72,7 @@ export default defineComponent({
         return {
             Images: [],
             items: [],
-            setAnalyze: false,
+            setOverly: false,
             scale: 1,
             mask_items: [],
             enlarged: false,
@@ -98,7 +99,8 @@ export default defineComponent({
                                         const viewer = this.$viewer;
                                         const a = document.createElement("a");
                                         a.href = viewer.image.src;
-                                        a.download = viewer.image.alt; 
+                                        a.download = viewer.image.alt;
+                                        
                                     }
                                 },
    },
@@ -133,11 +135,11 @@ export default defineComponent({
             this.enlarged = true
         }
       },
-      analyze() {
-        if (this.setAnalyze == true) {
-            this.setAnalyze = false
+      showOverlay() {
+        if (this.setOverly == true) {
+            this.setOverly = false
         } else {
-            this.setAnalyze = true
+            this.setOverly = true
         }
       },
       setDeleteAlert() {
