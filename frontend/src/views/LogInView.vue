@@ -63,12 +63,13 @@ export default {
                 password: this.password
             }
 
-            axios.post('api/v1/token/login/', formData, { headers: { 'Content-Type': 'application/json' } })
+            await axios.post('api/v1/token/login/', formData, { headers: { 'Content-Type': 'application/json' } })
             .then(response => {
                 const token = response.data.auth_token
                 store.commit('setToken', token)
                 axios.defaults.headers.common['Authorization'] = 'Token ' + token
                 localStorage.setItem('token', token)
+                localStorage.setItem('username', this.username)
 
                 this.$router.push('/datasets')
             })

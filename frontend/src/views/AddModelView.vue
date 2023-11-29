@@ -108,7 +108,7 @@ export default {
         selectFile() {
             this.document = this.$refs.file.files[0]
             this.file_extension = this.document.name.split('.')[1]
-            if (this.file_extension == 'png' || this.file_extension == 'jpg') {
+            if (this.file_extension.toLocaleLowerCase() == 'png' || this.file_extension.toLocaleLowerCase() == 'jpg') {
                 this.message = "File is valid!";
             } else {
                 this.message = "File is invalid";
@@ -133,7 +133,7 @@ export default {
         async modelUpload() {
             this.progress = 0
             this.addInfos()
-            if (this.file_extension == 'png' || this.file_extension == 'jpg') {
+            if (this.file_extension.toLocaleLowerCase() == 'png' || this.file_extension.toLocaleLowerCase() == 'jpg') {
                 this.message = "File is valid!";
             
                 await this.performModelUpload(this.document, event => {
@@ -161,6 +161,7 @@ export default {
         },
         performModelUpload(file, onUploadProgress) {
             let formData = new FormData()
+            console.log("Username uploading model: " + localStorage.getItem('username'))
             formData.append('model_name', this.model.model_name)
             formData.append('slug', this.model.slug)
             formData.append('coordinates', this.model.coordinates)

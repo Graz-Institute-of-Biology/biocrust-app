@@ -129,6 +129,7 @@ export default {
             let formData = new FormData()
             formData.append('img', file)
             formData.append('name', this.image.name)
+            formData.append('owner', localStorage.getItem('username'))
             formData.append('description', this.image.description)
             formData.append('slug', this.image.slug)
             formData.append('dataset', this.image.dataset)
