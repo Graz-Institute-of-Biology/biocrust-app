@@ -1,7 +1,11 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from PIL import Image
+from io import BytesIO
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.files.base import ContentFile
 
 from biocrust_app.datasets.models import Image_Model, Dataset_Model, Model_Model, Mask_Model
 from biocrust_app.datasets.serializers import Image_ModelSerializer, Dataset_ModelSerializer, Model_ModelSerializer, Mask_ModelSerializer
@@ -48,6 +52,7 @@ class Image_ModelViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save()
 
+
 class Mask_ModelViewSet(viewsets.ModelViewSet):
     queryset = Mask_Model.objects.all()
     serializer_class = Mask_ModelSerializer
@@ -56,8 +61,43 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
         # return self.queryset.filter(created_by=self.request.user)
         return self.queryset.all()
     
+    #def perform_create(self, serializer):
+    #    serializer.save()
+
+    def convert_to_grayscale(self, image):
+        img = Image.open(image)
+        # Convert the image to grayscale
+        grayscale_img = img.convert("L")
+        #grayscale_img.save("./gray.jpg")         # Save the grayscale image to BytesIO
+        output = BytesIO()
+        grayscale_img.save(output, format='PNG')
+
+        return output
+    
     def perform_create(self, serializer):
-        serializer.save()
+        original_mask = serializer.validated_data.get('mask')
+        grayscale_mask = self.convert_to_grayscale(original_mask)
+
+        grayscale_mask_data = {
+            'dataset': serializer.validated_data.get('dataset').id,
+            'parent_image': serializer.validated_data.get('parent_image').id,
+            'name': serializer.validated_data.get('name'),
+            'owner': serializer.validated_data.get('owner'),
+            'slug': serializer.validated_data.get('slug'),
+            'mask': ContentFile(grayscale_mask.getvalue(), name=f"{serializer.validated_data.get('name')}_mask.png"),
+        }
+        with open('./log.txt', 'a+') as f:
+            f.write('mask_data: ')
+            f.write('\n')
+            f.write(str(grayscale_mask_data))
+            f.write('\n')
+        grayscale_mask_serializer = Mask_ModelSerializer(data=grayscale_mask_data)
+        if grayscale_mask_serializer.is_valid():
+            grayscale_mask_serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(grayscale_mask_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class Model_ModelViewSet(viewsets.ModelViewSet):
     queryset = Model_Model.objects.all()
@@ -69,3 +109,4 @@ class Model_ModelViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         serializer.save()
+    

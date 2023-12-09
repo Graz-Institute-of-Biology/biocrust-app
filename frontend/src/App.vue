@@ -10,11 +10,9 @@
               <template v-if="$store.state.isAuthenticated">
                 <RouterLink to="/datasets" class="navbar-item">Datasets</RouterLink>
                 <RouterLink to="/models" class="navbar-item">Models</RouterLink>
-
                 <RouterLink to="/logout" class="navbar-item">My Account</RouterLink>
                 <RouterLink to="/about" class="navbar-item">About</RouterLink>
               </template>
-
               <template v-else>
                 <RouterLink to="/signup" class="navbar-item">Sign Up</RouterLink>
                 <RouterLink to="/login" class="navbar-item">Log in</RouterLink>

@@ -307,3 +307,4 @@ biocrust_app/media/
 .envs/*
 !.envs/.local/
 
+log.txt

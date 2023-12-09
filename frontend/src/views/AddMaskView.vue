@@ -6,12 +6,12 @@
                     <h1 class="title is-1">Add Mask(s)</h1>
                 </div>
                 <div class="column is-6">
-                        <div class="field">
-                            <label class="label">Description</label>
-                            <div class="control">
-                                <input class="input" type="text" placeholder="Description" v-model="mask.description">
-                            </div>
+                    <div class="field">
+                        <label class="label">Description</label>
+                        <div class="control">
+                            <input class="input" type="text" placeholder="Description" v-model="mask.description">
                         </div>
+                    </div>
                 </div>
             </div>
             <div v-if="document" class="progress mb-6">
@@ -21,7 +21,6 @@
         <div class="file">
             <label class="file-label">
                 <input type="file" ref="file" class="file-input" @change="selectFile">
-
                 <span class="file-cta">
                     <span class="file-label">Choose a file...</span>
                 </span>
@@ -77,9 +76,11 @@ export default {
             this.mask.source = 'manual upload'
 
         },
+
         selectFile() {
             this.document = this.$refs.file.files[0]
         },
+
         async getDatasets() {
             await axios.get('api/v1/datasets/')
             .then(response => {
@@ -94,6 +95,7 @@ export default {
                 console.log(error)
             })
         },
+
         async maskUpload() {
             this.progress = 0
             this.addInfos()
@@ -115,7 +117,9 @@ export default {
             // this.$store.commit('setMasksUploaded', 1)
             this.$router.push({ name: 'DataSetView', params: { id: this.dataset_id } })            
         },
+
         performMaskUpload(file, onUploadProgress) {
+            console.log(file)
             let formData = new FormData()
             formData.append('mask', file)
             formData.append('name', this.mask.name)
@@ -125,7 +129,6 @@ export default {
             formData.append('slug', this.mask.slug)
             formData.append('dataset', this.mask.dataset)
             formData.append('source', this.mask.source)
-            console.log(formData)
             return axios.post('api/v1/masks/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -134,10 +137,12 @@ export default {
                 onUploadProgress
             })
         },
+
         getParentImageName(name) {
             var parent_image = name.split('_mask')[0]
             return parent_image
         },
+
         searchParent() {
             var parent_image_name = this.getParentImageName(this.document.name)
             for (let i = 0; i < this.img_names.length; i++) {
@@ -146,6 +151,7 @@ export default {
                 }
             }
         },
+
         async getImages() {
                 await axios.get('api/v1/images/')
                 .then(response => {
@@ -159,11 +165,9 @@ export default {
                     console.log(error)
                 })
                 this.$store.commit('setLoading', false)
-            },
+        },
     }
 }
-
-
 </script>
 
 

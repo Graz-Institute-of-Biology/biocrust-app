@@ -3,19 +3,16 @@
             <div class="columns">
                 <div class="column">
                     <h1 class="title is-1">{{ dataset.dataset_name }}</h1>
-                <div class="columns is-mobile">
-                    <div class="column is-half">
-                        <RouterLink :to="{ name: 'AddImageView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add images</RouterLink>
-                        <RouterLink :to="{ name: 'AddMaskView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add masks</RouterLink>
-                        <RouterLink :to="{ name: 'AnalyzeImagesView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Analyze images</RouterLink>
-                        <div class="button is-success" @click="showOverlay" v-if="!this.$store.loading">Show Overlay</div>
+                    <div class="columns is-mobile">
+                        <div class="column is-half">
+                        <div class="button is-success" @click="maskUpload" v-if="!this.$store.loading">Analyze</div>
                         <!-- <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div> -->
+                        </div>
+                        <div class="column is-half">
+                        <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading">Delete dataset</div>
                     </div>
-                    <div class="column is-half">
-                    <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading">Delete dataset</div>
                     </div>
                 </div>
-            </div>
             </div>
         <div v-if="!this.$store.loading">
             <div v-if="!this.setOverly && !enlarged" class="image-container" @click="toggleEnlarge">
@@ -68,7 +65,7 @@ export default defineComponent({
       viewer: viewer({
         debug: true
       })
-    },
+ },
     data () {
         return {
             Images: [],
@@ -81,6 +78,16 @@ export default defineComponent({
             deleteAlert: false,
             dataset_name: this.$route.params.name,
             index: null,
+            file: null,
+            mask: {
+                name: '',
+                owner: '',
+                slug: '',
+                dataset: '',
+                description: '',
+                parentImage: '',
+                source: '',            
+            },
             options: {
                         ready: () => {
                         this.$viewer = this.$el.querySelector(".images").$viewer;
@@ -113,48 +120,30 @@ export default defineComponent({
     },
     methods: {
         show () {
-        const viewer = this.$el.querySelector('.images').$viewer
-        viewer.show()
+            const viewer = this.$el.querySelector('.images').$viewer
+            viewer.show()
         },
-
         handleMouseWheel(event) {
-            if (this.enlarged) {
-                // Adjust the scale based on the wheel delta
-                this.scale += event.deltaY > 0 ? -0.1 : 0.1;
+        if (this.enlarged) {
+            // Adjust the scale based on the wheel delta
+            this.scale += event.deltaY > 0 ? -0.1 : 0.1;
 
-                // Limit the scale to a reasonable range
-                this.scale = Math.min(Math.max(this.scale, 0.5), 3);
-                console.log(this.scale)
+            // Limit the scale to a reasonable range
+            this.scale = Math.min(Math.max(this.scale, 0.5), 3);
 
-                event.preventDefault();
+            event.preventDefault();
             }
         },
-
         toggleEnlarge() {
             this.scale = 1; // Reset scale when toggling
             this.enlarged != this.enlarged
         },
-
         showOverlay() {
             this.setOverly != this.setOverly
         },
-
         setDeleteAlert() {
             this.deleteAlert != this.deleteAlert
         },
-
-        async deleteDataset() {
-            await axios.delete(`api/v1/datasets/${this.$route.params.id}/`, 
-                        { headers: {
-                        'X-CSRFToken': '{{ csrftoken }}'
-                                    } 
-                        },
-                        )
-            .then(
-                this.$router.push('/datasets')
-            )
-        },
-
         async getDataset() {
             await axios.get(`api/v1/datasets/${this.$route.params.id}/`)
             .then(response => {
@@ -167,7 +156,6 @@ export default defineComponent({
             this.getImages()
             this.getMasks()
         },
-
         async getImages() {
                 await axios.get('api/v1/images/')
                 .then(response => {
@@ -181,6 +169,33 @@ export default defineComponent({
                     console.log(error)
                 })
                 this.$store.commit('setLoading', false)
+        },
+        async addInfos() {
+            if (!this.mask) {
+            this.mask = {}
+            }
+            await this.getImages()
+            this.mask.owner = localStorage.getItem('username')
+            this.mask.name = this.Images[0].name.split('.')[0]
+            this.mask.slug = this.mask.name.toLowerCase()
+            this.mask.dataset = this.$route.params.id
+            this.mask.parentImage = this.Images[0].id
+            this.mask.source = 'analyzed image' 
+        },
+
+        createFileObjectFromUrl(fileUrl) {
+            const fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1)
+            return new Promise((resolve, reject) => {
+                fetch(fileUrl)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const file = new File([blob], fileName)
+                        resolve(file);
+                    })
+                    .catch(error => {
+                        reject(error)
+                    })
+            })
         },
 
         async getMasks() {
@@ -198,6 +213,56 @@ export default defineComponent({
             this.$store.commit('setLoading', false)
         },
 
+        async maskUpload() {
+            this.progress = 0
+            await this.addInfos()
+            await this.createFileObjectFromUrl(this.Images[0].img)
+            .then(file => {
+                this.file = file
+                console.log('file')
+                console.log(file)
+            })
+            .catch(error => {
+                console.error(error)
+            })
+            await this.performMaskUpload(this.file, event => {
+                this.progress = Math.round((100 * event.loaded) / event.total)
+            })
+            .then(response => {
+                this.message = 'File uploaded successfully!'
+                this.mask = null
+                this.progress = 0
+                console.log(response)
+            })
+            .catch(error => {
+                this.message = 'Could not upload file!'
+                this.mask = null
+                this.progress = 0
+                console.log(error)
+            })                      
+        },
+
+        performMaskUpload(file, onUploadProgress) {
+            console.log('upload')
+            console.log(file)
+            let formData = new FormData()
+            formData.append('mask', file)
+            formData.append('name', this.mask.name)
+            formData.append('parent_image', this.mask.parentImage)
+            formData.append('owner', this.mask.owner)
+            formData.append('description', this.mask.description)
+            formData.append('slug', this.mask.slug)
+            formData.append('dataset', this.mask.dataset)
+            formData.append('source', this.mask.source)
+            return axios.post('api/v1/masks/', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'X-CSRFToken': '{{ csrftoken }}'
+                },
+                onUploadProgress
+            })
+        },
+        
         getUrl(image) {
             const url = `${axios.defaults.baseURL}${image.img}`
             return url

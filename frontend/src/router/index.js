@@ -13,6 +13,7 @@ import ModelsView from '../views/ModelsView.vue'
 import ModelView from '../views/ModelView.vue'
 import AddModelView from '../views/AddModelView.vue'
 import AddMaskView from '../views/AddMaskView.vue'
+import AnalyzeImagesView from '../views/AnalyzeImagesView.vue'
 import store from '../store'
 
 const routes = [
@@ -80,6 +81,11 @@ const routes = [
         path: '/addMask/:id',
         name: 'AddMaskView',
         component: AddMaskView
+    },
+    {
+        path: '/analyze/:id',
+        name: 'AnalyzeImagesView',
+        component: AnalyzeImagesView
     },
     {
         path: '/:pathMatch(.*)*',

@@ -15,9 +15,9 @@
                     :key = model.id
                 >
                 <div class="box is-3">
-                        <h3 class="is-size-2"> {{ model.model_name }} </h3>
-                        <p> {{ model.model_type }} </p>
-                        <RouterLink :to="{ name: 'ModelView', params: { id: model.id }}" class="button is-link">Details</RouterLink>
+                    <h3 class="is-size-2"> {{ model.model_name }} </h3>
+                    <p> {{ model.model_type }} </p>
+                    <RouterLink :to="{ name: 'ModelView', params: { id: model.id }}" class="button is-link">Details</RouterLink>
                 </div>                
             </div>
         </div>

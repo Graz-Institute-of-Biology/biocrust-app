@@ -67,6 +67,7 @@ export default defineComponent({
                 this.deleteAlert = true
             }
         },
+
         async deleteModel() {
             await axios.delete(`api/v1/models/${this.$route.params.id}/`, 
                         { headers: {
@@ -79,6 +80,7 @@ export default defineComponent({
                 this.$router.push('/models')
             })
         },
+
         async getModel() {
             await axios.get(`api/v1/models/${this.$route.params.id}`)
             .then(response => {
@@ -92,16 +94,19 @@ export default defineComponent({
                 console.log(error)
             })
             console.log("Model loaded")
-    },
+        },
+
         getUrl(image) {
             const url = `${axios.defaults.baseURL}${image.img}`
             return url
         },
+
         getFilename(path) {
         console.log(path)
         var filename = path.replace(/^.*[\\]/, '')
         return filename
         },
+
         downloadModel(url) {
         fetch(url)
           .then(response => response.blob())
@@ -126,7 +131,6 @@ export default defineComponent({
     fill: rgb(71, 62, 62);
     background: white;
 }
-
 .button {
     background: white;
     border: none;
