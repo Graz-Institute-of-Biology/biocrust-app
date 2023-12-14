@@ -26,7 +26,9 @@ class Mask_ModelSerializer(serializers.ModelSerializer):
                   'date_added',
                   'dataset',
                   'parent_image',
-                  'source'
+                  'source_labelbox',
+                  'source_model',
+                  'source_manual'
                   )
         
 class Dataset_ModelSerializer(serializers.ModelSerializer):

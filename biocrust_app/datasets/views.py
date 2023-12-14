@@ -6,6 +6,7 @@ from PIL import Image
 from io import BytesIO
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.files.base import ContentFile
+from django.shortcuts import get_object_or_404
 
 from biocrust_app.datasets.models import Image_Model, Dataset_Model, Model_Model, Mask_Model
 from biocrust_app.datasets.serializers import Image_ModelSerializer, Dataset_ModelSerializer, Model_ModelSerializer, Mask_ModelSerializer
@@ -86,11 +87,23 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
             'slug': serializer.validated_data.get('slug'),
             'mask': ContentFile(grayscale_mask.getvalue(), name=f"{serializer.validated_data.get('name')}_mask.png"),
         }
+
+        model_id = serializer.validated_data.get('source_model').id
+        filename = serializer.validated_data.get('source_model').model_name
+        path = serializer.validated_data.get('source_model').file
+
+        model_instance = get_object_or_404(Model_Model, id=model_id)
+        file_content = model_instance.file.read()
+        model_name = model_instance.model_name
+
         with open('./log.txt', 'a+') as f:
-            f.write('mask_data: ')
+            f.write('model_name: ')
+            f.write(str(model_name))
             f.write('\n')
-            f.write(str(grayscale_mask_data))
+            f.write(str(filename))
             f.write('\n')
+            f.write(str(path))
+
         grayscale_mask_serializer = Mask_ModelSerializer(data=grayscale_mask_data)
         if grayscale_mask_serializer.is_valid():
             grayscale_mask_serializer.save()

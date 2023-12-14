@@ -103,8 +103,11 @@ class Mask_Model(models.Model):
     slug = models.SlugField()
     description = models.TextField(blank=True, null=True)
     mask = models.ImageField(upload_to='masks/')
-    source = models.CharField(max_length=255, blank=True)
+    source_labelbox = models.CharField(max_length=255, blank=True, null=True)
+    source_model = models.ForeignKey(Model_Model, blank=True, null=True, related_name='masks', on_delete=models.CASCADE)
+    source_manual = models.CharField(max_length=255, blank=True, null=True)
     date_added = models.DateTimeField(auto_now_add=True)
+    is_categorical = models.BooleanField(default=True)
 
 
     class Meta:
