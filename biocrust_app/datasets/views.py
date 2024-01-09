@@ -77,6 +77,8 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         original_mask = serializer.validated_data.get('mask')
+
+        # Convert to grayscale and save image as a test
         grayscale_mask = self.convert_to_grayscale(original_mask)
 
         grayscale_mask_data = {
@@ -88,21 +90,35 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
             'mask': ContentFile(grayscale_mask.getvalue(), name=f"{serializer.validated_data.get('name')}_mask.png"),
         }
 
-        model_id = serializer.validated_data.get('source_model').id
-        filename = serializer.validated_data.get('source_model').model_name
-        path = serializer.validated_data.get('source_model').file
-
-        model_instance = get_object_or_404(Model_Model, id=model_id)
-        file_content = model_instance.file.read()
-        model_name = model_instance.model_name
-
         with open('./log.txt', 'a+') as f:
-            f.write('model_name: ')
-            f.write(str(model_name))
-            f.write('\n')
-            f.write(str(filename))
-            f.write('\n')
-            f.write(str(path))
+                f.write('source: ')
+                f.write(str(serializer.validated_data.get('source_model')))
+
+        if serializer.validated_data.get('source_model'):
+            model_id = serializer.validated_data.get('source_model').id
+            filename = serializer.validated_data.get('source_model').model_name
+            path = serializer.validated_data.get('source_model').file
+
+            model_instance = get_object_or_404(Model_Model, id=model_id)
+            file_content = model_instance.file.read()
+            model_name = model_instance.model_name
+
+            with open('./log.txt', 'a+') as f:
+                f.write('model_name: ')
+                f.write(str(model_name))
+                f.write('\n')
+                f.write(str(filename))
+                f.write('\n')
+                f.write(str(path))
+
+        if serializer.validated_data.get('source_manual'):
+            with open('./log.txt', 'a+') as f:
+                f.write('Mask manually uploaded!')
+                f.write('\n')
+                f.write('source: ')
+                f.write(str(serializer.validated_data.get('source_model')))
+
+        # Placeholder for model application (function comes here)
 
         grayscale_mask_serializer = Mask_ModelSerializer(data=grayscale_mask_data)
         if grayscale_mask_serializer.is_valid():

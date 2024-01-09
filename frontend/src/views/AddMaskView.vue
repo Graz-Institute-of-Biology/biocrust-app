@@ -128,7 +128,9 @@ export default {
             formData.append('description', this.mask.description)
             formData.append('slug', this.mask.slug)
             formData.append('dataset', this.mask.dataset)
-            formData.append('source', this.mask.source)
+            formData.append('source_manual', this.mask.source)
+            //formData.append('source_model', null)
+            console.log(formData)
             return axios.post('api/v1/masks/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',

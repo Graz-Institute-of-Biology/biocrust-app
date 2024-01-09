@@ -15,17 +15,17 @@
                 </div>
             </div>
         <div v-if="!this.$store.loading">
-            <div v-if="!this.setOverly && !enlarged" class="image-container" @click="toggleEnlarge">
+            <div v-if="!this.setOverlay && !enlarged" class="image-container" @click="toggleEnlarge">
                 <img :src="this.items[0]" class="image-small">
             </div>
-            <div v-if="this.setOverly && !enlarged" class="image-container" @click="toggleEnlarge">
+            <div v-if="this.setOverlay && !enlarged" class="image-container" @click="toggleEnlarge">
                 <img :src="this.mask_items[0]" class="overlay-mask">
                 <img :src="this.items[0]" class="image-small">
             </div>
-            <div v-if="!this.setOverly && enlarged" class="image-container" @click="toggleEnlarge" @wheel="handleMouseWheel">
+            <div v-if="!this.setOverlay && enlarged" class="image-container" @click="toggleEnlarge" @wheel="handleMouseWheel">
                 <img :src="this.items[0]" class="image-large">
             </div>
-            <div v-if="this.setOverly && enlarged" class="image-container" @click="toggleEnlarge" @wheel="handleMouseWheel">
+            <div v-if="this.setOverlay && enlarged" class="image-container" @click="toggleEnlarge" @wheel="handleMouseWheel">
                 <img :src="this.mask_items[0]" class="overlay-mask-large" :style="{ transform: `scale(${this.scale})` }">
                 <img :src="this.items[0]" class="image-large" :style="{ transform: `scale(${this.scale})` }">
             </div>
@@ -70,7 +70,7 @@ export default defineComponent({
         return {
             Images: [],
             items: [],
-            setOverly: false,
+            setOverlay: false,
             scale: 1,
             mask_items: [],
             enlarged: false,
@@ -135,13 +135,15 @@ export default defineComponent({
         },
         toggleEnlarge() {
             this.scale = 1; // Reset scale when toggling
-            this.enlarged != this.enlarged
+            this.enlarged = !this.enlarged
         },
         showOverlay() {
-            this.setOverly != this.setOverly
+            this.setOverlay = !this.setOverlay
+            console.log(this.deleteAlert)
         },
         setDeleteAlert() {
-            this.deleteAlert != this.deleteAlert
+            this.deleteAlert = !this.deleteAlert
+            console.log(this.deleteAlert)
         },
         async getDataset() {
             await axios.get(`api/v1/datasets/${this.$route.params.id}/`)

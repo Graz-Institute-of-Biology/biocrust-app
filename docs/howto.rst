@@ -12,6 +12,38 @@ To build and serve docs, use the commands::
     docker compose -f local.yml up docs
 
 
+1. uncomment django superuser settings in ./compose/local/django/start
+2. Go to ./frontend, run::
+
+    npm install
+
+3. To build dist folder run::
+
+    npm run build
+
+4. go to the dockerfile with "cd .." and run::
+    
+    docker compose -f local.yml up -d --build
+
+5. Got to ./frontend, run:: 
+    
+    npm run serve
+
+
+
+Migrate::
+
+    docker compose -f local.yml run --rm django python manage.py makemigrations
+    docker compose -f local.yml run --rm django python manage.py migrate
+
+Restart Django::
+    
+    docker compose -f local.yml run --rm django touch wsgi.py
+
+    (docker compose -f local.yml run --rm django python manage.py migrate runserver)
+
+
+
 
 Changes to files in `docs/_source` will be picked up and reloaded automatically.
 
