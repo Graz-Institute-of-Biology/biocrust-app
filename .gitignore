@@ -308,3 +308,6 @@ biocrust_app/media/
 !.envs/.local/
 
 log.txt
+
+# sqlite for development
+*.sqlite3
