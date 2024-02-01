@@ -26,3 +26,5 @@ Docker container based WebApplication (created with CoockieCutter).
 - source files in ml-docker
 - create | activate ml-environment: conda create -n ENVNAME | conda activate ENVNAME
 - run fastAPI server: python main.py
+- install segmentation-models-pytorch
+- install albumentations with imgaug: pip install -U albumentations[imgaug]
