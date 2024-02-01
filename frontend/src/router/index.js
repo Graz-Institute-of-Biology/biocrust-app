@@ -58,13 +58,13 @@ const routes = [
         component: DataSetView
     },
     {
-        path: '/AddModel',
+        path: '/AddModel/:id',
         name: 'AddModel',
         component: AddModelView
     },
     {
         path: '/models/',
-        name: 'models',
+        name: 'ModelsView',
         component: ModelsView
     },
     {
