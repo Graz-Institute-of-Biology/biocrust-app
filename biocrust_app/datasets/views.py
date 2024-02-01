@@ -9,8 +9,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 
-from biocrust_app.datasets.models import Image_Model, Dataset_Model, Model_Model, Mask_Model
-from biocrust_app.datasets.serializers import Image_ModelSerializer, Dataset_ModelSerializer, Model_ModelSerializer, Mask_ModelSerializer
+from biocrust_app.datasets.models import Image_Model, Dataset_Model, Model_Model, Mask_Model, Analysis_Model
+from biocrust_app.datasets.serializers import Image_ModelSerializer, Dataset_ModelSerializer, Model_ModelSerializer, Mask_ModelSerializer, Analysis_ModelSerializer
 
 class Image_ModelList(APIView):
     def get(self, request, format=None):
@@ -76,21 +76,6 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
         grayscale_img.save(output, format='PNG')
 
         return output
-
-    def send_analysis_request(self, parent_image_url, model_url):
-        # Send the request to the analysis API
-        payload = {
-            'file_path': parent_image_url,
-            'model_path': model_url
-        }
-        headers = {}
-
-        print("PAYLOAD:")
-        print(payload)
-        response = requests.post(
-            'http://localhost:8082/api/v1/predict', headers=headers, json=payload)
-        
-        print(response)
     
     def perform_create(self, serializer):
         # original_mask = serializer.validated_data.get('mask')
@@ -98,7 +83,6 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
         parent_image_url = serializer.validated_data.get('parent_image_url')
         model_url = serializer.validated_data.get('source_model_url')
         # Convert to grayscale and save image as a test
-        self.send_analysis_request(parent_image_url, model_url)
 
         grayscale_mask = self.convert_to_grayscale(parent_image_url)
         grayscale_mask_data = {
@@ -159,3 +143,43 @@ class Model_ModelViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save()
     
+
+class Analysis_ModelViewSet(viewsets.ModelViewSet):
+    queryset = Analysis_Model.objects.all()
+    serializer_class = Analysis_ModelSerializer
+
+    def get_queryset(self):
+        # return self.queryset.filter(created_by=self.request.user)
+        return self.queryset.all()
+    
+    def perform_create(self, serializer):
+        parent_image_url = serializer.validated_data.get('source_image_url')
+        model_url = serializer.validated_data.get('ml_model_url')
+        # Convert to grayscale and save image as a test
+        response = self.send_analysis_request(parent_image_url, model_url)
+
+        print(response)
+        # analysis_model_serializer = Analysis_ModelSerializer(data=grayscale_mask_data)
+
+        # if analysis_model_serializer.is_valid():
+        #     analysis_model_serializer.save()
+        #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # else:
+        #     return Response(analysis_model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+
+    def send_analysis_request(self, parent_image_url, model_url):
+        # Send the request to the analysis API
+        payload = {
+            'file_path': parent_image_url,
+            'model_path': model_url
+        }
+        headers = {}
+
+        print("PAYLOAD:")
+        print(payload)
+        response = requests.post(
+            'http://localhost:8082/api/v1/predict', headers=headers, json=payload)
+        
+        return response

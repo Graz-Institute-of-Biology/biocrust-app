@@ -313,4 +313,4 @@ log.txt
 *.sqlite3
 
 # Django migrations
-biocrust_app/migrations/
+biocrust_app/datasets/migrations

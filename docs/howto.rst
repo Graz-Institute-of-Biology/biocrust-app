@@ -92,6 +92,10 @@ FastAPI for development
 
 - run fastAPI server: python main.py
 
+install segmentation-models-pytorch
+
+- install albumentations with imgaug: pip install -U albumentations[imgaug]
+
 
 
 Changes to files in `docs/_source` will be picked up and reloaded automatically.

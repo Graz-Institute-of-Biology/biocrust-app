@@ -16,8 +16,6 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-# import torch
-
 from api_schema import InferenceInput, InferenceResult, InferenceResponse, ErrorResponse
 from trainer import predict
 from config import CONFIG
@@ -67,15 +65,22 @@ def do_predict(request: Request, body: InferenceInput):
     model_path: str = Field(..., example='12/models/model_1.pt', title='Path to the model file')
     """
     error = False
-    results = None
+    results = {"mask" : "img_path"}
+    package = {
+        "model_path": body.model_path,
+        "file_path": body.file_path
+    }
+    print("BODY:")
     print(body)
     try:
-        results = predict(body.file_path, body.model_path)
+        results = predict(package=package, input=[])
         return {
             "error": error,
             "results": results
         }
     except Exception as e:
+        print("ERROR:")
+        print(e)
         error = True
         return {
         "error": error,
