@@ -26,9 +26,11 @@ class Mask_ModelSerializer(serializers.ModelSerializer):
                   'date_added',
                   'dataset',
                   'parent_image',
+                  'parent_image_url',
                   'source_labelbox',
                   'source_model',
-                  'source_manual'
+                  'source_manual',
+                  'source_model_url',
                   )
         
 class Dataset_ModelSerializer(serializers.ModelSerializer):
@@ -55,5 +57,26 @@ class Model_ModelSerializer(serializers.ModelSerializer):
                   'file',
                   'description',
                   'model_type',
-                  'belongs_to_dset'
-                  )
+                  'dataset')
+        
+class Analysis_ModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Model_Model
+        fields = ('id',
+                  'dataset',
+                  'source_image',
+                  'ml_model',
+                  'owner',
+                  'slug',
+                  'start_time',
+                  'end_time',
+                  'completed',
+                  'errors')
+         
+     
+    
+     
+     
+     
+     
+    
