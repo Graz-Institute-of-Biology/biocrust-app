@@ -86,7 +86,9 @@ export default defineComponent({
                 dataset: '',
                 description: '',
                 parentImage: '',
-                source: '',            
+                parentImageUrl: '',
+                source: '',
+                MlModelUrl: '',       
             },
             options: {
                         ready: () => {
@@ -156,6 +158,17 @@ export default defineComponent({
             console.log("Dataset loaded")
             this.getImages()
             this.getMasks()
+            this.getModels()
+        },
+        async getModels() {
+            await axios.get('api/v1/models/')
+            .then(response => {
+                this.Models = response.data
+                console.log(this.Models)
+            })
+            .catch(error => {
+                console.log(error)
+            })
         },
         async getImages() {
                 await axios.get('api/v1/images/')
@@ -181,7 +194,16 @@ export default defineComponent({
             this.mask.slug = this.mask.name.toLowerCase()
             this.mask.dataset = this.$route.params.id
             this.mask.parentImage = this.Images[0].id
-            this.mask.source = 'analyzed image' 
+            this.mask.parentImageUrl = this.Images[0].img
+            this.mask.source = 7 // ML-Model ID
+            this.mask.MlModelUrl = this.getModelUrl(this.mask.source)
+        },
+
+        getModelUrl(id) {
+            const model = this.Models.filter(model => model.id == id)
+            console.log("MODEL URL")
+            console.log(model)
+            return model[0].file
         },
 
         createFileObjectFromUrl(fileUrl) {
@@ -244,17 +266,18 @@ export default defineComponent({
         },
 
         performMaskUpload(file, onUploadProgress) {
-            console.log('upload')
-            console.log(file)
             let formData = new FormData()
-            formData.append('mask', file)
+            // formData.append('mask', file)
             formData.append('name', this.mask.name)
             formData.append('parent_image', this.mask.parentImage)
             formData.append('owner', this.mask.owner)
             formData.append('description', this.mask.description)
             formData.append('slug', this.mask.slug)
             formData.append('dataset', this.mask.dataset)
-            formData.append('source', this.mask.source)
+            formData.append('source_model', this.mask.source)
+            formData.append('source_model_url', this.mask.MlModelUrl)
+            formData.append('parent_image_url', this.mask.parentImageUrl)
+            console.log(formData)
             return axios.post('api/v1/masks/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',

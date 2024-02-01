@@ -4,9 +4,9 @@
             <div class="column is-10 header-col">
                 <h2 class="is-size-2">Models</h2>
             </div>
-            <div class="column is-2 button-col">
+            <!-- <div class="column is-2 button-col">
                 <RouterLink :to="{ name: 'AddModel' }" class="button is-primary">Add Model</RouterLink>
-            </div>
+            </div> -->
         </div>
             <div class="columns is-multiline">
                 <div 

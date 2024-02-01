@@ -8,6 +8,7 @@
                         <RouterLink :to="{ name: 'AddImageView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add images</RouterLink>
                         <RouterLink :to="{ name: 'AddMaskView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add masks</RouterLink>
                         <RouterLink :to="{ name: 'AnalyzeImagesView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Analyze images</RouterLink>
+                        <RouterLink :to="{ name: 'AddModel', params: { id: dataset.id }}" class="button is-primary">Add Model</RouterLink>
                         <div class="button is-success" @click="showOverlay" v-if="!this.$store.loading">Show Overlay</div>
                         <!-- <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div> -->
                     </div>
