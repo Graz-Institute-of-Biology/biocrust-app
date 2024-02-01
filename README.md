@@ -18,9 +18,9 @@ Docker container based WebApplication (created with CoockieCutter).
 - create | activate django environment: conda create -n ENVNAME | conda activate ENVNAME
 - install requirements: pip install -r local_nopg.txt
 - if needed migrate, makemigrations and start server:
-- python manage.py makemigrations
-- python manage.py migrate
-- python manage.py runserver_plus 0.0.0.0:8000
+- - python manage.py makemigrations
+- - python manage.py migrate
+- - python manage.py runserver_plus 0.0.0.0:8000
 
 ## FastAPI for development
 - source files in ml-docker
