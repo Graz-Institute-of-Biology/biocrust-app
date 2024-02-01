@@ -10,6 +10,7 @@ router.register('datasets', views.Dataset_ModelViewSet)
 router.register('images', views.Image_ModelViewSet)
 router.register('masks', views.Mask_ModelViewSet)
 router.register('models', views.Model_ModelViewSet)
+router.register('analyses', views.Analysis_ModelViewSet)
 
 
 app_name = "datasets"

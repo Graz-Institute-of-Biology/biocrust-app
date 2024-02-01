@@ -131,24 +131,25 @@ class Mask_Model(models.Model):
         return f'/{self.dataset.slug}/{self.slug}/'
     
 
-# class Analysis_Model(models.Model):
-#     dataset = models.ForeignKey(Dataset_Model, related_name='analysis', on_delete=models.CASCADE)
-#     source_image = models.ForeignKey(Image_Model, related_name='analysis', on_delete=models.CASCADE)
-#     ml_model = models.ForeignKey(Model_Model, related_name='analysis', on_delete=models.CASCADE)
-#     owner = models.CharField(max_length=255, blank=True)
-#     slug = models.SlugField()
-#     start_time = models.DateTimeField(auto_now_add=True)
-#     end_time = models.DateTimeField(auto_now_add=True)
-#     completed = models.BooleanField(default=False)
-#     errors = models.TextField(blank=True, null=True)
+class Analysis_Model(models.Model):
+    dataset = models.ForeignKey(Dataset_Model, related_name='analysis', on_delete=models.CASCADE)
+    source_image_url = models.CharField(max_length=255, default='')
+    ml_model_url = models.CharField(max_length=255, default='')
+    owner = models.CharField(max_length=255, blank=True)
+    slug = models.SlugField()
+    status = models.CharField(max_length=255, blank=True)
+    start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(auto_now_add=True)
+    completed = models.BooleanField(default=False)
+    errors = models.TextField(blank=True, null=True)
 
-#     class Meta:
-#         ordering = ('-date_added',)
+    class Meta:
+        ordering = ('-start_time',)
     
-#     def get_absolute_url(self):
-#         return f'/{self.dataset.slug}/{self.slug}/'
+    def get_absolute_url(self):
+        return f'/{self.dataset.slug}/{self.slug}/'
 
-#     def start_analysis(self):
-#         self.start_time = datetime.now()
-#         print("Analysis started at: " + str(self.start_time))
-#         self.save()
+    def start_analysis(self):
+        self.start_time = datetime.now()
+        print("Analysis started at: " + str(self.start_time))
+        self.save()

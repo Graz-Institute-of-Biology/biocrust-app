@@ -5,7 +5,7 @@
                     <h1 class="title is-1">{{ dataset.dataset_name }}</h1>
                     <div class="columns is-mobile">
                         <div class="column is-half">
-                        <div class="button is-success" @click="maskUpload" v-if="!this.$store.loading">Analyze</div>
+                        <div class="button is-success" @click="analyzeImage" v-if="!this.$store.loading">Analyze</div>
                         <!-- <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div> -->
                         </div>
                         <div class="column is-half">
@@ -84,11 +84,8 @@ export default defineComponent({
                 owner: '',
                 slug: '',
                 dataset: '',
-                description: '',
-                parentImage: '',
-                parentImageUrl: '',
-                source: '',
-                MlModelUrl: '',       
+                source_image_url: '',
+                ml_model_url: '',       
             },
             options: {
                         ready: () => {
@@ -117,7 +114,9 @@ export default defineComponent({
     },
     created () {
         this.$store.commit('setLoading', true)
-        this.getDataset()
+        this.getImages()
+        this.getMasks()
+        this.getModels()
     },
     methods: {
         show () {
@@ -156,9 +155,6 @@ export default defineComponent({
                 console.log(error)
             })
             console.log("Dataset loaded")
-            this.getImages()
-            this.getMasks()
-            this.getModels()
         },
         async getModels() {
             await axios.get('api/v1/models/')
@@ -185,24 +181,18 @@ export default defineComponent({
                 this.$store.commit('setLoading', false)
         },
         async addInfos() {
-            if (!this.mask) {
-            this.mask = {}
-            }
-            await this.getImages()
             this.mask.owner = localStorage.getItem('username')
             this.mask.name = this.Images[0].name.split('.')[0]
             this.mask.slug = this.mask.name.toLowerCase()
             this.mask.dataset = this.$route.params.id
-            this.mask.parentImage = this.Images[0].id
-            this.mask.parentImageUrl = this.Images[0].img
-            this.mask.source = 7 // ML-Model ID
-            this.mask.MlModelUrl = this.getModelUrl(this.mask.source)
+            this.mask.ml_model_url = this.getModelUrl(this.$route.params.id)
+            this.mask.source_image_url = this.Images[0].img
         },
 
         getModelUrl(id) {
-            const model = this.Models.filter(model => model.id == id)
+            const model = this.Models.filter(model => model.dataset == id)
             console.log("MODEL URL")
-            console.log(model)
+            console.log(model[0].file)
             return model[0].file
         },
 
@@ -236,54 +226,36 @@ export default defineComponent({
             this.$store.commit('setLoading', false)
         },
 
-        async maskUpload() {
-            this.progress = 0
+        async analyzeImage() {
             await this.addInfos()
-            await this.createFileObjectFromUrl(this.Images[0].img)
-            .then(file => {
-                this.file = file
-                console.log('file')
-                console.log(file)
-            })
-            .catch(error => {
-                console.error(error)
-            })
-            await this.performMaskUpload(this.file, event => {
-                this.progress = Math.round((100 * event.loaded) / event.total)
-            })
+            await this.sendAnalysisRequest()
             .then(response => {
-                this.message = 'File uploaded successfully!'
+                this.message = 'Analysis request sent successfully!'
                 this.mask = null
                 this.progress = 0
                 console.log(response)
             })
             .catch(error => {
-                this.message = 'Could not upload file!'
+                this.message = 'Analysis request Error!'
                 this.mask = null
                 this.progress = 0
                 console.log(error)
             })                      
         },
 
-        performMaskUpload(file, onUploadProgress) {
+        sendAnalysisRequest() {
             let formData = new FormData()
-            // formData.append('mask', file)
-            formData.append('name', this.mask.name)
-            formData.append('parent_image', this.mask.parentImage)
             formData.append('owner', this.mask.owner)
-            formData.append('description', this.mask.description)
             formData.append('slug', this.mask.slug)
             formData.append('dataset', this.mask.dataset)
-            formData.append('source_model', this.mask.source)
-            formData.append('source_model_url', this.mask.MlModelUrl)
-            formData.append('parent_image_url', this.mask.parentImageUrl)
+            formData.append('ml_model_url', this.mask.ml_model_url)
+            formData.append('source_image_url', this.mask.source_image_url)
             console.log(formData)
-            return axios.post('api/v1/masks/', formData, {
+            return axios.post('api/v1/analyses/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'X-CSRFToken': '{{ csrftoken }}'
                 },
-                onUploadProgress
             })
         },
         

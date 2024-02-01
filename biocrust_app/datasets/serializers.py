@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Dataset_Model, Image_Model, Model_Model, Mask_Model
+from .models import Dataset_Model, Image_Model, Model_Model, Mask_Model, Analysis_Model
 
 class Image_ModelSerializer(serializers.ModelSerializer):
     class Meta:
@@ -61,13 +61,14 @@ class Model_ModelSerializer(serializers.ModelSerializer):
         
 class Analysis_ModelSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Model_Model
+        model = Analysis_Model
         fields = ('id',
                   'dataset',
-                  'source_image',
-                  'ml_model',
+                  'source_image_url',
+                  'ml_model_url',
                   'owner',
                   'slug',
+                  'status',
                   'start_time',
                   'end_time',
                   'completed',
