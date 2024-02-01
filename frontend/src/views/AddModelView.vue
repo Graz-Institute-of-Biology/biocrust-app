@@ -12,28 +12,6 @@
                             <input class="input" type="text" placeholder="Model Name" v-model="model.model_name" required>
                         </div>
                     </div>
-                    <div class="field">
-                        <label class="label">Coordinates</label>
-                        <div class="control">
-                            <input class="input" type="text" placeholder="Coordinates [Long / Lat]" v-model="model.coordinates" required>
-                        </div>
-                    </div>
-            </div>
-            <div class="column is-6">
-                <div class="field">
-                    <label class="label">Model Type</label>
-                    <div class="control">
-                        <input class="input" type="text" placeholder="Model Type eg. Biocrust" v-model="model.model_type" required>
-                    </div>
-                </div>
-            </div>
-            <div class="column is-6">
-                <div class="field">
-                    <label class="label">Belongs to Dataset ...</label>
-                    <div class="control">
-                        <input class="input" type="text" placeholder="Training Dataset" v-model="model.belongs_to_dset" required>
-                    </div>
-                </div>
             </div>
             <div class="column is-6">
                 <div class="field">
@@ -82,33 +60,29 @@ export default {
             progress: 0,
             message: '',
             document: null,
-            model_id: this.$route.params.id,
+            datasets: {},
             file_extension: '',
             model: {
                 model_name: '',
                 description: '',
-                model_type: '',
                 slug: '',
-                belongs_to_dset: '',
-                coordinates: ''
+                dataset: '',
+                coordinates: 'dummy',
             },
             }
         },
     components: {
     },
-    mounted() {
-        this.getModels()
-    },
     methods : {
         addInfos() {
-            this.model.id = 1 //this.$route.params.id
+            this.model.dataset = this.$route.params.id
             this.model.slug = this.model.model_name.toLowerCase()
 
         },
         selectFile() {
             this.document = this.$refs.file.files[0]
             this.file_extension = this.document.name.split('.')[1]
-            if (this.file_extension.toLocaleLowerCase() == 'png' || this.file_extension.toLocaleLowerCase() == 'jpg') {
+            if (this.file_extension.toLocaleLowerCase() == 'pth' || this.file_extension.toLocaleLowerCase() == 'pt') {
                 this.message = "File is valid!";
             } else {
                 this.message = "File is invalid";
@@ -116,24 +90,10 @@ export default {
             }
 
         },
-        async getModels() {
-            await axios.get('api/v1/models/')
-            .then(response => {
-                for (let i = 0; i < response.data.length; i++) {
-                    if (response.data[i].id == this.model_id) {
-                        this.models = response.data[i]
-                        break
-                    }
-                }
-            })
-            .catch(error => {
-                console.log(error)
-            })
-        },
         async modelUpload() {
             this.progress = 0
             this.addInfos()
-            if (this.file_extension.toLocaleLowerCase() == 'png' || this.file_extension.toLocaleLowerCase() == 'jpg') {
+            if (this.file_extension.toLocaleLowerCase() == 'pth' || this.file_extension.toLocaleLowerCase() == 'pt') {
                 this.message = "File is valid!";
             
                 await this.performModelUpload(this.document, event => {
@@ -157,7 +117,7 @@ export default {
                 this.document = null
             }
             //this.$store.commit('setModelsUploaded', 1)
-            //this.$router.push('models')            
+            this.$router.push({ name: 'ModelsView' })       
         },
         performModelUpload(file, onUploadProgress) {
             let formData = new FormData()
@@ -167,7 +127,7 @@ export default {
             formData.append('file', file)
             formData.append('description', this.model.description)
             formData.append('model_type', this.model.model_type)
-            formData.append('belongs_to_dset', this.model.belongs_to_dset)
+            formData.append('dataset', this.model.dataset)
             return axios.post('api/v1/models/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
