@@ -2,7 +2,16 @@ from django.db import models
 from io import BytesIO
 from PIL import Image
 from django.core.files import File
+from datetime import datetime
 
+def dataset_image_path(instance, filename):
+        return str(str(instance.dataset.id) + '/images/' + filename)
+
+def dataset_mask_path(instance, filename):
+        return str(str(instance.dataset.id) + '/masks/' + filename)
+
+def dataset_model_path(instance, filename):
+        return str(str(instance.dataset.id) + '/models/' + filename)
 
 class Dataset_Model(models.Model):
     dataset_name = models.CharField(max_length=255, blank=True)
@@ -23,14 +32,14 @@ class Dataset_Model(models.Model):
         return f'/{self.slug}/'
     
 class Model_Model(models.Model):
+    dataset = models.ForeignKey(Dataset_Model, related_name='models', on_delete=models.CASCADE)
     model_name = models.CharField(max_length=255, blank=True)
     slug = models.SlugField(blank=True)
     coordinates = models.CharField(max_length=255, blank=True)
     model_created = models.DateTimeField(auto_now_add=True)
     description = models.TextField(blank=True, null=True)
     model_type = models.CharField(max_length=255, blank=True)
-    file = models.FileField(upload_to='models/', blank=True)
-    belongs_to_dset = models.CharField(max_length=255, blank=True)
+    file = models.FileField(upload_to=dataset_model_path, blank=True)
 
     
     class Meta:
@@ -42,15 +51,14 @@ class Model_Model(models.Model):
     def get_absolute_url(self):
         return f'/{self.slug}/'
 
-
 class Image_Model(models.Model):
     dataset = models.ForeignKey(Dataset_Model, related_name='images', on_delete=models.CASCADE)
     owner = models.CharField(max_length=255, blank=True)
     name = models.CharField(max_length=255, blank=True)
     slug = models.SlugField()
     description = models.TextField(blank=True, null=True)
-    img = models.ImageField(upload_to='images/')
-    thumbnail = models.ImageField(upload_to='images/', blank=True, null=True)
+    img = models.ImageField(upload_to=dataset_image_path, unique=True)
+    thumbnail = models.ImageField(upload_to=dataset_image_path, blank=True, null=True)
     date_added = models.DateTimeField(auto_now_add=True)
 
 
@@ -59,6 +67,7 @@ class Image_Model(models.Model):
 
     def __str__(self):
         return self.name
+
     
     def get_absolute_url(self):
         return f'/{self.dataset.slug}/{self.slug}/'
@@ -98,14 +107,16 @@ class Image_Model(models.Model):
 class Mask_Model(models.Model):
     dataset = models.ForeignKey(Dataset_Model, related_name='masks', on_delete=models.CASCADE)
     parent_image = models.ForeignKey(Image_Model, related_name='masks', on_delete=models.CASCADE)
+    parent_image_url = models.CharField(max_length=255, blank=True)
     name = models.CharField(max_length=255, blank=True)
     owner = models.CharField(max_length=255, blank=True)
     slug = models.SlugField()
     description = models.TextField(blank=True, null=True)
-    mask = models.ImageField(upload_to='masks/')
-    source_labelbox = models.CharField(max_length=255, blank=True, null=True)
+    mask = models.ImageField(upload_to=dataset_mask_path, blank=True, null=True)
+    source_labelbox = models.CharField(max_length=255, blank=True, null=True) # labelbox id / project id (????)
     source_model = models.ForeignKey(Model_Model, blank=True, null=True, related_name='masks', on_delete=models.CASCADE)
-    source_manual = models.CharField(max_length=255, blank=True, null=True)
+    source_model_url = models.CharField(max_length=255, blank=True, null=True)
+    source_manual = models.BooleanField(max_length=255, blank=True, default=True)
     date_added = models.DateTimeField(auto_now_add=True)
     is_categorical = models.BooleanField(default=True)
 
@@ -118,3 +129,26 @@ class Mask_Model(models.Model):
     
     def get_absolute_url(self):
         return f'/{self.dataset.slug}/{self.slug}/'
+    
+
+# class Analysis_Model(models.Model):
+#     dataset = models.ForeignKey(Dataset_Model, related_name='analysis', on_delete=models.CASCADE)
+#     source_image = models.ForeignKey(Image_Model, related_name='analysis', on_delete=models.CASCADE)
+#     ml_model = models.ForeignKey(Model_Model, related_name='analysis', on_delete=models.CASCADE)
+#     owner = models.CharField(max_length=255, blank=True)
+#     slug = models.SlugField()
+#     start_time = models.DateTimeField(auto_now_add=True)
+#     end_time = models.DateTimeField(auto_now_add=True)
+#     completed = models.BooleanField(default=False)
+#     errors = models.TextField(blank=True, null=True)
+
+#     class Meta:
+#         ordering = ('-date_added',)
+    
+#     def get_absolute_url(self):
+#         return f'/{self.dataset.slug}/{self.slug}/'
+
+#     def start_analysis(self):
+#         self.start_time = datetime.now()
+#         print("Analysis started at: " + str(self.start_time))
+#         self.save()
