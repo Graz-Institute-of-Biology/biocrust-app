@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets, status
 from PIL import Image
+import requests
 from io import BytesIO
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.files.base import ContentFile
@@ -65,8 +66,9 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
     #def perform_create(self, serializer):
     #    serializer.save()
 
-    def convert_to_grayscale(self, image):
-        img = Image.open(image)
+    def convert_to_grayscale(self, parent_image_url):
+        response = requests.get(parent_image_url)
+        img = Image.open(BytesIO(response.content))
         # Convert the image to grayscale
         grayscale_img = img.convert("L")
         #grayscale_img.save("./gray.jpg")         # Save the grayscale image to BytesIO
@@ -74,20 +76,38 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
         grayscale_img.save(output, format='PNG')
 
         return output
+
+    def send_analysis_request(self, parent_image_url, model_url):
+        # Send the request to the analysis API
+        payload = {
+            'file_path': parent_image_url,
+            'model_path': model_url
+        }
+        headers = {}
+
+        print("PAYLOAD:")
+        print(payload)
+        response = requests.post(
+            'http://localhost:8082/api/v1/predict', headers=headers, json=payload)
+        
+        print(response)
     
     def perform_create(self, serializer):
-        original_mask = serializer.validated_data.get('mask')
+        # original_mask = serializer.validated_data.get('mask')
 
+        parent_image_url = serializer.validated_data.get('parent_image_url')
+        model_url = serializer.validated_data.get('source_model_url')
         # Convert to grayscale and save image as a test
-        grayscale_mask = self.convert_to_grayscale(original_mask)
+        self.send_analysis_request(parent_image_url, model_url)
 
+        grayscale_mask = self.convert_to_grayscale(parent_image_url)
         grayscale_mask_data = {
             'dataset': serializer.validated_data.get('dataset').id,
             'parent_image': serializer.validated_data.get('parent_image').id,
             'name': serializer.validated_data.get('name'),
             'owner': serializer.validated_data.get('owner'),
             'slug': serializer.validated_data.get('slug'),
-            'mask': ContentFile(grayscale_mask.getvalue(), name=f"{serializer.validated_data.get('name')}_mask.png"),
+            'mask': ContentFile(grayscale_mask.getvalue(), 'grayscale_mask.png'),
         }
 
         with open('./log.txt', 'a+') as f:
