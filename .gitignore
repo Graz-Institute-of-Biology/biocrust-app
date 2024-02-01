@@ -311,3 +311,4 @@ log.txt
 
 # sqlite for development
 *.sqlite3
+/datasets/migrations
