@@ -18,22 +18,18 @@
                 </div>
             </div>
             </div>
-        <div v-if="!this.$store.loading">
-            <div v-if="!this.setOverlay && !enlarged" class="image-container" @click="toggleEnlarge">
-                <img :src="this.items[0]" class="image-small">
+            <div class="image-grid" v-if="!this.$store.loading">
+                <div v-for="(item, index) in items" :key=index class="image-container" >
+                    <div class="image-wrapper" @click="toggleEnlarge" @wheel="handleMouseWheel">
+                        <img :src="item" class="image-small" v-if="!enlarged">
+                        <img :src="item" class="image-large" :style="{ transform: `scale(${scale})` }" v-if="enlarged">
+                    
+                        <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !enlarged">
+                        <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${scale})` }" @error="handleMaskImageError" v-if="setOverlay && enlarged">
+                    </div>
+                </div>
             </div>
-            <div v-if="this.setOverlay && !enlarged" class="image-container" @click="toggleEnlarge">
-                <img :src="this.mask_items[0]" class="overlay-mask">
-                <img :src="this.items[0]" class="image-small">
-            </div>
-            <div v-if="!this.setOverlay && enlarged" class="image-container" @click="toggleEnlarge" @wheel="handleMouseWheel">
-                <img :src="this.items[0]" class="image-large">
-            </div>
-            <div v-if="this.setOverlay && enlarged" class="image-container" @click="toggleEnlarge" @wheel="handleMouseWheel">
-                <img :src="this.mask_items[0]" class="overlay-mask-large" :style="{ transform: `scale(${this.scale})` }">
-                <img :src="this.items[0]" class="image-large" :style="{ transform: `scale(${this.scale})` }">
-            </div>
-            </div>
+
         <div v-else>
             <div class="columns is-multiline">
                 <div class="column is-12">
@@ -116,6 +112,15 @@ export default defineComponent({
         show () {
         const viewer = this.$el.querySelector('.images').$viewer
         viewer.show()
+        },
+
+        getMaskUrl(item) {
+        // Replace "images" with "masks" in the URL
+        return item.replace('images', 'masks').replace(/\.[^.]+$/, '.png');
+        },
+        handleMaskImageError(event) {
+            // Hide the overlay mask if the image fails to load
+            event.target.style.display = 'none';
         },
 
         handleMouseWheel(event) {
@@ -208,34 +213,42 @@ export default defineComponent({
 </script>
 
 <style scoped>
+
 .page-dataset {
     margin-bottom: 10%;
 }
+
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); /* Adjust the size as needed */
+    grid-gap: 10px; /* Adjust the gap between images */
+}
+
 .image-container {
     position: relative;
 }
+
+.image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
 .image-small,
-.overlay-mask {
-    position: absolute;
-    height: 500px;
-    margin: 15px;
+.image-large {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
-.image-large,
+
+.overlay-mask,
 .overlay-mask-large {
     position: absolute;
-    height: 1000px;
-    width: auto;
-    margin: 15px;
-    transform-origin: top left; /* Set the origin for scaling */
-}
-.overlay-mask {
-    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     opacity: 0.6;
-}
-.overlay-mask-large {
-    z-index: 1;
-    opacity: 0.6;
-    transform-origin: top left; /* Set the origin for scaling */
 }
 
 .button {
