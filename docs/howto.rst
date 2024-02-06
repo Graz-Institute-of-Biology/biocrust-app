@@ -6,6 +6,17 @@ Get Started
 
 Documentation can be written as rst files in `biocrust_app/docs`.
 
+Docker container based WebApplication (created with CoockieCutter).
+6 Docker Containers (ML in development):
+- Vue Frontend Container
+- PostgreSQL database container
+- django backend container (communication between frontend-, database- and ML- containers)
+- ML container using FastAPI and PyTorch for ML functions (In development)
+- PgAdmin for database testing
+- localDocs for documentations
+
+## Requirements:
+- npm installed (for frontend)
 
 To build and serve docs, use the commands::
 
@@ -42,6 +53,48 @@ Restart Django::
 
     (docker compose -f local.yml run --rm django python manage.py migrate runserver)
 
+
+
+Run Django locally for development
+- sqlite3 database instead of postgres used
+
+Create local environment for django requirements::
+    conda create -n ENVNAME
+    
+    conda activate ENVNAME
+
+Install requirements::
+
+    pip install -r local_nopg.txt
+
+If needed migrate, makemigrations and start server::
+    
+    python manage.py makemigrations
+
+    python manage.py migrate
+
+    python manage.py runserver_plus 0.0.0.0:8000
+
+
+FastAPI for development
+- source files in ml-docker
+
+Create local environment for FastAPI requirements::
+
+    conda create -n ENVNAME
+    conda activate ENVNAME
+
+run fastAPI server::
+
+FastAPI for development
+
+- source files in ml-docker
+
+- run fastAPI server: python main.py
+
+install segmentation-models-pytorch
+
+- install albumentations with imgaug: pip install -U albumentations[imgaug]
 
 
 
