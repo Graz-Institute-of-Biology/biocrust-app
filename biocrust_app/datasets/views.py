@@ -1,8 +1,10 @@
 from django.shortcuts import render
+import threading
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets, status
 from PIL import Image
+import sys
 import requests
 from io import BytesIO
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -78,58 +80,49 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
         return output
     
     def perform_create(self, serializer):
+
         # original_mask = serializer.validated_data.get('mask')
 
-        parent_image_url = serializer.validated_data.get('parent_image_url')
-        model_url = serializer.validated_data.get('source_model_url')
+        # parent_image_url = serializer.validated_data.get('parent_image_url')
+        # model_url = serializer.validated_data.get('source_model_url')
         # Convert to grayscale and save image as a test
 
-        grayscale_mask = self.convert_to_grayscale(parent_image_url)
-        grayscale_mask_data = {
-            'dataset': serializer.validated_data.get('dataset').id,
-            'parent_image': serializer.validated_data.get('parent_image').id,
-            'name': serializer.validated_data.get('name'),
-            'owner': serializer.validated_data.get('owner'),
-            'slug': serializer.validated_data.get('slug'),
-            'mask': ContentFile(grayscale_mask.getvalue(), 'grayscale_mask.png'),
-        }
+        # grayscale_mask = self.convert_to_grayscale(parent_image_url)
+        # grayscale_mask_data = {
+        #     'dataset': serializer.validated_data.get('dataset').id,
+        #     'parent_image': serializer.validated_data.get('parent_image').id,
+        #     'name': serializer.validated_data.get('name'),
+        #     'owner': serializer.validated_data.get('owner'),
+        #     'slug': serializer.validated_data.get('slug'),
+        #     'mask': ContentFile(grayscale_mask.getvalue(), 'grayscale_mask.png'),
+        # }
 
-        with open('./log.txt', 'a+') as f:
-                f.write('source: ')
-                f.write(str(serializer.validated_data.get('source_model')))
+        # if serializer.validated_data.get('source_model'):
+        #     model_id = serializer.validated_data.get('source_model').id
+        #     filename = serializer.validated_data.get('source_model').model_name
+        #     path = serializer.validated_data.get('source_model').file
 
-        if serializer.validated_data.get('source_model'):
-            model_id = serializer.validated_data.get('source_model').id
-            filename = serializer.validated_data.get('source_model').model_name
-            path = serializer.validated_data.get('source_model').file
+        #     model_instance = get_object_or_404(Model_Model, id=model_id)
+        #     file_content = model_instance.file.read()
+        #     model_name = model_instance.model_name
 
-            model_instance = get_object_or_404(Model_Model, id=model_id)
-            file_content = model_instance.file.read()
-            model_name = model_instance.model_name
 
-            with open('./log.txt', 'a+') as f:
-                f.write('model_name: ')
-                f.write(str(model_name))
-                f.write('\n')
-                f.write(str(filename))
-                f.write('\n')
-                f.write(str(path))
+        # if serializer.validated_data.get('source_manual'):
+        #     with open('./log.txt', 'a+') as f:
+        #         f.write('Mask manually uploaded!')
+        #         f.write('\n')
+        #         f.write('source: ')
+        #         f.write(str(serializer.validated_data.get('source_model')))
 
-        if serializer.validated_data.get('source_manual'):
-            with open('./log.txt', 'a+') as f:
-                f.write('Mask manually uploaded!')
-                f.write('\n')
-                f.write('source: ')
-                f.write(str(serializer.validated_data.get('source_model')))
+        # # Placeholder for model application (function comes here)
 
-        # Placeholder for model application (function comes here)
-
-        grayscale_mask_serializer = Mask_ModelSerializer(data=grayscale_mask_data)
-        if grayscale_mask_serializer.is_valid():
-            grayscale_mask_serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(grayscale_mask_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # grayscale_mask_serializer = Mask_ModelSerializer(data=grayscale_mask_data)
+        # if grayscale_mask_serializer.is_valid():
+        #     grayscale_mask_serializer.save()
+        #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # else:
+        #     return Response(grayscale_mask_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
 
 
 class Model_ModelViewSet(viewsets.ModelViewSet):
@@ -152,34 +145,42 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         # return self.queryset.filter(created_by=self.request.user)
         return self.queryset.all()
     
+    def patch(self, request, pk):
+        model_object = self.get_object(pk)
+        serializer = Analysis_ModelSerializer(model_object, data=request.data, partial=True) # set partial=True to update a data partially
+        if serializer.is_valid():
+            serializer.save()
+    
     def perform_create(self, serializer):
         parent_image_url = serializer.validated_data.get('source_image_url')
         model_url = serializer.validated_data.get('ml_model_url')
-        # Convert to grayscale and save image as a test
-        response = self.send_analysis_request(parent_image_url, model_url)
 
-        print(response)
-        # analysis_model_serializer = Analysis_ModelSerializer(data=grayscale_mask_data)
+        print("Sending request...", file=sys.stderr)
 
-        # if analysis_model_serializer.is_valid():
-        #     analysis_model_serializer.save()
-        #     return Response(serializer.data, status=status.HTTP_201_CREATED)
-        # else:
-        #     return Response(analysis_model_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        instance = serializer.save() # call save to store analysis entry in db
 
-        serializer.save()
+        analysis_id = instance.id
+        print("ID: ", analysis_id, file=sys.stderr)
+        self.send_sqlite_analysis_request(parent_image_url, model_url, analysis_id)
 
-    def send_analysis_request(self, parent_image_url, model_url):
+    def send_sqlite_analysis_request(self, parent_image_url, model_url, analysis_id):
         # Send the request to the analysis API
         payload = {
             'file_path': parent_image_url,
-            'model_path': model_url
+            'model_path': model_url,
+            'analysis_id': analysis_id
         }
         headers = {}
 
         print("PAYLOAD:")
         print(payload)
-        response = requests.post(
-            'http://localhost:8082/api/v1/predict', headers=headers, json=payload)
-        
-        return response
+
+        # "Fire and forget" request hack: send request with very short timeout
+        #  catch the timeout exception, ignore it and continue
+        #  only needed for sqlite3 db while testing
+        try:
+            requests.post(
+            'http://localhost:8082/api/v1/predict', headers=headers, json=payload, timeout=0.0000000001)
+            print("Request sent...")
+        except requests.exceptions.ReadTimeout: 
+            pass        
