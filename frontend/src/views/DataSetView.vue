@@ -1,35 +1,37 @@
 <template>
     <div class="container page-dataset">
-            <div class="columns">
-                <div class="column">
-                    <h1 class="title is-1">{{ dataset.dataset_name }}</h1>
-                <div class="columns is-mobile">
-                    <div class="column is-half">
-                        <RouterLink :to="{ name: 'AddImageView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add images</RouterLink>
-                        <RouterLink :to="{ name: 'AddMaskView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add masks</RouterLink>
-                        <RouterLink :to="{ name: 'AnalyzeImagesView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Analyze images</RouterLink>
-                        <RouterLink :to="{ name: 'AddModel', params: { id: dataset.id }}" class="button is-primary">Add Model</RouterLink>
-                        <div class="button is-success" @click="showOverlay" v-if="!this.$store.loading">Show Overlay</div>
-                        <!-- <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div> -->
-                    </div>
-                    <div class="column is-half">
-                    <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading">Delete dataset</div>
-                    </div>
+        <div class="columns">
+            <div class="column">
+                <h1 class="title is-1">{{ dataset.dataset_name }}</h1>
+            <div class="columns is-mobile">
+                <div class="column is-half">
+                    <RouterLink :to="{ name: 'AddImageView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add images</RouterLink>
+                    <RouterLink :to="{ name: 'AddMaskView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add masks</RouterLink>
+                    <RouterLink :to="{ name: 'AnalyzeImagesView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Analyze images</RouterLink>
+                    <RouterLink :to="{ name: 'AddModel', params: { id: dataset.id }}" class="button is-primary">Add Model</RouterLink>
+                    <div class="button is-success" @click="showOverlay" v-if="!this.$store.loading">Show Overlay</div>
+                    <!-- <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div> -->
+                </div>
+                <div class="column is-half">
+                <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading">Delete dataset</div>
                 </div>
             </div>
-            </div>
-            <div class="image-grid" v-if="!this.$store.loading">
-                <div v-for="(item, index) in items" :key=index class="image-container" >
-                    <div class="image-wrapper" @click="toggleEnlarge" @wheel="handleMouseWheel">
-                        <img :src="item" class="image-small" v-if="!enlarged">
-                        <img :src="item" class="image-large" :style="{ transform: `scale(${scale})` }" v-if="enlarged">
-                    
-                        <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !enlarged">
-                        <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${scale})` }" @error="handleMaskImageError" v-if="setOverlay && enlarged">
-                    </div>
+        </div>
+        </div>
+        <div class="image-grid" v-if="!this.$store.loading">
+            <div v-for="(item, index) in items" :key="index" class="image-container" >
+                <!-- <div class="image-wrapper" @click="toggleEnlarge(index)" @wheel="handleMouseWheel(index, $event)"> -->
+                <div class="image-wrapper" 
+                        @click="toggleEnlarge(index)" 
+                        @wheel="handleMouseWheel(index, $event)"
+                        :style="{ zIndex: isEnlarged(index) ? 1 : 0 }">
+                    <img :src="item" class="image-small" v-if="!isEnlarged(index)">
+                    <img :src="item" class="image-large" :style="{ transform: `scale(${getScale(index)})` }" v-if="isEnlarged(index)">
+                    <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
+                    <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${getScale(index)})` }" @error="handleMaskImageError" v-if="setOverlay && isEnlarged(index)">
                 </div>
             </div>
-
+        </div>
         <div v-else>
             <div class="columns is-multiline">
                 <div class="column is-12">
@@ -78,6 +80,8 @@ export default defineComponent({
             deleteAlert: false,
             dataset_name: this.$route.params.name,
             index: null,
+            enlargedIndexes: [], 
+            scales: {}, 
             options: {
                         ready: () => {
                         this.$viewer = this.$el.querySelector(".images").$viewer;
@@ -114,31 +118,41 @@ export default defineComponent({
         viewer.show()
         },
 
-        getMaskUrl(item) {
-        // Replace "images" with "masks" in the URL
-        return item.replace('images', 'masks').replace(/\.[^.]+$/, '.png');
-        },
-        handleMaskImageError(event) {
-            // Hide the overlay mask if the image fails to load
-            event.target.style.display = 'none';
+        toggleEnlarge(index) {        
+            if (this.enlargedIndexes.includes(index)) {
+                this.enlargedIndexes = this.enlargedIndexes.filter(i => i !== index);
+            } else {
+                this.scales = {};
+                this.enlargedIndexes = [];
+                this.enlargedIndexes.push(index);
+            }
         },
 
-        handleMouseWheel(event) {
-            if (this.enlarged) {
-                // Adjust the scale based on the wheel delta
-                this.scale += event.deltaY > 0 ? -0.1 : 0.1;
+        isEnlarged(index) {
+            return this.enlargedIndexes.includes(index);
+        },
 
-                // Limit the scale to a reasonable range
-                this.scale = Math.min(Math.max(this.scale, 0.5), 3);
-                console.log(this.scale)
+        handleMouseWheel(index, event) {
+            if (this.isEnlarged(index)) {
+                this.scales[index] = this.scales[index] || 1; 
+                this.scales[index] += event.deltaY > 0 ? -0.1 : 0.1;
+
+                this.scales[index] = Math.min(Math.max(this.scales[index], 0.5), 3);
 
                 event.preventDefault();
             }
         },
 
-        toggleEnlarge() {
-            this.scale = 1; // Reset scale when toggling
-            this.enlarged = !this.enlarged
+        getScale(index) {
+            return this.scales[index] || 1; 
+        },
+
+        getMaskUrl(item) {
+        return item.replace('images', 'masks').replace(/\.[^.]+$/, '.png');
+        },
+
+        handleMaskImageError(event) {
+            event.target.style.display = 'none';
         },
 
         showOverlay() {
@@ -233,6 +247,8 @@ export default defineComponent({
     width: 100%;
     height: 100%;
 }
+
+
 
 .image-small,
 .image-large {
