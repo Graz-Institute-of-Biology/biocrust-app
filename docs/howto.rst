@@ -56,9 +56,11 @@ Restart Django::
 
 
 Run Django locally for development
+
 - sqlite3 database instead of postgres used
 
-Create local environment for django requirements::
+Create local environment for django requirements (set your own ENVNAME for your django environment)::
+
     conda create -n ENVNAME
     
     conda activate ENVNAME
@@ -77,11 +79,13 @@ If needed migrate, makemigrations and start server::
 
 
 FastAPI for development
+
 - source files in ml-docker
 
-Create local environment for FastAPI requirements::
+Create local environment for FastAPI requirements (set your own ENVNAME for your FastAPI environment)::
 
     conda create -n ENVNAME
+    
     conda activate ENVNAME
 
 run fastAPI server::

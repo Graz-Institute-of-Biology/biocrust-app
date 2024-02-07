@@ -73,7 +73,7 @@ export default {
             this.mask.slug = this.mask.name.toLowerCase()
             this.mask.dataset = this.$route.params.id
             this.mask.parentImage = this.searchParent()
-            this.mask.source = 'manual upload'
+            this.mask.source_manual = true
 
         },
 
@@ -141,7 +141,7 @@ export default {
         },
 
         getParentImageName(name) {
-            var parent_image = name.split('_mask')[0]
+            var parent_image = name.split('.')[0]
             return parent_image
         },
 
@@ -149,6 +149,8 @@ export default {
             var parent_image_name = this.getParentImageName(this.document.name)
             for (let i = 0; i < this.img_names.length; i++) {
                 if (this.img_names[i] == parent_image_name) {
+                    console.log('ID')
+                    console.log(this.Images[i].id)
                     return this.Images[i].id
                 }
             }
