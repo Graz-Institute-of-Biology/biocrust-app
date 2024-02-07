@@ -11,7 +11,7 @@ SECRET_KEY = env(
     default="8OmLatOrLmWP8ujI6JiuIxGhfjGB87ULLpWxwzvY03Jr50bMs9wjEdgyKTNDlVJV",
 )
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "django", "ml-api"]
 
 # CACHES
 # ------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 # https://django-debug-toolbar.readthedocs.io/en/latest/installation.html#internal-ips
 INTERNAL_IPS = ["127.0.0.1", "10.0.2.2"]
-if not DEBUG and env("USE_DOCKER") == "yes":
+if env("USE_DOCKER") == "yes":
     import socket
 
     hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
