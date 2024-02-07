@@ -155,20 +155,22 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         parent_image_url = serializer.validated_data.get('source_image_url')
         model_url = serializer.validated_data.get('ml_model_url')
 
-        print("Sending request...", file=sys.stderr)
-
         instance = serializer.save() # call save to store analysis entry in db
 
+        print("Sending request...", file=sys.stderr)
         analysis_id = instance.id
         print("ID: ", analysis_id, file=sys.stderr)
-        self.send_sqlite_analysis_request(parent_image_url, model_url, analysis_id)
+        print("New Build")
+        self.send_analysis_request(parent_image_url, model_url, analysis_id)
 
-    def send_sqlite_analysis_request(self, parent_image_url, model_url, analysis_id):
+    def send_analysis_request(self, parent_image_url, model_url, analysis_id):
         # Send the request to the analysis API
+        parent_image_url = parent_image_url.replace("127.0.0.1", "django")
+        model_url = model_url.replace("127.0.0.1", "django")
         payload = {
             'file_path': parent_image_url,
             'model_path': model_url,
-            'analysis_id': analysis_id
+            'analysis_id': analysis_id,
         }
         headers = {}
 
@@ -180,7 +182,7 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         #  only needed for sqlite3 db while testing
         try:
             requests.post(
-            'http://localhost:8082/api/v1/predict', headers=headers, json=payload, timeout=0.0000000001)
+            'http://ml-api:8082/api/v1/predict', headers=headers, json=payload, timeout=0.0000000001)
             print("Request sent...")
         except requests.exceptions.ReadTimeout: 
-            pass        
+            pass
