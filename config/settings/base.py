@@ -15,6 +15,8 @@ if READ_DOT_ENV_FILE:
     # OS environment variables take precedence over variables from .env
     env.read_env(str(BASE_DIR / ".env"))
 
+
+
 # GENERAL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
@@ -76,13 +78,12 @@ DJANGO_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django.contrib.sites",
     # "django.contrib.humanize", # Handy template tags
     "django.contrib.admin",
     "django.forms",
 ]
-# if not DEBUG:
-#     DJANGO_APPS += ["django.contrib.sites"]
+if not DEBUG:
+    DJANGO_APPS += ["django.contrib.sites"]
     
 THIRD_PARTY_APPS = [
     "crispy_forms",
