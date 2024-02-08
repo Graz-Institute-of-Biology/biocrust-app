@@ -187,6 +187,7 @@ export default defineComponent({
             this.mask.dataset = this.$route.params.id
             this.mask.ml_model_url = this.getModelUrl(this.$route.params.id)
             this.mask.source_image_url = this.Images[0].img
+            this.mask.parent_image_id = this.Images[0].id
         },
 
         getModelUrl(id) {
@@ -250,6 +251,8 @@ export default defineComponent({
             formData.append('dataset', this.mask.dataset)
             formData.append('ml_model_url', this.mask.ml_model_url)
             formData.append('source_image_url', this.mask.source_image_url)
+            formData.append('parent_img_id', this.mask.parent_image_id)
+            formData.append('ml_model_id', this.Models[0].id)
             console.log(formData)
             return axios.post('api/v1/analyses/', formData, {
                 headers: {
