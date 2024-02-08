@@ -22,3 +22,9 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+### Docker:
+docker-compose -f local.yml build (--no-cache) (build images)
+docker-compose -f local.yml up (start containers from built images)
+
+
