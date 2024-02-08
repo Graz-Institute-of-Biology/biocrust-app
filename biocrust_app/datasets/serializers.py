@@ -66,6 +66,8 @@ class Analysis_ModelSerializer(serializers.ModelSerializer):
                   'dataset',
                   'source_image_url',
                   'ml_model_url',
+                  'parent_img_id',
+                  'ml_model_id',
                   'owner',
                   'slug',
                   'status',

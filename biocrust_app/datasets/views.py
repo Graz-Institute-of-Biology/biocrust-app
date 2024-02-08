@@ -154,6 +154,8 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         parent_image_url = serializer.validated_data.get('source_image_url')
         model_url = serializer.validated_data.get('ml_model_url')
+        parent_img_id = serializer.validated_data.get('parent_img_id').id
+        ml_model_id = serializer.validated_data.get('ml_model_id').id
 
         instance = serializer.save() # call save to store analysis entry in db
 
@@ -161,9 +163,10 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         analysis_id = instance.id
         print("ID: ", analysis_id, file=sys.stderr)
         print("New Build")
-        self.send_analysis_request(parent_image_url, model_url, analysis_id)
+        print(ml_model_id, file=sys.stderr)
+        self.send_analysis_request(parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id)
 
-    def send_analysis_request(self, parent_image_url, model_url, analysis_id):
+    def send_analysis_request(self, parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id):
         # Send the request to the analysis API
         parent_image_url = parent_image_url.replace("127.0.0.1", "django")
         model_url = model_url.replace("127.0.0.1", "django")
@@ -171,6 +174,8 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
             'file_path': parent_image_url,
             'model_path': model_url,
             'analysis_id': analysis_id,
+            'parent_img_id': parent_img_id,
+            'ml_model_id': ml_model_id
         }
         headers = {}
 
@@ -182,7 +187,7 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         #  only needed for sqlite3 db while testing
         try:
             requests.post(
-            'http://ml-api:8082/api/v1/predict', headers=headers, json=payload, timeout=0.0000000001)
+            'http://ml-api:8082/api/v1/predict', headers=headers, json=payload, timeout=0.0000000001) # localhost or ml-api (docker service name)
             print("Request sent...")
         except requests.exceptions.ReadTimeout: 
             pass

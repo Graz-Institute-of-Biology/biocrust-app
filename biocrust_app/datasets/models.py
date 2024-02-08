@@ -133,6 +133,8 @@ class Mask_Model(models.Model):
 
 class Analysis_Model(models.Model):
     dataset = models.ForeignKey(Dataset_Model, related_name='analysis', on_delete=models.CASCADE)
+    parent_img_id = models.ForeignKey(Image_Model, related_name='analysis', on_delete=models.CASCADE)
+    ml_model_id = models.ForeignKey(Model_Model, related_name='analysis', on_delete=models.CASCADE)
     source_image_url = models.CharField(max_length=255, default='')
     ml_model_url = models.CharField(max_length=255, default='')
     owner = models.CharField(max_length=255, blank=True)
