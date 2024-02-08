@@ -14,22 +14,20 @@
                     </div>
                 </div>
             </div>
-        <div v-if="!this.$store.loading">
-            <div v-if="!this.setOverlay && !enlarged" class="image-container" @click="toggleEnlarge">
-                <img :src="this.items[0]" class="image-small">
+            <div class="image-grid" v-if="!this.$store.loading">
+            <div v-for="(item, index) in items" :key="index" class="image-container" >
+                <!-- <div class="image-wrapper" @click="toggleEnlarge(index)" @wheel="handleMouseWheel(index, $event)"> -->
+                <div class="image-wrapper" 
+                        @click="toggleEnlarge(index)" 
+                        @wheel="handleMouseWheel(index, $event)"
+                        :style="{ zIndex: isEnlarged(index) ? 1 : 0 }">
+                    <img :src="item" class="image-small" v-if="!isEnlarged(index)">
+                    <img :src="item" class="image-large" :style="{ transform: `scale(${getScale(index)})` }" v-if="isEnlarged(index)">
+                    <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
+                    <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${getScale(index)})` }" @error="handleMaskImageError" v-if="setOverlay && isEnlarged(index)">
+                </div>
             </div>
-            <div v-if="this.setOverlay && !enlarged" class="image-container" @click="toggleEnlarge">
-                <img :src="this.mask_items[0]" class="overlay-mask">
-                <img :src="this.items[0]" class="image-small">
-            </div>
-            <div v-if="!this.setOverlay && enlarged" class="image-container" @click="toggleEnlarge" @wheel="handleMouseWheel">
-                <img :src="this.items[0]" class="image-large">
-            </div>
-            <div v-if="this.setOverlay && enlarged" class="image-container" @click="toggleEnlarge" @wheel="handleMouseWheel">
-                <img :src="this.mask_items[0]" class="overlay-mask-large" :style="{ transform: `scale(${this.scale})` }">
-                <img :src="this.items[0]" class="image-large" :style="{ transform: `scale(${this.scale})` }">
-            </div>
-            </div>
+        </div>
         <div v-else>
             <div class="columns is-multiline">
                 <div class="column is-12">
@@ -79,6 +77,8 @@ export default defineComponent({
             dataset_name: this.$route.params.name,
             index: null,
             file: null,
+            enlargedIndexes: [], 
+            scales: {},
             mask: {
                 name: '',
                 owner: '',
@@ -123,20 +123,33 @@ export default defineComponent({
             const viewer = this.$el.querySelector('.images').$viewer
             viewer.show()
         },
-        handleMouseWheel(event) {
-        if (this.enlarged) {
-            // Adjust the scale based on the wheel delta
-            this.scale += event.deltaY > 0 ? -0.1 : 0.1;
-
-            // Limit the scale to a reasonable range
-            this.scale = Math.min(Math.max(this.scale, 0.5), 3);
-
-            event.preventDefault();
+        toggleEnlarge(index) {        
+            if (this.enlargedIndexes.includes(index)) {
+                this.enlargedIndexes = this.enlargedIndexes.filter(i => i !== index);
+            } else {
+                this.scales = {};
+                this.enlargedIndexes = [];
+                this.enlargedIndexes.push(index);
             }
         },
-        toggleEnlarge() {
-            this.scale = 1; // Reset scale when toggling
-            this.enlarged = !this.enlarged
+
+        isEnlarged(index) {
+            return this.enlargedIndexes.includes(index);
+        },
+
+        handleMouseWheel(index, event) {
+            if (this.isEnlarged(index)) {
+                this.scales[index] = this.scales[index] || 1; 
+                this.scales[index] += event.deltaY > 0 ? -0.1 : 0.1;
+
+                this.scales[index] = Math.min(Math.max(this.scales[index], 0.5), 3);
+
+                event.preventDefault();
+            }
+        },
+
+        getScale(index) {
+            return this.scales[index] || 1; 
         },
         showOverlay() {
             this.setOverlay = !this.setOverlay
@@ -271,31 +284,41 @@ export default defineComponent({
 .page-dataset {
     margin-bottom: 10%;
 }
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); /* Adjust the size as needed */
+    grid-gap: 10px; /* Adjust the gap between images */
+}
+
 .image-container {
     position: relative;
 }
+
+.image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+
+
 .image-small,
-.overlay-mask {
-    position: absolute;
-    height: 500px;
-    margin: 15px;
+.image-large {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
 }
-.image-large,
+
+.overlay-mask,
 .overlay-mask-large {
     position: absolute;
-    height: 1000px;
-    width: auto;
-    margin: 15px;
-    transform-origin: top left; /* Set the origin for scaling */
-}
-.overlay-mask {
-    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     opacity: 0.6;
-}
-.overlay-mask-large {
-    z-index: 1;
-    opacity: 0.6;
-    transform-origin: top left; /* Set the origin for scaling */
+    border-radius: 10px;
 }
 
 .button {
