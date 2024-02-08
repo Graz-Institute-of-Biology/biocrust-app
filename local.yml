@@ -22,6 +22,18 @@ services:
       - '8000:8000'
     command: /start
 
+
+  ml-api:
+    build:
+      context: .
+      dockerfile: ./compose/local/ml-api/Dockerfile
+    image: biocrust_app_local_ml-api
+    container_name: biocrust_app_local_ml-api
+    depends_on:
+      - postgres
+    ports:
+      - "8082:8082"
+
   postgres:
     build:
       context: .
@@ -36,21 +48,21 @@ services:
     env_file:
       - ./.envs/.local/.postgres
 
-  docs:
-    image: biocrust_app_local_docs
-    container_name: biocrust_app_local_docs
-    build:
-      context: .
-      dockerfile: ./compose/local/docs/Dockerfile
-    env_file:
-      - ./.envs/.local/.django
-    volumes:
-      - ./docs:/docs:z
-      - ./config:/app/config:z
-      - ./biocrust_app:/app/biocrust_app:z
-    ports:
-      - '9000:9000'
-    command: /start-docs
+  # docs:
+  #   image: biocrust_app_local_docs
+  #   container_name: biocrust_app_local_docs
+  #   build:
+  #     context: .
+  #     dockerfile: ./compose/local/docs/Dockerfile
+  #   env_file:
+  #     - ./.envs/.local/.django
+  #   volumes:
+  #     - ./docs:/docs:z
+  #     - ./config:/app/config:z
+  #     - ./biocrust_app:/app/biocrust_app:z
+  #   ports:
+  #     - '9000:9000'
+  #   command: /start-docs
 
   frontend:
     container_name: frontend
@@ -66,18 +78,18 @@ services:
     ports:
       - '81:80'
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: biocrust_app_local_pgadmin
-    depends_on:
-      - postgres
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@mail.com
-      - PGADMIN_DEFAULT_PASSWORD=admin
-      - PGADMIN_LISTEN_PORT=5050
-    ports:
-      - '5050:5050'
-    volumes:
-      - biocrust_app_local_postgres_data:/var/lib/postgresql/data
-      - biocrust_app_local_postgres_data_backups:/backups
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: biocrust_app_local_pgadmin
+  #   depends_on:
+  #     - postgres
+  #   environment:
+  #     - PGADMIN_DEFAULT_EMAIL=admin@mail.com
+  #     - PGADMIN_DEFAULT_PASSWORD=admin
+  #     - PGADMIN_LISTEN_PORT=5050
+  #   ports:
+  #     - '5050:5050'
+  #   volumes:
+  #     - biocrust_app_local_postgres_data:/var/lib/postgresql/data
+  #     - biocrust_app_local_postgres_data_backups:/backups
 

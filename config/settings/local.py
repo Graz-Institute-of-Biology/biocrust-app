@@ -11,7 +11,7 @@ SECRET_KEY = env(
     default="8OmLatOrLmWP8ujI6JiuIxGhfjGB87ULLpWxwzvY03Jr50bMs9wjEdgyKTNDlVJV",
 )
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "django", "ml-api"]
 
 # CACHES
 # ------------------------------------------------------------------------------
