@@ -59,6 +59,10 @@ Run Django locally for development
 
 - sqlite3 database instead of postgres used
 
+Set django in debug mode. In config/settings/base.py, line 23, set 
+
+    DEBUG = env.bool("DJANGO_DEBUG", True)
+
 Create local environment for django requirements (set your own ENVNAME for your django environment)::
 
     conda create -n ENVNAME

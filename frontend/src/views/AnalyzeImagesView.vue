@@ -15,19 +15,20 @@
                 </div>
             </div>
             <div class="image-grid" v-if="!this.$store.loading">
-            <div v-for="(item, index) in items" :key="index" class="image-container" >
-                <!-- <div class="image-wrapper" @click="toggleEnlarge(index)" @wheel="handleMouseWheel(index, $event)"> -->
-                <div class="image-wrapper" 
-                        @click="toggleEnlarge(index)" 
+                <div v-for="(item, index) in items" :key="index" class="image-container">
+                    <div class="image-wrapper" 
+                        @click="selectImage(index)" 
                         @wheel="handleMouseWheel(index, $event)"
+                        :class="{ 'selected': isSelected(index) }"
                         :style="{ zIndex: isEnlarged(index) ? 1 : 0 }">
-                    <img :src="item" class="image-small" v-if="!isEnlarged(index)">
-                    <img :src="item" class="image-large" :style="{ transform: `scale(${getScale(index)})` }" v-if="isEnlarged(index)">
-                    <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
-                    <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${getScale(index)})` }" @error="handleMaskImageError" v-if="setOverlay && isEnlarged(index)">
+                        <img :src="item" class="image-small" v-if="!isEnlarged(index)">
+                        <img :src="item" class="image-large" :style="{ transform: `scale(${getScale(index)})` }" v-if="isEnlarged(index)">
+                        <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
+                        <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${getScale(index)})` }" @error="handleMaskImageError" v-if="setOverlay && isEnlarged(index)">
+                    </div>
                 </div>
             </div>
-        </div>
+
         <div v-else>
             <div class="columns is-multiline">
                 <div class="column is-12">
@@ -79,6 +80,7 @@ export default defineComponent({
             file: null,
             enlargedIndexes: [], 
             scales: {},
+            selectedImage: null,
             mask: {
                 name: '',
                 owner: '',
@@ -123,6 +125,15 @@ export default defineComponent({
             const viewer = this.$el.querySelector('.images').$viewer
             viewer.show()
         },
+
+        selectImage(index) {
+        this.selectedImage = this.selectedImage === index ? null : index;
+        },
+
+        isSelected(index) {
+            return this.selectedImage === index;
+        },
+
         toggleEnlarge(index) {        
             if (this.enlargedIndexes.includes(index)) {
                 this.enlargedIndexes = this.enlargedIndexes.filter(i => i !== index);
@@ -193,15 +204,15 @@ export default defineComponent({
                 })
                 this.$store.commit('setLoading', false)
         },
-        async addInfos() {
-            this.mask.owner = localStorage.getItem('username')
-            this.mask.name = this.Images[0].name.split('.')[0]
-            this.mask.slug = this.mask.name.toLowerCase()
-            this.mask.dataset = this.$route.params.id
-            this.mask.ml_model_url = this.getModelUrl(this.$route.params.id)
-            this.mask.source_image_url = this.Images[0].img
-            this.mask.parent_image_id = this.Images[0].id
-        },
+        async addInfos(index) {
+        this.mask.owner = localStorage.getItem('username')
+        this.mask.name = this.Images[index].name.split('.')[0]
+        this.mask.slug = this.mask.name.toLowerCase()
+        this.mask.dataset = this.$route.params.id
+        this.mask.ml_model_url = this.getModelUrl(this.$route.params.id)
+        this.mask.source_image_url = this.Images[index].img
+        this.mask.parent_image_id = this.Images[index].id
+    },
 
         getModelUrl(id) {
             const model = this.Models.filter(model => model.dataset == id)
@@ -241,20 +252,21 @@ export default defineComponent({
         },
 
         async analyzeImage() {
-            await this.addInfos()
-            await this.sendAnalysisRequest()
+        if (this.selectedImage === null) {
+            // No image selected, show error message or handle accordingly
+            return;
+        }
+
+        await this.addInfos(this.selectedImage);
+        await this.sendAnalysisRequest()
             .then(response => {
                 this.message = 'Analysis request sent successfully!'
-                this.mask = null
-                this.progress = 0
                 console.log(response)
             })
             .catch(error => {
                 this.message = 'Analysis request Error!'
-                this.mask = null
-                this.progress = 0
                 console.log(error)
-            })                      
+            });
         },
 
         sendAnalysisRequest() {
@@ -284,6 +296,12 @@ export default defineComponent({
 </script>
 
 <style scoped>
+
+.selected {
+    border: 1px solid rgb(44, 44, 47); /* Adjust border color and size as needed */
+    box-shadow: 0 0 10px 0 rgb(51, 51, 55); /* Add shadow effect to the selected image */
+    border-radius: 10px;
+}
 .page-dataset {
     margin-bottom: 10%;
 }
