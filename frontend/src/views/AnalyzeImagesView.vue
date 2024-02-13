@@ -64,7 +64,7 @@ export default defineComponent({
       viewer: viewer({
         debug: true
       })
- },
+    },
     data () {
         return {
             Images: [],

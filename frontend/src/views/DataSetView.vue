@@ -12,10 +12,8 @@
                 <div class="column is-half">
                     <RouterLink :to="{ name: 'AnalyzeImagesView', params: { id: dataset.id }}" class="button is-primary" v-if="!this.$store.loading">Analyze images</RouterLink>
                     <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading">Show Overlay</div>
+                    <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading">Delete dataset</div>
                     <!-- <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div> -->
-                </div>
-                <div class="column is-half">
-                <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading">Delete dataset</div>
                 </div>
             </div>
         </div>
