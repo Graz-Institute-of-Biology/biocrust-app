@@ -3,54 +3,71 @@
       <section class ="section" id="app">
           <h2 class="is-size-2 has-text-centered">Home</h2>
           <p> About this project some example text</p>
+          <RouterLink @click="createDefaultDataset" to="/datasets" class="button is-link">Try</RouterLink>
       </section>
   </div>
 </template>
 
-<script setup>
+<script>
 
-// import { computed } from 'vue'
-// import store from '../store'
-import imageData from '../data.json'
-import { useRoute } from 'vue-router'
-import { ref, watch, onMounted } from 'vue'
+import axios from 'axios'
+import { defineComponent } from 'vue'
+import 'viewerjs/dist/viewer.css'
+import { directive as viewer } from "v-viewer"
 
-const dataset = ref(imageData)
-const continent = ref("")
-// const router = useRouter()
-const route = useRoute()
+export default defineComponent({
+    name: 'HomeView',
+    directives: {
+      viewer: viewer({
+        debug: true
+      })
+    },
+    data () {
+        return {
+          dataset: {
+                dataset_name: 'Guest_Dataset',
+                coordinates: ' ',
+                dataset_type: 'default',
+                owner: localStorage.getItem('username'),
+            }
+        }
+    },
 
-
-onMounted(() => {
-    continent.value = route.query.continent || "All"
-})
-
-watch(continent, () => {
-    if (continent.value === "All") {
-        dataset.value = imageData
-    } else {
-        dataset.value = imageData.filter(data => data.continent === continent.value)
+    methods: {
+      async createDefaultDataset() {
+          this.addSlug();
+          await axios.get('api/v1/datasets/')
+          .then(response => {
+              const existingDataset = response.data.find(dataset => dataset.dataset_name === this.dataset.dataset_name);
+              if (existingDataset) {
+                  console.log('Dataset already exists:', existingDataset);
+                  return;
+              }
+              axios.post('api/v1/datasets/', this.dataset, { headers: { 'Content-Type': 'application/json' } })
+              .then(createdResponse => {
+                  console.log(createdResponse);
+                  this.$router.push({ name: 'datasets' });
+                  setTimeout(() => {
+                    this.$router.go();
+                  }, 100);
+              })
+              .catch(error => {
+                  console.log(JSON.stringify(error));
+              });
+          })
+          .catch(error => {
+              console.log('Error fetching datasets:', error);
+          });
+      },
+      addSlug() {
+            this.dataset.slug = this.dataset.dataset_name.toLowerCase()
+      }
     }
-})
+  })
+    
 
 </script>
 
 <style scoped>
-.cards {
-  display: flex;
-  width: 1000px;
-  flex-wrap: wrap;
-  margin-top: 50px;
-  justify-content: center;
-}
 
-.card {
-  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.207);
-  padding: 15px;
-  width: 150px;
-  margin-right: 15px;
-  cursor: pointer;
-  margin-bottom: 20px;
-
-}
 </style>
