@@ -148,7 +148,7 @@ export default defineComponent({
         },
 
         getMaskUrl(item) {
-        return item.replace('images', 'masks').replace(/\.[^.]+$/, '.png');
+        return item.replace('images', 'masks').replace(/\.[^.]+$/, '_mask_01.png');
         },
 
         handleMaskImageError(event) {
