@@ -140,7 +140,7 @@ class Analysis_Model(models.Model):
     ml_model_url = models.CharField(max_length=255, default='')
     owner = models.CharField(max_length=255, blank=True)
     slug = models.SlugField()
-    status = models.CharField(max_length=255, blank=True, default="")
+    status = models.CharField(max_length=255, blank=True, default="Sent to FastAPI")
     start_time = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField(auto_now_add=True)
     completed = models.BooleanField(default=False)
