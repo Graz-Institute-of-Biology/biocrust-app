@@ -172,7 +172,7 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         # model_url = model_url.replace("127.0.0.1", "django")
         payload = {
             'file_path': parent_image_url,
-            'model_path': model_url,
+            'ml_model_path': model_url,
             'analysis_id': analysis_id,
             'parent_img_id': parent_img_id,
             'ml_model_id': ml_model_id
