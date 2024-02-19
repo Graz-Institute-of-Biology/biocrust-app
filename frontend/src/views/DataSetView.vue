@@ -3,20 +3,27 @@
         <div class="columns">
             <div class="column">
                 <h1 class="title is-1">{{ dataset.dataset_name }}</h1>
-            <div class="columns is-mobile">
-                <div class="column is-half">
-                    <RouterLink :to="{ name: 'AddImageView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add images</RouterLink>
-                    <RouterLink :to="{ name: 'AddMaskView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add masks</RouterLink>
-                    <RouterLink :to="{ name: 'AddModel', params: { id: dataset.id }}" class="button is-link">Add Model</RouterLink>
-                </div>
-                <div class="column is-half">
-                    <RouterLink :to="{ name: 'AnalyzeImagesView', params: { id: dataset.id }}" class="button is-primary" v-if="!this.$store.loading">Analyze images</RouterLink>
-                    <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading">Show Overlay</div>
-                    <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading">Delete dataset</div>
-                    <!-- <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div> -->
+                <div class="columns is-mobile">
+                    <div class="column is-half">
+                        <RouterLink :to="{ name: 'AddImageView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add images</RouterLink>
+                        <RouterLink :to="{ name: 'AddMaskView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add masks</RouterLink>
+                        <RouterLink :to="{ name: 'AddModel', params: { id: dataset.id }}" class="button is-link">Add Model</RouterLink>
+                    </div>
+                    <div class="column is-half">
+                        <RouterLink :to="{ name: 'AnalyzeImagesView', params: { id: dataset.id }}" class="button is-primary" v-if="!this.$store.loading">Analyze images</RouterLink>
+                        <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading">Show Overlay</div>
+                        <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading">Delete dataset</div>
+                        <!-- <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div> -->
+                    </div>
                 </div>
             </div>
         </div>
+        <div class="chart">
+            <Bar
+                id="my-chart-id"
+                :options="chartOptions"
+                :data="chartData"
+            />
         </div>
         <div class="image-grid" v-if="!this.$store.loading">
             <div v-for="(item, index) in items" :key="index" class="image-container" >
@@ -60,9 +67,14 @@ import axios from 'axios'
 import { defineComponent } from 'vue'
 import 'viewerjs/dist/viewer.css'
 import { directive as viewer } from "v-viewer"
+import { Bar } from 'vue-chartjs'
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
+
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
 export default defineComponent({
     name: 'DataSetView',
+    components: { Bar },
     directives: {
       viewer: viewer({
         debug: true
@@ -82,6 +94,36 @@ export default defineComponent({
             index: null,
             enlargedIndexes: [], 
             scales: {}, 
+            chartData: {
+                labels: [ 'Taxon 1', 'Taxon 2', 'Taxon 2' ],
+                datasets: [{
+                    backgroundColor: 'aqua',
+                    label: "Taxon 1",
+                    data: [123, null, null]
+                    }, {
+                    backgroundColor: 'lightgreen',
+                    label: "Taxon 2",
+                    data: [null, 321, null]
+                    }, {
+                    backgroundColor: 'pink',
+                    label: "Taxon 2",
+                    data: [null, null, 213]
+                    }]
+            },
+            chartOptions: {
+                responsive: false,
+                skipNull: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Test Chart'
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom",
+                    },
+                },
+            },
             options: {
                         ready: () => {
                         this.$viewer = this.$el.querySelector(".images").$viewer;
@@ -228,6 +270,18 @@ export default defineComponent({
 
 <style scoped>
 
+.chart {
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 5%;
+  padding-bottom: 5%;
+} 
+
+canvas {
+    width: 40% !important;
+    height: 40% !important;
+    margin: 0 auto;
+}
 .page-dataset {
     margin-bottom: 10%;
 }

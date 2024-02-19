@@ -1,10 +1,14 @@
 <template>
-  <div class="container hero is-fullheight">
-      <section class ="section" id="app">
-          <h2 class="is-size-2 has-text-centered">Home</h2>
-          <p> About this project some example text</p>
-          <RouterLink @click="createDefaultDataset" to="/datasets" class="button is-link">Try</RouterLink>
-      </section>
+  <div class="is-fullheight">
+    
+        <div class="column is-10 header-col">
+            <h2 class="is-size-2">Home</h2>
+        </div>
+        <p> Deep Learning Webpage for an image based Biomonitoring</p>
+        <div class="column is-2 button-col">
+          <div class="button is-primary" @click="createDefaultDataset" >Try demo dataset</div>
+        </div>
+    
   </div>
 </template>
 
@@ -69,5 +73,13 @@ export default defineComponent({
 </script>
 
 <style scoped>
+
+p {
+  padding: 0.75rem;
+}
+
+.header-col {
+    text-align: center;
+}
 
 </style>
