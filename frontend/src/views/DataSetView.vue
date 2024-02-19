@@ -190,7 +190,8 @@ export default defineComponent({
         },
 
         getMaskUrl(item) {
-        return item.replace('images', 'masks').replace(/\.[^.]+$/, '.png');
+            console.log(item)
+        return this.mask_item.mask;
         },
 
         handleMaskImageError(event) {
@@ -251,8 +252,9 @@ export default defineComponent({
                 this.Masks = response.data.filter(mask => mask.dataset == this.$route.params.id)
                 let mask_items = response.data.filter(mask => mask.dataset == this.$route.params.id)
                 for (let i = 0; i < mask_items.length; i++) {
-                    this.mask_items.push(mask_items[i].mask)
+                    this.mask_items.push(mask_items[i])
                 }
+                this.mask_item = this.mask_items[0]
             })
             .catch(error => {
                 console.log(error)

@@ -24,7 +24,7 @@
         <div class="modal-background"></div>
         <div class="modal-card">
             <header class="modal-card-head">
-            <p class="modal-card-title">Sure you want to delete dataset?</p>
+            <p class="modal-card-title">Sure you want to delete model?</p>
             </header>
             <footer class="modal-card-foot">
             <button class="button is-danger" @click="deleteModel">Delete</button>

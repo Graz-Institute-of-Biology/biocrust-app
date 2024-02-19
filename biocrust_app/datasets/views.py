@@ -168,11 +168,11 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
 
     def send_analysis_request(self, parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id):
         # Send the request to the analysis API
-        parent_image_url = parent_image_url.replace("127.0.0.1", "django")
-        model_url = model_url.replace("127.0.0.1", "django")
+        # parent_image_url = parent_image_url.replace("127.0.0.1", "django")
+        # model_url = model_url.replace("127.0.0.1", "django")
         payload = {
             'file_path': parent_image_url,
-            'model_path': model_url,
+            'ml_model_path': model_url,
             'analysis_id': analysis_id,
             'parent_img_id': parent_img_id,
             'ml_model_id': ml_model_id
@@ -187,7 +187,7 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         #  only needed for sqlite3 db while testing
         try:
             requests.post(
-            'http://ml-api:8082/api/v1/predict', headers=headers, json=payload, timeout=0.0000000001) # localhost or ml-api (docker service name)
+            'http://localhost:8082/api/v1/predict', headers=headers, json=payload, timeout=0.0000000001) # localhost or ml-api (docker service name)
             print("Request sent...")
         except requests.exceptions.ReadTimeout: 
             pass

@@ -31,6 +31,7 @@ class Mask_ModelSerializer(serializers.ModelSerializer):
                   'source_model',
                   'source_manual',
                   'source_model_url',
+                  'class_distributions',
                   )
         
 class Dataset_ModelSerializer(serializers.ModelSerializer):

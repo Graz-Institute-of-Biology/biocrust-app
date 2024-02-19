@@ -117,18 +117,28 @@ export default {
             // this.$store.commit('setMasksUploaded', 1)
             this.$router.push({ name: 'DataSetView', params: { id: this.dataset_id } })            
         },
+        // "name" : 'test',
+        // "owner" : 'admin',
+        // "description" : "test description",
+        // "slug" : 'test',
+        // "dataset" : dataset,
+        // "parent_image" : parent_img_id,
+        // "source_model" : ml_model_id,
+        // "source_model_url" : source_model_url,
 
         performMaskUpload(file, onUploadProgress) {
             console.log(file)
             let formData = new FormData()
             formData.append('mask', file)
             formData.append('name', this.mask.name)
-            formData.append('parent_image', this.mask.parentImage)
+            formData.append('parent_image', 6)
+            formData.append('parent_image_url', 'test')
             formData.append('owner', this.mask.owner)
             formData.append('description', this.mask.description)
             formData.append('slug', this.mask.slug)
             formData.append('dataset', this.mask.dataset)
-            formData.append('source_manual', this.mask.source)
+            formData.append('source_manual', true)
+            formData.append('dataset', 4)
             //formData.append('source_model', null)
             console.log(formData)
             return axios.post('api/v1/masks/', formData, {

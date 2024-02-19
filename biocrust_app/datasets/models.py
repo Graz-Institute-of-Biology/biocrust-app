@@ -119,6 +119,7 @@ class Mask_Model(models.Model):
     source_manual = models.BooleanField(max_length=255, blank=True, default=True)
     date_added = models.DateTimeField(auto_now_add=True)
     is_categorical = models.BooleanField(default=True)
+    class_distributions = models.TextField(blank=True, null=True, default="")
 
 
     class Meta:
@@ -139,7 +140,7 @@ class Analysis_Model(models.Model):
     ml_model_url = models.CharField(max_length=255, default='')
     owner = models.CharField(max_length=255, blank=True)
     slug = models.SlugField()
-    status = models.CharField(max_length=255, blank=True)
+    status = models.CharField(max_length=255, blank=True, default="Sent to FastAPI")
     start_time = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField(auto_now_add=True)
     completed = models.BooleanField(default=False)
