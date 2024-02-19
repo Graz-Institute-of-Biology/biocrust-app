@@ -29,7 +29,7 @@
             <div v-for="(item, index) in items" :key="index" class="image-container" >
                 <!-- <div class="image-wrapper" @click="toggleEnlarge(index)" @wheel="handleMouseWheel(index, $event)"> -->
                 <div class="image-wrapper" 
-                        @click="toggleEnlarge(index)" 
+                        @click="() => { toggleEnlarge(index); handleImageClick(item); }"
                         @wheel="handleMouseWheel(index, $event)"
                         :style="{ zIndex: isEnlarged(index) ? 1 : 0 }">
                     <img :src="item" class="image-small" v-if="!isEnlarged(index)">
@@ -160,6 +160,59 @@ export default defineComponent({
         viewer.show()
         },
 
+        async fetchClassDistribution(image) {
+            const imageUrl = image; 
+            const maskUrl = this.getMaskUrl(imageUrl); 
+            try {
+                const response = await axios.get('api/v1/masks/');
+                const maskData = response.data;
+
+                const matchingMask = maskData.find(mask => mask.mask === maskUrl);
+
+                if (matchingMask && matchingMask.class_distributions) {
+                    return JSON.parse(matchingMask.class_distributions);
+                }
+            } catch (error) {
+                console.error("Error fetching class distribution:", error);
+            }
+            return null;
+        },
+
+        async handleImageClick(image) {
+            const classDistribution = await this.fetchClassDistribution(image);
+            if (classDistribution) {
+                const labels = Object.keys(classDistribution.class_distributions);
+                const data = Object.values(classDistribution.class_distributions);
+
+                this.chartData = {
+                    labels: labels,
+                    datasets: [{
+                        backgroundColor: 'lightblue',
+                        label: "Class Distribution",
+                        data: data
+                    }]
+                };
+            } else {
+                // temporary default data
+                this.chartData = { 
+                    labels: [ 'Taxon 1', 'Taxon 2', 'Taxon 2' ],
+                    datasets: [{
+                        backgroundColor: 'aqua',
+                        label: "Taxon 1",
+                        data: [123, null, null]
+                    }, {
+                        backgroundColor: 'lightgreen',
+                        label: "Taxon 2",
+                        data: [null, 321, null]
+                    }, {
+                        backgroundColor: 'pink',
+                        label: "Taxon 2",
+                        data: [null, null, 213]
+                    }]
+                }
+            }
+        },
+
         toggleEnlarge(index) {        
             if (this.enlargedIndexes.includes(index)) {
                 this.enlargedIndexes = this.enlargedIndexes.filter(i => i !== index);
@@ -190,8 +243,6 @@ export default defineComponent({
         },
 
         getMaskUrl(item) {
-            console.log('mask')
-            console.log(item.replace('images', 'masks').replace(/\.[^.]+$/, '.png'))
         return item.replace('images', 'masks').replace(/\.[^.]+$/, '.png')
         },
 
@@ -291,8 +342,8 @@ canvas {
 
 .image-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); /* Adjust the size as needed */
-    grid-gap: 10px; /* Adjust the gap between images */
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+    grid-gap: 10px;
 }
 
 .image-container {
