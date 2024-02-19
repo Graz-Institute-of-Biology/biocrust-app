@@ -190,8 +190,9 @@ export default defineComponent({
         },
 
         getMaskUrl(item) {
-            console.log(item)
-        return this.mask_item.mask;
+            console.log('mask')
+            console.log(item.replace('images', 'masks').replace(/\.[^.]+$/, '.png'))
+        return item.replace('images', 'masks').replace(/\.[^.]+$/, '.png')
         },
 
         handleMaskImageError(event) {
