@@ -128,17 +128,18 @@ export default {
 
         performMaskUpload(file, onUploadProgress) {
             console.log(file)
+            console.log(this.mask.parentImage)
             let formData = new FormData()
             formData.append('mask', file)
             formData.append('name', this.mask.name)
-            formData.append('parent_image', 6)
-            formData.append('parent_image_url', 'test')
+            formData.append('parent_image', this.mask.parentImage)
+            formData.append('parent_image_url', "http://127.0.0.1:8000/media/1/masks/DF01.png")
             formData.append('owner', this.mask.owner)
             formData.append('description', this.mask.description)
             formData.append('slug', this.mask.slug)
             formData.append('dataset', this.mask.dataset)
             formData.append('source_manual', true)
-            formData.append('dataset', 4)
+            formData.append('dataset', this.dataset_id)
             //formData.append('source_model', null)
             console.log(formData)
             return axios.post('api/v1/masks/', formData, {

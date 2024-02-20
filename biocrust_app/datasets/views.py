@@ -10,6 +10,7 @@ from io import BytesIO
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
+import json
 
 from biocrust_app.datasets.models import Image_Model, Dataset_Model, Model_Model, Mask_Model, Analysis_Model
 from biocrust_app.datasets.serializers import Image_ModelSerializer, Dataset_ModelSerializer, Model_ModelSerializer, Mask_ModelSerializer, Analysis_ModelSerializer
@@ -68,26 +69,58 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
     #def perform_create(self, serializer):
     #    serializer.save()
 
-    def convert_to_grayscale(self, parent_image_url):
+    def generate_class_dist(self, parent_image_url):
         response = requests.get(parent_image_url)
         img = Image.open(BytesIO(response.content))
-        # Convert the image to grayscale
-        grayscale_img = img.convert("L")
-        #grayscale_img.save("./gray.jpg")         # Save the grayscale image to BytesIO
-        output = BytesIO()
-        grayscale_img.save(output, format='PNG')
+        class_counts = {
+        'class 1': 0,
+        'class 2': 0,
+        'class 3': 0,
+        'class 4': 0,
+        'class 5': 0,
+        'class 6': 0,
+        'class 7': 0,
+        'class 8': 0
+        }
 
-        return output
+        # Define the mapping of pixel values to class labels
+        class_labels = {
+            (200, 0, 10): 'class 1',
+            (187,207, 74): 'class 2',
+            (0,108,132): 'class 3',
+            (255,204,184): 'class 4',
+            (0,0,0): 'class 5',
+            (226,232,228): 'class 6',
+            (174,214,220): 'class 7',
+            (232,167,53): 'class 8'
+        }
+
+        # Iterate over each pixel and count occurrences of each class
+        pixels = img.load()
+        for i in range(img.size[0]):
+            for j in range(img.size[1]):
+                pixel_value = pixels[i, j]
+                class_label = class_labels.get(pixel_value, 'other')
+                class_counts[class_label] += 1
+
+        # Calculate class distribution
+        total_pixels = sum(class_counts.values())
+        class_distribution = {key: round(value / total_pixels, 3) for key, value in class_counts.items()}
+
+        return json.dumps({"class_distributions": class_distribution})
+
     
     def perform_create(self, serializer):
 
-        # original_mask = serializer.validated_data.get('mask')
+        #original_mask = serializer.validated_data.get('mask')
 
-        # parent_image_url = serializer.validated_data.get('parent_image_url')
-        # model_url = serializer.validated_data.get('source_model_url')
+        parent_image_url = serializer.validated_data.get('parent_image_url')
         # Convert to grayscale and save image as a test
 
-        # grayscale_mask = self.convert_to_grayscale(parent_image_url)
+        class_distribution = self.generate_class_dist(parent_image_url)
+        
+        
+        
         # grayscale_mask_data = {
         #     'dataset': serializer.validated_data.get('dataset').id,
         #     'parent_image': serializer.validated_data.get('parent_image').id,
@@ -122,7 +155,18 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
         #     return Response(serializer.data, status=status.HTTP_201_CREATED)
         # else:
         #     return Response(grayscale_mask_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        serializer.save()
+        try:
+            instance = serializer.save()
+            if not instance.class_distributions:
+                # If class_distributions parameter is not created, generate it
+                parent_image_url = serializer.validated_data.get('parent_image_url')
+                class_distribution = self.generate_class_dist(parent_image_url)
+                print(class_distribution)
+                instance.class_distributions = class_distribution
+                instance.save()
+        except Exception as e: 
+            print(e)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Model_ModelViewSet(viewsets.ModelViewSet):

@@ -3,26 +3,33 @@
         <div class="columns">
             <div class="column">
                 <h1 class="title is-1">{{ dataset.dataset_name }}</h1>
-            <div class="columns is-mobile">
-                <div class="column is-half">
-                    <RouterLink :to="{ name: 'AddImageView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add images</RouterLink>
-                    <RouterLink :to="{ name: 'AddMaskView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add masks</RouterLink>
-                    <RouterLink :to="{ name: 'AddModel', params: { id: dataset.id }}" class="button is-link">Add Model</RouterLink>
-                </div>
-                <div class="column is-half">
-                    <RouterLink :to="{ name: 'AnalyzeImagesView', params: { id: dataset.id }}" class="button is-primary" v-if="!this.$store.loading">Analyze images</RouterLink>
-                    <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading">Show Overlay</div>
-                    <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading">Delete dataset</div>
-                    <!-- <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div> -->
+                <div class="columns is-mobile">
+                    <div class="column is-half">
+                        <RouterLink :to="{ name: 'AddImageView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add images</RouterLink>
+                        <RouterLink :to="{ name: 'AddMaskView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add masks</RouterLink>
+                        <RouterLink :to="{ name: 'AddModel', params: { id: dataset.id }}" class="button is-link">Add Model</RouterLink>
+                    </div>
+                    <div class="column is-half">
+                        <RouterLink :to="{ name: 'AnalyzeImagesView', params: { id: dataset.id }}" class="button is-primary" v-if="!this.$store.loading">Analyze images</RouterLink>
+                        <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading">Show Overlay</div>
+                        <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading">Delete dataset</div>
+                        <!-- <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div> -->
+                    </div>
                 </div>
             </div>
         </div>
+        <div class="chart">
+            <Bar
+                id="my-chart-id"
+                :options="chartOptions"
+                :data="chartData"
+            />
         </div>
         <div class="image-grid" v-if="!this.$store.loading">
             <div v-for="(item, index) in items" :key="index" class="image-container" >
                 <!-- <div class="image-wrapper" @click="toggleEnlarge(index)" @wheel="handleMouseWheel(index, $event)"> -->
                 <div class="image-wrapper" 
-                        @click="toggleEnlarge(index)" 
+                        @click="() => { toggleEnlarge(index); handleImageClick(item); }"
                         @wheel="handleMouseWheel(index, $event)"
                         :style="{ zIndex: isEnlarged(index) ? 1 : 0 }">
                     <img :src="item" class="image-small" v-if="!isEnlarged(index)">
@@ -60,9 +67,14 @@ import axios from 'axios'
 import { defineComponent } from 'vue'
 import 'viewerjs/dist/viewer.css'
 import { directive as viewer } from "v-viewer"
+import { Bar } from 'vue-chartjs'
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
+
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
 export default defineComponent({
     name: 'DataSetView',
+    components: { Bar },
     directives: {
       viewer: viewer({
         debug: true
@@ -82,6 +94,36 @@ export default defineComponent({
             index: null,
             enlargedIndexes: [], 
             scales: {}, 
+            chartData: {
+                labels: [ 'Taxon 1', 'Taxon 2', 'Taxon 2' ],
+                datasets: [{
+                    backgroundColor: 'aqua',
+                    label: "Taxon 1",
+                    data: [123, null, null]
+                    }, {
+                    backgroundColor: 'lightgreen',
+                    label: "Taxon 2",
+                    data: [null, 321, null]
+                    }, {
+                    backgroundColor: 'pink',
+                    label: "Taxon 2",
+                    data: [null, null, 213]
+                    }]
+            },
+            chartOptions: {
+                responsive: false,
+                skipNull: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Test Chart'
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom",
+                    },
+                },
+            },
             options: {
                         ready: () => {
                         this.$viewer = this.$el.querySelector(".images").$viewer;
@@ -118,6 +160,59 @@ export default defineComponent({
         viewer.show()
         },
 
+        async fetchClassDistribution(image) {
+            const imageUrl = image; 
+            const maskUrl = this.getMaskUrl(imageUrl); 
+            try {
+                const response = await axios.get('api/v1/masks/');
+                const maskData = response.data;
+
+                const matchingMask = maskData.find(mask => mask.mask === maskUrl);
+
+                if (matchingMask && matchingMask.class_distributions) {
+                    return JSON.parse(matchingMask.class_distributions);
+                }
+            } catch (error) {
+                console.error("Error fetching class distribution:", error);
+            }
+            return null;
+        },
+
+        async handleImageClick(image) {
+            const classDistribution = await this.fetchClassDistribution(image);
+            if (classDistribution) {
+                const labels = Object.keys(classDistribution.class_distributions);
+                const data = Object.values(classDistribution.class_distributions);
+
+                this.chartData = {
+                    labels: labels,
+                    datasets: [{
+                        backgroundColor: 'lightblue',
+                        label: "Class Distribution",
+                        data: data
+                    }]
+                };
+            } else {
+                // temporary default data
+                this.chartData = { 
+                    labels: [ 'Taxon 1', 'Taxon 2', 'Taxon 2' ],
+                    datasets: [{
+                        backgroundColor: 'aqua',
+                        label: "Taxon 1",
+                        data: [123, null, null]
+                    }, {
+                        backgroundColor: 'lightgreen',
+                        label: "Taxon 2",
+                        data: [null, 321, null]
+                    }, {
+                        backgroundColor: 'pink',
+                        label: "Taxon 2",
+                        data: [null, null, 213]
+                    }]
+                }
+            }
+        },
+
         toggleEnlarge(index) {        
             if (this.enlargedIndexes.includes(index)) {
                 this.enlargedIndexes = this.enlargedIndexes.filter(i => i !== index);
@@ -148,8 +243,7 @@ export default defineComponent({
         },
 
         getMaskUrl(item) {
-            console.log(item)
-        return this.mask_item.mask;
+        return item.replace('images', 'masks').replace(/\.[^.]+$/, '.png')
         },
 
         handleMaskImageError(event) {
@@ -230,14 +324,26 @@ export default defineComponent({
 
 <style scoped>
 
+.chart {
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 5%;
+  padding-bottom: 5%;
+} 
+
+canvas {
+    width: 40% !important;
+    height: 40% !important;
+    margin: 0 auto;
+}
 .page-dataset {
     margin-bottom: 10%;
 }
 
 .image-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); /* Adjust the size as needed */
-    grid-gap: 10px; /* Adjust the gap between images */
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+    grid-gap: 10px;
 }
 
 .image-container {
