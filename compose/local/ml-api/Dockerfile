@@ -9,7 +9,8 @@ RUN pip install albumentations
 RUN pip install --no-binary imgaug imgaug
 RUN pip install opencv-python-headless
 
-
+ARG BUILD_ENVIRONMENT=local
+ENV BUILD_ENV ${BUILD_ENVIRONMENT}
 # 
 # CMD ["python", "/ml-api/main.py"]
 ENTRYPOINT [ "python", "/app/ml-api/fast_api/main.py" ]
