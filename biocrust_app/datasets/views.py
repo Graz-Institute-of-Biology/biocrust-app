@@ -231,7 +231,7 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         #  only needed for sqlite3 db while testing
         try:
             requests.post(
-            'http://localhost:8082/api/v1/predict', headers=headers, json=payload, timeout=0.0000000001) # localhost or ml-api (docker service name)
+            'http://ml-api:8082/api/v1/predict', headers=headers, json=payload, timeout=0.0000000001) # localhost or ml-api (docker service name)
             print("Request sent...")
         except requests.exceptions.ReadTimeout: 
             pass
