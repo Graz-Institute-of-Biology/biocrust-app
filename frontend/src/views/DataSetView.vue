@@ -11,7 +11,7 @@
                     </div>
                     <div class="column is-half">
                         <RouterLink :to="{ name: 'AnalyzeImagesView', params: { id: dataset.id }}" class="button is-primary" v-if="!this.$store.loading">Analyze images</RouterLink>
-                        <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading">Show Overlay</div>
+                        <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading && this.mask_items.length > 0">Show Overlay</div>
                         <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading">Delete dataset</div>
                         <!-- <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div> -->
                     </div>
@@ -243,7 +243,14 @@ export default defineComponent({
         },
 
         getMaskUrl(item) {
-        return item.replace('images', 'masks').replace(/\.[^.]+$/, '.png')
+            for (let mask_item of this.mask_items) {
+                console.log(mask_item.parent_image_url, item)
+                if (mask_item.parent_image_url.includes('django'))
+                    item = item.replace('127.0.0.1', 'django')
+                if (mask_item.parent_image_url === item) {
+                    return mask_item.mask;
+                }
+            }
         },
 
         handleMaskImageError(event) {
@@ -307,6 +314,7 @@ export default defineComponent({
                     this.mask_items.push(mask_items[i])
                 }
                 this.mask_item = this.mask_items[0]
+                console.log(mask_items)
             })
             .catch(error => {
                 console.log(error)

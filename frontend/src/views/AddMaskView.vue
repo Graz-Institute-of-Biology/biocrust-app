@@ -24,7 +24,7 @@
                 <span class="file-cta">
                     <span class="file-label">Choose a file...</span>
                 </span>
-                <button class="button is-primary mt-2" @click="searchParent">Search</button>
+                <!-- <button class="button is-primary mt-2" @click="searchParent">Search</button> -->
             </label>
         </div>
         <button class="button is-primary mt-2" v-if="document" @click="maskUpload">Upload</button>
@@ -128,12 +128,13 @@ export default {
 
         performMaskUpload(file, onUploadProgress) {
             console.log(file)
-            console.log(this.mask.parentImage)
+            console.log("HERE")
+            console.log(this.Images)
             let formData = new FormData()
             formData.append('mask', file)
             formData.append('name', this.mask.name)
-            formData.append('parent_image', this.mask.parentImage)
-            formData.append('parent_image_url', "http://127.0.0.1:8000/media/1/masks/DF01.png")
+            formData.append('parent_image', this.mask.parentImage.id)
+            formData.append('parent_image_url', this.mask.parentImage.img)
             formData.append('owner', this.mask.owner)
             formData.append('description', this.mask.description)
             formData.append('slug', this.mask.slug)
@@ -152,17 +153,19 @@ export default {
         },
 
         getParentImageName(name) {
-            var parent_image = name.split('.')[0]
-            return parent_image
+            var mask_name = name.split('.')[0]
+            return mask_name
         },
 
         searchParent() {
-            var parent_image_name = this.getParentImageName(this.document.name)
-            for (let i = 0; i < this.img_names.length; i++) {
-                if (this.img_names[i] == parent_image_name) {
-                    console.log('ID')
-                    console.log(this.Images[i].id)
-                    return this.Images[i].id
+            var mask_name = this.getParentImageName(this.document.name)
+            console.log(mask_name)
+            console.log("searching...")
+            for (let image of this.Images) {
+                console.log(image)
+                if (mask_name.includes(image.name)) {
+                    console.log("found")
+                    return image
                 }
             }
         },
