@@ -114,59 +114,24 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
 
         #original_mask = serializer.validated_data.get('mask')
 
-        parent_image_url = serializer.validated_data.get('parent_image_url')
-        # Convert to grayscale and save image as a test
-
-        class_distribution = self.generate_class_dist(parent_image_url)
+        if serializer.validated_data.get('source_manual'):
+            parent_image_url = serializer.validated_data.get('parent_image_url')
         
-        
-        
-        # grayscale_mask_data = {
-        #     'dataset': serializer.validated_data.get('dataset').id,
-        #     'parent_image': serializer.validated_data.get('parent_image').id,
-        #     'name': serializer.validated_data.get('name'),
-        #     'owner': serializer.validated_data.get('owner'),
-        #     'slug': serializer.validated_data.get('slug'),
-        #     'mask': ContentFile(grayscale_mask.getvalue(), 'grayscale_mask.png'),
-        # }
-
-        # if serializer.validated_data.get('source_model'):
-        #     model_id = serializer.validated_data.get('source_model').id
-        #     filename = serializer.validated_data.get('source_model').model_name
-        #     path = serializer.validated_data.get('source_model').file
-
-        #     model_instance = get_object_or_404(Model_Model, id=model_id)
-        #     file_content = model_instance.file.read()
-        #     model_name = model_instance.model_name
-
-
-        # if serializer.validated_data.get('source_manual'):
-        #     with open('./log.txt', 'a+') as f:
-        #         f.write('Mask manually uploaded!')
-        #         f.write('\n')
-        #         f.write('source: ')
-        #         f.write(str(serializer.validated_data.get('source_model')))
-
-        # # Placeholder for model application (function comes here)
-
-        # grayscale_mask_serializer = Mask_ModelSerializer(data=grayscale_mask_data)
-        # if grayscale_mask_serializer.is_valid():
-        #     grayscale_mask_serializer.save()
-        #     return Response(serializer.data, status=status.HTTP_201_CREATED)
-        # else:
-        #     return Response(grayscale_mask_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            instance = serializer.save()
-            if not instance.class_distributions:
-                # If class_distributions parameter is not created, generate it
-                parent_image_url = serializer.validated_data.get('parent_image_url')
-                class_distribution = self.generate_class_dist(parent_image_url)
-                print(class_distribution)
-                instance.class_distributions = class_distribution
-                instance.save()
-        except Exception as e: 
-            print(e)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                instance = serializer.save()
+                if not instance.class_distributions:
+                    # If class_distributions parameter is not created, generate it
+                    parent_image_url = serializer.validated_data.get('parent_image_url')
+                    class_distribution = self.generate_class_dist(parent_image_url)
+                    print(class_distribution)
+                    instance.class_distributions = class_distribution
+                    instance.save()
+            except Exception as e: 
+                print(e)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+        else:
+            serializer.save()
 
 
 class Model_ModelViewSet(viewsets.ModelViewSet):
