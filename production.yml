@@ -57,8 +57,8 @@ services:
     image: biocrust_app_production_postgres
     container_name: biocrust_app_local_postgres
     volumes:
-      - biocrust_app_local_postgres_data:/var/lib/postgresql/data
-      - biocrust_app_local_postgres_data_backups:/backups
+      - production_postgres_data:/var/lib/postgresql/data
+      - production_postgres_data_backups:/backups
     ports:
       - '5432:5432'
     env_file:
