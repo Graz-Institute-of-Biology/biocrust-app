@@ -17,8 +17,8 @@ services:
       - django
     volumes:
       - ./frontend/nginx:/etc/nginx/conf.d
-    ports:
-      - '81:80'
+    expose:
+      - 80
 
   ml-api:
     build:
