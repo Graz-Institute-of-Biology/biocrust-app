@@ -1,4 +1,11 @@
 const { defineConfig } = require('@vue/cli-service')
-module.exports = { 
-  publicPath: ''
-}
+
+// if PRODUCTION (neded on server)
+// module.exports = { 
+//   publicPath: ''
+// }
+
+// if DEVELOPMENT
+module.exports = defineConfig({
+  transpileDependencies: true
+})

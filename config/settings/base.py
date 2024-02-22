@@ -295,18 +295,21 @@ SOCIALACCOUNT_FORMS = {"signup": "biocrust_app.users.forms.UserSocialSignupForm"
 # Your stuff...
 # ------------------------------------------------------------------------------
 
+# JWT_AUTH = {
+#     # Authorization:Token xxx
+#     'JWT_AUTH_HEADER_PREFIX': 'Token',
+# }
 
 CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:8080",
+    "http://127.0.0.1:8000",
     "http://localhost:8080",
     ]
 # CORS_ALLOW_ALL_ORIGINS = True
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': (
-#         'rest_framework.authentication.TokenAuthentication',
-#     ),
-#     'DEFAULT_PERMISSION_CLASSES': (
-#         'rest_framework.authentication.BasicAuthentication',
-#         'rest_framework_simplejwt.authentication.JWTAuthentication'
-#     )
-# }
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    )
+}
