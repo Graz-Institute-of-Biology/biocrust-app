@@ -27,6 +27,8 @@ services:
     build:
       context: .
       dockerfile: ./compose/local/ml-api/Dockerfile
+    environment:
+      - ML_ENV=staging
     image: biocrust_app_local_ml-api
     container_name: biocrust_app_local_ml-api
     depends_on:
