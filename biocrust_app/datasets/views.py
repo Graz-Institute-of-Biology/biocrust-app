@@ -117,7 +117,7 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
         parent_image_url = serializer.validated_data.get('parent_image_url')
         # Convert to grayscale and save image as a test
 
-        class_distribution = self.generate_class_dist(parent_image_url)
+        #class_distribution = self.generate_class_dist(parent_image_url)
         
         
         

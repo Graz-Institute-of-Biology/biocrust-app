@@ -116,7 +116,7 @@ export default defineComponent({
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Test Chart'
+                        text: 'Click on image to see class distribution.'
                     },
                     legend: {
                         display: true,
@@ -178,6 +178,12 @@ export default defineComponent({
             return null;
         },
 
+        getImageName(imageUrl) {
+            const parts = imageUrl.split('/');
+            const filename = parts[parts.length - 1];
+            return filename;
+        },
+
         async handleImageClick(image) {
             const classDistribution = await this.fetchClassDistribution(image);
             if (classDistribution) {
@@ -191,6 +197,20 @@ export default defineComponent({
                         label: "Class Distribution",
                         data: data
                     }]
+                };
+                this.chartOptions = {
+                    responsive: false,
+                    skipNull: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: this.getImageName(image)
+                        },
+                        legend: {
+                            display: true,
+                            position: "bottom",
+                        },
+                    },
                 };
             } else {
                 // temporary default data
@@ -209,7 +229,21 @@ export default defineComponent({
                         label: "Taxon 2",
                         data: [null, null, 213]
                     }]
-                }
+                };
+                this.chartOptions = {
+                    responsive: false,
+                    skipNull: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Click on image to see class distribution.'
+                        },
+                        legend: {
+                            display: true,
+                            position: "bottom",
+                        },
+                    },
+                };
             }
         },
 
