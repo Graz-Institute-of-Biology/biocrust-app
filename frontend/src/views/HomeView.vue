@@ -45,15 +45,18 @@ export default defineComponent({
               const existingDataset = response.data.find(dataset => dataset.dataset_name === this.dataset.dataset_name);
               if (existingDataset) {
                   console.log('Dataset already exists:', existingDataset);
+                  const dataset_id = existingDataset.id;
+                  this.$router.push({ name: 'DataSetView', params: {id: dataset_id } });
                   return;
               }
               axios.post('api/v1/datasets/', this.dataset, { headers: { 'Content-Type': 'application/json' } })
               .then(createdResponse => {
                   console.log(createdResponse);
-                  this.$router.push({ name: 'datasets' });
-                  setTimeout(() => {
-                    this.$router.go();
-                  }, 100);
+                  const dataset_id = createdResponse.data.id;
+                  this.$router.push({ name: 'DataSetView', params: { id: dataset_id } });
+                  // setTimeout(() => {
+                  //   this.$router.go();
+                  // }, 100);
               })
               .catch(error => {
                   console.log(JSON.stringify(error));

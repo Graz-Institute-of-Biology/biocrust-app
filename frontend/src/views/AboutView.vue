@@ -1,4 +1,5 @@
 <template>
+  <div class="container">
     <div class="container">
         <section class ="section" id="app">
             <h2 class="is-size-2 has-text-centered">About</h2>
@@ -49,6 +50,7 @@
         </div>
         </div>
     </div>
+  </div>
 </template>
 
 <script>
