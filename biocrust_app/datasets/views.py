@@ -11,6 +11,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 import json
+import os
 
 from biocrust_app.datasets.models import Image_Model, Dataset_Model, Model_Model, Mask_Model, Analysis_Model
 from biocrust_app.datasets.serializers import Image_ModelSerializer, Dataset_ModelSerializer, Model_ModelSerializer, Mask_ModelSerializer, Analysis_ModelSerializer
@@ -65,9 +66,6 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # return self.queryset.filter(created_by=self.request.user)
         return self.queryset.all()
-    
-    #def perform_create(self, serializer):
-    #    serializer.save()
 
     def generate_class_dist(self, parent_image_url):
         response = requests.get(parent_image_url)
@@ -82,7 +80,7 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
         'class 7': 0,
         'class 8': 0
         }
-
+        
         # Define the mapping of pixel values to class labels
         class_labels = {
             (200, 0, 10): 'class 1',
@@ -100,6 +98,7 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
         for i in range(img.size[0]):
             for j in range(img.size[1]):
                 pixel_value = pixels[i, j]
+                #print(pixel_value)
                 class_label = class_labels.get(pixel_value, 'other')
                 class_counts[class_label] += 1
 
@@ -111,19 +110,15 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
 
     
     def perform_create(self, serializer):
-
-        #original_mask = serializer.validated_data.get('mask')
-
-        if serializer.validated_data.get('source_manual'):
-            parent_image_url = serializer.validated_data.get('parent_image_url')
-        
+        if serializer.validated_data.get('source_manual'):        
             try:
                 instance = serializer.save()
                 if not instance.class_distributions:
                     # If class_distributions parameter is not created, generate it
                     parent_image_url = serializer.validated_data.get('parent_image_url')
+                    parent_image_url = parent_image_url.replace("images", "masks")
+                    parent_image_url = os.path.join(parent_image_url.rsplit("/", 1)[0], str(serializer.validated_data.get('mask')))
                     class_distribution = self.generate_class_dist(parent_image_url)
-                    print(class_distribution)
                     instance.class_distributions = class_distribution
                     instance.save()
             except Exception as e: 

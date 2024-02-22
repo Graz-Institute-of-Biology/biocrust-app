@@ -163,6 +163,7 @@ export default defineComponent({
         async fetchClassDistribution(image) {
             const imageUrl = image; 
             const maskUrl = this.getMaskUrl(imageUrl); 
+            console.log("Mask URL:", maskUrl);
             try {
                 const response = await axios.get('api/v1/masks/');
                 const maskData = response.data;
@@ -186,10 +187,12 @@ export default defineComponent({
 
         async handleImageClick(image) {
             const classDistribution = await this.fetchClassDistribution(image);
+            console.log("Class distribution for image:", image);
+            console.log(classDistribution);
             if (classDistribution) {
                 const labels = Object.keys(classDistribution.class_distributions);
                 const data = Object.values(classDistribution.class_distributions);
-
+                console.log(labels, data);
                 this.chartData = {
                     labels: labels,
                     datasets: [{
@@ -278,7 +281,7 @@ export default defineComponent({
 
         getMaskUrl(item) {
             for (let mask_item of this.mask_items) {
-                console.log(mask_item.parent_image_url, item)
+                // console.log(mask_item.parent_image_url, item)
                 if (mask_item.parent_image_url.includes('django'))
                     item = item.replace('127.0.0.1', 'django')
                 if (mask_item.parent_image_url === item) {
@@ -348,7 +351,7 @@ export default defineComponent({
                     this.mask_items.push(mask_items[i])
                 }
                 this.mask_item = this.mask_items[0]
-                console.log(mask_items)
+                // console.log(mask_items)
             })
             .catch(error => {
                 console.log(error)
