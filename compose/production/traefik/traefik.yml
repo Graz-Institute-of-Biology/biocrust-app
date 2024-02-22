@@ -43,7 +43,7 @@ http:
         - web-secure
       middlewares:
         - csrf
-      service: frontend
+      service: django
       # tls:
       #   # https://docs.traefik.io/master/routing/routers/#certresolver
       #   certResolver: letsencrypt
@@ -59,11 +59,11 @@ http:
     django:
       loadBalancer:
         servers:
-          - url: http://django:8000
-    frontend:
-      loadBalancer:
-        servers:
-          - url: http://frontend:80
+          - url: http://django:5000
+    # frontend:
+    #   loadBalancer:
+    #     servers:
+    #       - url: http://frontend:80
 
 providers:
   # https://docs.traefik.io/master/providers/file/
