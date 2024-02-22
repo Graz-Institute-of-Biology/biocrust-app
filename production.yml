@@ -34,7 +34,6 @@ services:
       - "8082:8082"
 
   django:
-      django:
     build:
       context: .
       dockerfile: ./compose/local/django/Dockerfile
