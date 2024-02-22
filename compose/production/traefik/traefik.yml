@@ -5,11 +5,11 @@ entryPoints:
   web:
     # http
     address: ':80'
-    http:
-      # https://docs.traefik.io/routing/entrypoints/#entrypoint
-      redirections:
-        entryPoint:
-          to: web-secure
+    # http:
+    #   # https://docs.traefik.io/routing/entrypoints/#entrypoint
+    #   redirections:
+    #     entryPoint:
+    #       to: web-secure
 
   web-secure:
     # https
@@ -37,16 +37,16 @@ http:
     #   tls:
     #     # https://docs.traefik.io/master/routing/routers/#certresolver
     #     certResolver: letsencrypt#
-    frontend:
+    web-secure-router:
       rule: 'Host(`167.99.251.188`)'
       entryPoints:
         - web-secure
       middlewares:
         - csrf
       service: frontend
-      tls:
-        # https://docs.traefik.io/master/routing/routers/#certresolver
-        certResolver: letsencrypt
+      # tls:
+      #   # https://docs.traefik.io/master/routing/routers/#certresolver
+      #   certResolver: letsencrypt
 
   middlewares:
     csrf:
