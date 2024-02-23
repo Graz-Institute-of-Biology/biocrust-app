@@ -6,7 +6,7 @@ import PageNotFoundView from '../views/PageNotFoundView.vue'
 import AddImageView from '../views/AddImageView.vue'
 import DataSetsView from '../views/DataSetsView.vue'
 import AddDatasetView from '../views/AddDatasetView.vue'
-import SignUpView from '../views/SignUpView.vue'
+// import SignUpView from '../views/SignUpView.vue'
 import LogInView from '../views/LogInView.vue'
 import LogOutView from '../views/LogOutView.vue'
 import ModelsView from '../views/ModelsView.vue'
@@ -27,11 +27,11 @@ const routes = [
         name: 'about',
         component: AboutView
     },
-    {
-        path: '/signup',
-        name: 'Signup',
-        component: SignUpView
-    },
+    // {
+    //     path: '/signup',
+    //     name: 'Signup',
+    //     component: SignUpView
+    // },
     {
         path: '/logout',
         name: 'Logout',

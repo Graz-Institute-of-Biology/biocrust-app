@@ -6,7 +6,7 @@
         </div>
         <p> Deep Learning Webpage for an image based Biomonitoring</p>
         <div class="column is-2 button-col">
-          <div class="button is-primary" @click="createDefaultDataset" >Try demo dataset</div>
+          <!-- <div class="button is-primary" @click="createDefaultDataset" >Try demo dataset</div> -->
         </div>
     
   </div>
