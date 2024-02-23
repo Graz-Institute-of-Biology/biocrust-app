@@ -303,6 +303,9 @@ SOCIALACCOUNT_FORMS = {"signup": "biocrust_app.users.forms.UserSocialSignupForm"
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://localhost:8080",
+    "http://localhost:81",
+    "http://frontend:81",
+    "http://167.99.251.188:81",
     ]
 # CORS_ALLOW_ALL_ORIGINS = True
 REST_FRAMEWORK = {
