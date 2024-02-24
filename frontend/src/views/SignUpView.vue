@@ -57,6 +57,11 @@ export default {
                 username: this.username,
                 password: this.password
             }
+            axios.interceptors.request.use(function (config) {
+                const token = localStorage.getItem("token")
+                config.headers.Authorization =  token ? `Token ${token}` : null
+                return config;
+            });
             axios.post('api/v1/users/', formData)
             .then(response => {
                 this.$router.push('/login')

@@ -14,7 +14,7 @@
                 <RouterLink to="/about" class="navbar-item">About</RouterLink>
               </template>
               <template v-else>
-                <RouterLink to="/signup" class="navbar-item">Sign Up</RouterLink>
+                <!-- <RouterLink to="/signup" class="navbar-item">Sign Up</RouterLink> -->
                 <RouterLink to="/login" class="navbar-item">Log in</RouterLink>
                 <RouterLink to="/about" class="navbar-item">About</RouterLink>
               </template>

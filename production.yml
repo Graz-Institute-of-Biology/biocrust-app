@@ -6,18 +6,48 @@ volumes:
   production_traefik: {}
 
 services:
+  frontend:
+    container_name: frontend
+    restart: always
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: biocrust_app_frontend
+    depends_on:
+      - django
+    volumes:
+      - ./frontend/nginx:/etc/nginx/conf.d
+    expose:
+      - 80
+
+  ml-api:
+    build:
+      context: .
+      dockerfile: ./compose/local/ml-api/Dockerfile
+    environment:
+      - ML_ENV=staging
+    image: biocrust_app_local_ml-api
+    container_name: biocrust_app_local_ml-api
+    depends_on:
+      - django
+    ports:
+      - "8082:8082"
+
   django:
     build:
       context: .
-      dockerfile: ./compose/production/django/Dockerfile
-
-    image: biocrust_app_production_django
+      dockerfile: ./compose/local/django/Dockerfile
+    image: biocrust_app_local_django
+    container_name: biocrust_app_local_django
     depends_on:
       - postgres
-      - redis
+    volumes:
+      - .:/app:z
     env_file:
-      - ./.envs/.production/.django
-      - ./.envs/.production/.postgres
+      - ./.envs/.local/.django
+      - ./.envs/.local/.postgres
+    ports:
+      - '8000:8000'
     command: /start
 
   postgres:
@@ -25,11 +55,14 @@ services:
       context: .
       dockerfile: ./compose/production/postgres/Dockerfile
     image: biocrust_app_production_postgres
+    container_name: biocrust_app_local_postgres
     volumes:
       - production_postgres_data:/var/lib/postgresql/data
       - production_postgres_data_backups:/backups
+    ports:
+      - '5432:5432'
     env_file:
-      - ./.envs/.production/.postgres
+      - ./.envs/.local/.postgres
 
   traefik:
     build:
@@ -44,14 +77,14 @@ services:
       - '0.0.0.0:80:80'
       - '0.0.0.0:443:443'
 
-  redis:
-    image: redis:6
+  # redis:
+  #   image: redis:6
 
-  awscli:
-    build:
-      context: .
-      dockerfile: ./compose/production/aws/Dockerfile
-    env_file:
-      - ./.envs/.production/.django
-    volumes:
-      - production_postgres_data_backups:/backups:z
+  # awscli:
+  #   build:
+  #     context: .
+  #     dockerfile: ./compose/production/aws/Dockerfile
+  #   env_file:
+  #     - ./.envs/.production/.django
+  #   volumes:
+  #     - production_postgres_data_backups:/backups:z
