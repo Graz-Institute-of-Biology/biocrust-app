@@ -314,3 +314,6 @@ log.txt
 
 # Django migrations
 biocrust_app/datasets/migrations
+
+# confidential stuff
+conf.yml
