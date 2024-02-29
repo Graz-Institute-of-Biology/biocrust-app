@@ -1,5 +1,6 @@
 from .base import *  # noqa
 from .base import env
+from decouple import config
 
 # GENERAL
 # ------------------------------------------------------------------------------
@@ -12,10 +13,12 @@ SECRET_KEY = env(
 )
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "167.99.251.188"]
-DOMAIN = "http://167.99.251.188"
+# ALLOWED_HOSTS = ["167.99.251.188"]
+
+# DOMAIN = "127.0.0.1:8080"
 
 CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:8000",
+    "http://127.0.0.1",
     "http://localhost:8080",
     "http://localhost:81",
     "http://frontend:81",
@@ -35,7 +38,23 @@ CACHES = {
 # EMAIL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
-EMAIL_BACKEND = env("DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
+# EMAIL_BACKEND = env("DJANGO_EMAIL_BACKEND", default="'django.core.mail.backends.console.EmailBackend'")
+
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = "CC-Explorer ccexplorerdemo@gmail.com"
+EMAIL_HOST_PASSWORD=config("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER=config("EMAIL_HOST_USER")
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = "http://localhost:8080/login"
+
+
+DJOSER = {
+    'SEND_ACTIVATION_EMAIL' : True,
+    'ACTIVATION_URL': 'users/activate/{uid}/{token}',
+}
 
 # WhiteNoise
 # ------------------------------------------------------------------------------
