@@ -32,6 +32,21 @@
                             <button class="button is-success">Log in</button>
                         </div>
                     </div>
+                    <div class="modal is-active modal-background" v-if="loginAlert">
+                        <div class="modal-background"></div>
+                        <div class="modal-card">
+                            <header class="modal-card-head">
+                            <p class="modal-card-title">Login Error</p>
+                            </header>
+                            <section class="modal-card-body">
+                                <p>Please check username and password</p>
+                                <p>Have you already activated your account?</p>
+                            </section>
+                            <footer class="modal-card-foot">
+                                <button class="button is-success" @click="setLoginAlert">Ok</button>
+                            </footer>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>
@@ -49,10 +64,28 @@ export default {
         return {
             username: '',
             password: '',
-            errors: []
+            errors: [],
+            loginAlert: false
         }
     },
     methods: {
+        clearFields() {
+            this.username = ''
+            this.password = ''
+            this.errors = []
+        },
+        setLoginAlert() {
+            if (this.loginAlert) {
+                this.clearFields()
+                this.loginAlert = false
+            } else {
+                this.loginAlert = true
+            }
+        },
+        redirect() {
+            this.clearFields()
+            this.$router.push('/login')
+        },
         async submitForm() {
             axios.defaults.headers.common['Authorization'] = ''
 
@@ -74,6 +107,7 @@ export default {
                 this.$router.push('/datasets')
             })
             .catch(error => {
+                this.setLoginAlert()
                 if (error.response) {
                     for (let key in error.response.data) {
                         this.errors.push(`${key}: ${error.response.data[key]}`)
@@ -90,3 +124,11 @@ export default {
 }
 
 </script>
+
+<style>
+
+.enable-line-break {
+    white-space: pre-wrap;
+}
+
+</style>

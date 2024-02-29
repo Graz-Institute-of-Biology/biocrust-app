@@ -12,6 +12,12 @@
                         </div>
                     </div>
                     <div class="field">
+                        <label class="label">Email</label>
+                        <div class="control">
+                            <input class="input" type="text" placeholder="email@example.com" v-model="email">
+                        </div>
+                    </div>
+                    <div class="field">
                         <label class="label">Password</label>
                         <div class="control">
                             <input class="input" type="password" placeholder="password" v-model="password">
@@ -46,6 +52,7 @@ export default {
     data () {
         return {
             username: '',
+            email: '',
             password: '',
             errors: []
         }
@@ -55,6 +62,7 @@ export default {
         submitForm () {
             const formData = {
                 username: this.username,
+                email: this.email,
                 password: this.password
             }
             axios.interceptors.request.use(function (config) {
