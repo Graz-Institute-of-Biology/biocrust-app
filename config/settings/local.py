@@ -47,13 +47,13 @@ DEFAULT_FROM_EMAIL = "CC-Explorer ccexplorerdemo@gmail.com"
 EMAIL_HOST_PASSWORD=config("EMAIL_HOST_PASSWORD")
 EMAIL_HOST_USER=config("EMAIL_HOST_USER")
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
-ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = "http://localhost:8080/login"
+
+DOMAIN = "localhost:8080"
 
 
 DJOSER = {
     'SEND_ACTIVATION_EMAIL' : True,
-    'ACTIVATION_URL': 'users/activate/{uid}/{token}',
+    'ACTIVATION_URL': 'activate/{uid}/{token}',
 }
 
 # WhiteNoise

@@ -14,6 +14,7 @@ import ModelView from '../views/ModelView.vue'
 import AddModelView from '../views/AddModelView.vue'
 import AddMaskView from '../views/AddMaskView.vue'
 import AnalyzeImagesView from '../views/AnalyzeImagesView.vue'
+import AccountActivationView from '../views/AccountActivationView.vue'
 import store from '../store'
 
 const routes = [
@@ -51,6 +52,11 @@ const routes = [
         path: '/datasets',
         name: 'datasets',
         component: DataSetsView
+    },
+    {
+        path: '/activate/:id/:token',
+        name: 'AccountActivationView',
+        component: AccountActivationView
     },
     {
         path: '/dataset/:id',
