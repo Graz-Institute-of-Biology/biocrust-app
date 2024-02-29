@@ -12,7 +12,7 @@ from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 import json
 import os
-
+from collections import defaultdict
 from biocrust_app.datasets.models import Image_Model, Dataset_Model, Model_Model, Mask_Model, Analysis_Model
 from biocrust_app.datasets.serializers import Image_ModelSerializer, Dataset_ModelSerializer, Model_ModelSerializer, Mask_ModelSerializer, Analysis_ModelSerializer
 
@@ -70,41 +70,27 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
     def generate_class_dist(self, parent_image_url):
         response = requests.get(parent_image_url)
         img = Image.open(BytesIO(response.content))
-        class_counts = {
-        'class 1': 0,
-        'class 2': 0,
-        'class 3': 0,
-        'class 4': 0,
-        'class 5': 0,
-        'class 6': 0,
-        'class 7': 0,
-        'class 8': 0
-        }
+        class_counts = defaultdict(int)
         
-        # Define the mapping of pixel values to class labels
-        class_labels = {
-            (200, 0, 10): 'class 1',
-            (187,207, 74): 'class 2',
-            (0,108,132): 'class 3',
-            (255,204,184): 'class 4',
-            (0,0,0): 'class 5',
-            (226,232,228): 'class 6',
-            (174,214,220): 'class 7',
-            (232,167,53): 'class 8'
-        }
-
-        # Iterate over each pixel and count occurrences of each class
+        # Unique colors in the mask
         pixels = img.load()
+        unique_colors = set()
         for i in range(img.size[0]):
             for j in range(img.size[1]):
                 pixel_value = pixels[i, j]
-                #print(pixel_value)
-                class_label = class_labels.get(pixel_value, 'other')
+                unique_colors.add(pixel_value)
+
+        class_labels = {color: f'class_{i+1}' for i, color in enumerate(unique_colors)}
+
+        for i in range(img.size[0]):
+            for j in range(img.size[1]):
+                pixel_value = pixels[i, j]
+                class_label = class_labels[pixel_value]
                 class_counts[class_label] += 1
 
-        # Calculate class distribution
         total_pixels = sum(class_counts.values())
         class_distribution = {key: round(value / total_pixels, 3) for key, value in class_counts.items()}
+        class_distribution = dict(sorted(class_distribution.items(), key=lambda item: item[0]))
 
         return json.dumps({"class_distributions": class_distribution})
 
