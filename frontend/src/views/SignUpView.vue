@@ -35,7 +35,7 @@
 
                     <div class="field">
                         <div class="control">
-                            <button v-if="this.captchaDone" class="button is-success">Sign up</button>
+                            <button class="button is-success">Sign up</button>
                         </div>
                     </div>
                 </form>
