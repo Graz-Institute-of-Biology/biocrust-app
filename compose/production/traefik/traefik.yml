@@ -55,11 +55,11 @@ http:
       headers:
         hostsProxyHeaders: ['X-CSRFToken']
 
-  services:
-    django:
-      loadBalancer:
-        servers:
-          - url: http://django:5000
+  # services:
+  #   django:
+  #     loadBalancer:
+  #       servers:
+  #         - url: http://django:5000
     # frontend:
     #   loadBalancer:
     #     servers:
