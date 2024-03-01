@@ -55,15 +55,15 @@ http:
       headers:
         hostsProxyHeaders: ['X-CSRFToken']
 
-  # services:
+  services:
   #   django:
   #     loadBalancer:
   #       servers:
   #         - url: http://django:5000
-    # frontend:
-    #   loadBalancer:
-    #     servers:
-    #       - url: http://frontend:80
+    frontend:
+      loadBalancer:
+        servers:
+          - url: http://frontend:80
 
 providers:
   # https://docs.traefik.io/master/providers/file/
