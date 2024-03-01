@@ -40,7 +40,7 @@ http:
     web-secure-router:
       rule: 'Host(`167.99.251.188`)'
       entryPoints:
-        - web-secure
+        - web
       middlewares:
         - csrf
       service: frontend
