@@ -35,10 +35,16 @@
 
                     <div class="field">
                         <div class="control">
-                            <button class="button is-success">Sign up</button>
+                            <button v-if="this.captchaDone" class="button is-success">Sign up</button>
                         </div>
                     </div>
                 </form>
+                <!-- <VueRecaptcha
+                    :sitekey="siteKey"
+                    :load-recaptcha-script="true"
+                    @verify="captchaSuccess"
+                    @error="captchaError"
+                ></VueRecaptcha> -->
             </div>
         </div>
 
@@ -47,18 +53,34 @@
 
 <script>
 import axios from 'axios'
+// import { computed } from 'vue';
+// import { VueRecaptcha } from 'vue-recaptcha';
+
 export default {
     name: 'SignUp',
+    // components: {
+    //     VueRecaptcha
+    // },
+    // created() {
+    //     this.siteKey = computed(() => {
+    //     return 'yourSiteAPIKey';
+    //     })
+    // },
     data () {
         return {
             username: '',
             email: '',
             password: '',
+            captchaDone: false,
+            siteKey: '',
             errors: []
         }
     },
 
     methods: {
+        captchaSuccess () {
+            this.captchaDone = true
+        },
         submitForm () {
             const formData = {
                 username: this.username,
