@@ -9,8 +9,23 @@ log:
 entryPoints:
   http:
     address: ':80'
+    http:
+      redirections:
+        entryPoint:
+          to: https
+          scheme: https
   https:
     address: ':443'
+
+    routers:
+        rule: 'Host(`167.99.251.188`)'
+        service: frontend
+services:
+  frontend:
+    loadBalancer:
+      servers:
+        - url: http://frontend:80
+
 serversTransport:
   insecureSkipVerify: true
 providers:
