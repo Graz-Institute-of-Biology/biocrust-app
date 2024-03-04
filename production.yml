@@ -69,13 +69,40 @@ services:
       context: .
       dockerfile: ./compose/production/traefik/Dockerfile
     image: biocrust_app_production_traefik
+    container_name: biocrust_app_production_traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
     depends_on:
       - django
     volumes:
       - production_traefik:/etc/traefik/acme
+      - production_traefik/config.yml:/etc/traefik/config.yml:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.entrypoints=http"
+      - "traefik.http.routers.traefik.rule=Host(`traefik-dashboard.cc-explorer.com`)"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=USER:BASIC_AUTH_PASSWORD"
+      - "traefik.http.middlewares.traefik-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.routers.traefik.middlewares=traefik-https-redirect"
+      - "traefik.http.routers.traefik-secure.entrypoints=https"
+      - "traefik.http.routers.traefik-secure.rule=Host(`traefik-dashboard.cc-explorer.com`)"
+      - "traefik.http.routers.traefik-secure.middlewares=traefik-auth"
+      - "traefik.http.routers.traefik-secure.tls=true"
+      - "traefik.http.routers.traefik-secure.tls.certresolver=cloudflare"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].main=.cc-explorer.com"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].sans=*.cc-explorer.com"
+      - "traefik.http.routers.traefik-secure.service=api@internal"
     ports:
-      - '0.0.0.0:80:80'
-      - '0.0.0.0:443:443'
+      - '80:80'
+      - '443:443'
+    env_file:
+      - ./.envs/.production/.traefik
 
   # redis:
   #   image: redis:6
@@ -88,3 +115,7 @@ services:
   #     - ./.envs/.production/.django
   #   volumes:
   #     - production_postgres_data_backups:/backups:z
+
+networks:
+  proxy:
+    external: true
