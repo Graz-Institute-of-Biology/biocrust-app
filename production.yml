@@ -19,6 +19,17 @@ services:
       - ./frontend/nginx:/etc/nginx/conf.d
     expose:
       - 80
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`cc-explorer.com`)"
+      # - "traefik.http.services.frontend.loadbalancer.server.port=80"
+      # - "traefik.http.routers.frontend.middlewares=traefik-https-redirect"
+      # - "traefik.http.middlewares.traefik-https-redirect.redirectscheme.scheme=https"
+      # - "traefik.http.routers.frontend-secure.entrypoints=websecure"
+      # - "traefik.http.routers.frontend-secure.rule=Host(`cc-explorer.com`)"
+      # - "traefik.http.routers.frontend-secure.service=frontend"
+      # - "traefik.http.routers.frontend-secure.tls=true"
+      # - "traefik.http.routers.frontend-secure.tls.certresolver=cloudflare"
 
   ml-api:
     build:
@@ -79,28 +90,31 @@ services:
       - django
     volumes:
       - ./compose/production/traefik:/etc/traefik/acme
+      - ./compose/production/traefik
       - ./compose/production/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
-      - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.entrypoints=http"
-      - "traefik.http.routers.traefik.rule=Host(`traefik-dashboard.cc-explorer.com`)"
+      - "traefik.http.routers.traefik.rule=Host(`cc-explorer.com`)"
       - "traefik.http.middlewares.traefik-auth.basicauth.users=USER:BASIC_AUTH_PASSWORD"
       - "traefik.http.middlewares.traefik-https-redirect.redirectscheme.scheme=https"
       - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.routers.traefik.middlewares=traefik-https-redirect"
       - "traefik.http.routers.traefik-secure.entrypoints=https"
-      - "traefik.http.routers.traefik-secure.rule=Host(`traefik-dashboard.cc-explorer.com`)"
+      - "traefik.http.routers.traefik-secure.rule=Host(`cc-explorer.com`)"
       - "traefik.http.routers.traefik-secure.middlewares=traefik-auth"
       - "traefik.http.routers.traefik-secure.tls=true"
       - "traefik.http.routers.traefik-secure.tls.certresolver=cloudflare"
-      - "traefik.http.routers.traefik-secure.tls.domains[0].main=.cc-explorer.com"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].main=cc-explorer.com"
       - "traefik.http.routers.traefik-secure.tls.domains[0].sans=*.cc-explorer.com"
       - "traefik.http.routers.traefik-secure.service=api@internal"
     ports:
       - '80:80'
       - '443:443'
+    environment:
+      - CF_API_EMAIL=philipp.faulhammer@gmail.com
+      - CF_DNS_API_TOKEN=48LWBXXFXW-euprGbHm7qqAUfyVfTLssC_FegxH2
     env_file:
       - ./.envs/.production/.traefik
 
