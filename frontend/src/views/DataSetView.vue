@@ -169,6 +169,7 @@ export default defineComponent({
                 const maskData = response.data;
 
                 const matchingMask = maskData.find(mask => mask.mask === maskUrl);
+                console.log(matchingMask.class_distributions)
 
                 if (matchingMask && matchingMask.class_distributions) {
                     return JSON.parse(matchingMask.class_distributions);
@@ -192,13 +193,17 @@ export default defineComponent({
             if (classDistribution) {
                 const labels = Object.keys(classDistribution.class_distributions);
                 const data = Object.values(classDistribution.class_distributions);
-                console.log(labels, data);
+                const colors = Object.values(classDistribution.class_colors).map(colorStr => {
+                    return colorStr.replace(/\[|\]/g, '').split(',').map(Number);
+                });
+                console.log(labels, data, colors);
+
                 this.chartData = {
                     labels: labels,
                     datasets: [{
-                        backgroundColor: 'lightblue',
                         label: "Class Distribution",
-                        data: data
+                        data: data,
+                        backgroundColor: colors.map(color => `rgba(${color.join(',')}, 0.6)`), // Construct RGBA values
                     }]
                 };
                 this.chartOptions = {

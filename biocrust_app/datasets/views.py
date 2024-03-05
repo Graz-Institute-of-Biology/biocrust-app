@@ -71,8 +71,9 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
         response = requests.get(parent_image_url)
         img = Image.open(BytesIO(response.content))
         class_counts = defaultdict(int)
-        
-        # Unique colors in the mask
+        class_colors = {}
+
+        # Unique colors 
         pixels = img.load()
         unique_colors = set()
         for i in range(img.size[0]):
@@ -87,12 +88,15 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
                 pixel_value = pixels[i, j]
                 class_label = class_labels[pixel_value]
                 class_counts[class_label] += 1
+                class_colors[class_label] = str(list(pixel_value))  
 
         total_pixels = sum(class_counts.values())
         class_distribution = {key: round(value / total_pixels, 3) for key, value in class_counts.items()}
-        class_distribution = dict(sorted(class_distribution.items(), key=lambda item: item[0]))
+        sorted_class_distribution = dict(sorted(class_distribution.items(), key=lambda item: item[0]))
 
-        return json.dumps({"class_distributions": class_distribution})
+        sorted_class_colors = {key: class_colors[key] for key in sorted_class_distribution.keys()}
+
+        return json.dumps({"class_distributions": sorted_class_distribution, "class_colors": sorted_class_colors})
 
     
     def perform_create(self, serializer):

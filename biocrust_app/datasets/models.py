@@ -113,7 +113,7 @@ class Mask_Model(models.Model):
     slug = models.SlugField()
     description = models.TextField(blank=True, null=True)
     mask = models.ImageField(upload_to=dataset_mask_path, blank=True, null=True)
-    source_labelbox = models.CharField(max_length=255, blank=True, null=True) # labelbox id / project id (????)
+    source_labelbox = models.CharField(max_length=255, blank=True, null=True) # labelbox api key / project id (????)
     source_model = models.ForeignKey(Model_Model, blank=True, null=True, related_name='masks', on_delete=models.CASCADE)
     source_model_url = models.CharField(max_length=255, blank=True, null=True)
     source_manual = models.BooleanField(max_length=255, blank=True, default=True)
