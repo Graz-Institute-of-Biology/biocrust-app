@@ -1,72 +1,57 @@
+
+api:
+  dashboard: true
+  debug: true
+
 log:
   level: INFO
 
 entryPoints:
   web:
-    # http
     address: ':80'
-    # http:
-    #   # https://docs.traefik.io/routing/entrypoints/#entrypoint
-    #   redirections:
-    #     entryPoint:
-    #       to: web-secure
-
-  web-secure:
-    # https
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
     address: ':443'
+    http:
+      tls:
+        certResolver: cloudflare
 
 certificatesResolvers:
-  letsencrypt:
-    # https://docs.traefik.io/master/https/acme/#lets-encrypt
+  cloudflare:
     acme:
       email: 'philipp.faulhammer@gmail.com'
       storage: /etc/traefik/acme/acme.json
-      # https://docs.traefik.io/master/https/acme/#httpchallenge
-      httpChallenge:
-        entryPoint: web
+      dnsChallenge:
+        provider: cloudflare
+        resolvers:
+          - '1.1.1.1:53'
+          - '1.0.0.1:53'
 
-http:
-  routers:
-    # django:
-    #   rule: 'Host(`api.cc-explorer.org`)'
-    #   entryPoints:
-    #     - web-secure
-    #   middlewares:
-    #     - csrf
-    #   service: django
-    #   tls:
-    #     # https://docs.traefik.io/master/routing/routers/#certresolver
-    #     certResolver: letsencrypt#
-    web-secure-router:
-      rule: 'Host(`167.99.251.188`)'
-      entryPoints:
-        - web
-      middlewares:
-        - csrf
-      service: frontend
-      # tls:
-      #   # https://docs.traefik.io/master/routing/routers/#certresolver
-      #   certResolver: letsencrypt
-
-  middlewares:
-    csrf:
-      # https://docs.traefik.io/master/middlewares/headers/#hostsproxyheaders
-      # https://docs.djangoproject.com/en/dev/ref/csrf/#ajax
-      headers:
-        hostsProxyHeaders: ['X-CSRFToken']
-
-  services:
-  #   django:
-  #     loadBalancer:
-  #       servers:
-  #         - url: http://django:5000
-    frontend:
-      loadBalancer:
-        servers:
-          - url: http://frontend:80
 
 providers:
-  # https://docs.traefik.io/master/providers/file/
-  file:
-    filename: /etc/traefik/traefik.yml
-    watch: true
+  docker:
+    exposedByDefault: false
+
+# services:
+#   frontend:
+#     loadBalancer:
+#       servers:
+#         - url: http://frontend:80
+
+# serversTransport:
+#   insecureSkipVerify: true
+# providers:
+#   docker:
+#     endpoint: 'unix:///var/run/docker.sock'
+#     exposedByDefault: false
+#   file:
+#     filename: /etc/traefik/traefik.yml
+#     watch: true
+
+
+
+
