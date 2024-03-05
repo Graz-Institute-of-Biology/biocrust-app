@@ -112,9 +112,7 @@ services:
     ports:
       - '80:80'
       - '443:443'
-    environment:
-      - CF_API_EMAIL=philipp.faulhammer@gmail.com
-      - CF_DNS_API_TOKEN=48LWBXXFXW-euprGbHm7qqAUfyVfTLssC_FegxH2
+
     env_file:
       - ./.envs/.production/.traefik
 
