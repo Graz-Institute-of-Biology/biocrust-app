@@ -25,24 +25,26 @@
                 :data="chartData"
             />
         </div>
-        <div class="image-grid" v-if="!this.$store.loading">
-            <div v-for="(item, index) in items" :key="index" class="image-container" >
-                <!-- <div class="image-wrapper" @click="toggleEnlarge(index)" @wheel="handleMouseWheel(index, $event)"> -->
-                <div class="image-wrapper" 
-                        @click="() => { toggleEnlarge(index); handleImageClick(item); }"
-                        @wheel="handleMouseWheel(index, $event)"
-                        :style="{ zIndex: isEnlarged(index) ? 1 : 0 }">
-                    <img :src="item" class="image-small" v-if="!isEnlarged(index)">
-                    <img :src="item" class="image-large" :style="{ transform: `scale(${getScale(index)})` }" v-if="isEnlarged(index)">
-                    <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
-                    <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${getScale(index)})` }" @error="handleMaskImageError" v-if="setOverlay && isEnlarged(index)">
+        <div class="image-grid-container">
+            <div class="image-grid" v-if="!this.$store.loading">
+                <div v-for="(item, index) in items" :key="index" class="image-container" >
+                    <!-- <div class="image-wrapper" @click="toggleEnlarge(index)" @wheel="handleMouseWheel(index, $event)"> -->
+                    <div class="image-wrapper" 
+                            @click="() => { toggleEnlarge(index); handleImageClick(item); }"
+                            @wheel="handleMouseWheel(index, $event)"
+                            :style="{ zIndex: isEnlarged(index) ? 1 : 0 }">
+                        <img :src="item" class="image-small" v-if="!isEnlarged(index)">
+                        <img :src="item" class="image-large" :style="{ transform: `scale(${getScale(index)})` }" v-if="isEnlarged(index)">
+                        <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
+                        <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${getScale(index)})` }" @error="handleMaskImageError" v-if="setOverlay && isEnlarged(index)">
+                    </div>
                 </div>
             </div>
-        </div>
-        <div v-else>
-            <div class="columns is-multiline">
-                <div class="column is-12">
-                    <h1 class="title is-1">Loading...</h1>
+            <div v-else>
+                <div class="columns is-multiline">
+                    <div class="column is-12">
+                        <h1 class="title is-1">Loading...</h1>
+                    </div>
                 </div>
             </div>
         </div>
@@ -388,6 +390,18 @@ export default defineComponent({
 
 <style scoped>
 
+.image-grid-container {
+    max-height: calc(100vh - 200px); 
+    overflow-y: auto;
+    padding-bottom: 5%; 
+    padding-left: 5%;
+    padding-right: 5%;
+    padding-top: 5%;
+    scrollbar-width: none;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
 .chart {
   margin-left: auto;
   margin-right: auto;
@@ -419,8 +433,6 @@ canvas {
     width: 100%;
     height: 100%;
 }
-
-
 
 .image-small,
 .image-large {
