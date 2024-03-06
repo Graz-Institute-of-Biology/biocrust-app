@@ -196,12 +196,13 @@ export default defineComponent({
                 const colors = Object.values(classDistribution.class_colors).map(colorStr => {
                     return colorStr.replace(/\[|\]/g, '').split(',').map(Number);
                 });
+
                 console.log(labels, data, colors);
 
                 this.chartData = {
                     labels: labels,
                     datasets: [{
-                        label: "Class Distribution",
+                        label: labels,
                         data: data,
                         backgroundColor: colors.map(color => `rgba(${color.join(',')}, 0.6)`), // Construct RGBA values
                     }]
@@ -217,6 +218,21 @@ export default defineComponent({
                         legend: {
                             display: true,
                             position: "bottom",
+                            labels: {
+                                generateLabels: (chart) => {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        return data.labels.map((label, i) => {
+                                            const backgroundColor = data.datasets[0].backgroundColor[i];
+                                            return {
+                                                text: label,
+                                                fillStyle: backgroundColor
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
                         },
                     },
                 };
