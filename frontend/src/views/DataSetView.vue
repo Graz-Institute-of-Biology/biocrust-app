@@ -197,8 +197,6 @@ export default defineComponent({
                     return colorStr.replace(/\[|\]/g, '').split(',').map(Number);
                 });
 
-                console.log(labels, data, colors);
-
                 this.chartData = {
                     labels: labels,
                     datasets: [{

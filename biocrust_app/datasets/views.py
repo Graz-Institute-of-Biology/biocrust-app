@@ -80,6 +80,9 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
 
         pixel_to_label = {tuple(value['color']): value['name'] for value in color_config.values()}
 
+        for class_label in color_config:
+            class_counts[color_config[class_label]['name']] = 0
+
         for i in range(img.size[0]):
             for j in range(img.size[1]):
                 pixel_value = pixels[i, j]
