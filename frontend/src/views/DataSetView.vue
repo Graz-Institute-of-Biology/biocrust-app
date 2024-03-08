@@ -25,24 +25,26 @@
                 :data="chartData"
             />
         </div>
-        <div class="image-grid" v-if="!this.$store.loading">
-            <div v-for="(item, index) in items" :key="index" class="image-container" >
-                <!-- <div class="image-wrapper" @click="toggleEnlarge(index)" @wheel="handleMouseWheel(index, $event)"> -->
-                <div class="image-wrapper" 
-                        @click="() => { toggleEnlarge(index); handleImageClick(item); }"
-                        @wheel="handleMouseWheel(index, $event)"
-                        :style="{ zIndex: isEnlarged(index) ? 1 : 0 }">
-                    <img :src="item" class="image-small" v-if="!isEnlarged(index)">
-                    <img :src="item" class="image-large" :style="{ transform: `scale(${getScale(index)})` }" v-if="isEnlarged(index)">
-                    <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
-                    <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${getScale(index)})` }" @error="handleMaskImageError" v-if="setOverlay && isEnlarged(index)">
+        <div class="image-grid-container">
+            <div class="image-grid" v-if="!this.$store.loading">
+                <div v-for="(item, index) in items" :key="index" class="image-container" >
+                    <!-- <div class="image-wrapper" @click="toggleEnlarge(index)" @wheel="handleMouseWheel(index, $event)"> -->
+                    <div class="image-wrapper" 
+                            @click="() => { toggleEnlarge(index); handleImageClick(item); }"
+                            @wheel="handleMouseWheel(index, $event)"
+                            :style="{ zIndex: isEnlarged(index) ? 1 : 0 }">
+                        <img :src="item" class="image-small" v-if="!isEnlarged(index)">
+                        <img :src="item" class="image-large" :style="{ transform: `scale(${getScale(index)})` }" v-if="isEnlarged(index)">
+                        <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
+                        <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${getScale(index)})` }" @error="handleMaskImageError" v-if="setOverlay && isEnlarged(index)">
+                    </div>
                 </div>
             </div>
-        </div>
-        <div v-else>
-            <div class="columns is-multiline">
-                <div class="column is-12">
-                    <h1 class="title is-1">Loading...</h1>
+            <div v-else>
+                <div class="columns is-multiline">
+                    <div class="column is-12">
+                        <h1 class="title is-1">Loading...</h1>
+                    </div>
                 </div>
             </div>
         </div>
@@ -169,6 +171,7 @@ export default defineComponent({
                 const maskData = response.data;
 
                 const matchingMask = maskData.find(mask => mask.mask === maskUrl);
+                console.log(matchingMask.class_distributions)
 
                 if (matchingMask && matchingMask.class_distributions) {
                     return JSON.parse(matchingMask.class_distributions);
@@ -192,13 +195,16 @@ export default defineComponent({
             if (classDistribution) {
                 const labels = Object.keys(classDistribution.class_distributions);
                 const data = Object.values(classDistribution.class_distributions);
-                console.log(labels, data);
+                const colors = Object.values(classDistribution.class_colors).map(colorStr => {
+                    return colorStr.replace(/\[|\]/g, '').split(',').map(Number);
+                });
+
                 this.chartData = {
                     labels: labels,
                     datasets: [{
-                        backgroundColor: 'lightblue',
-                        label: "Class Distribution",
-                        data: data
+                        label: labels,
+                        data: data,
+                        backgroundColor: colors.map(color => `rgba(${color.join(',')}, 0.6)`), // Construct RGBA values
                     }]
                 };
                 this.chartOptions = {
@@ -212,6 +218,21 @@ export default defineComponent({
                         legend: {
                             display: true,
                             position: "bottom",
+                            labels: {
+                                generateLabels: (chart) => {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        return data.labels.map((label, i) => {
+                                            const backgroundColor = data.datasets[0].backgroundColor[i];
+                                            return {
+                                                text: label,
+                                                fillStyle: backgroundColor
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
                         },
                     },
                 };
@@ -369,6 +390,18 @@ export default defineComponent({
 
 <style scoped>
 
+.image-grid-container {
+    max-height: calc(100vh - 200px); 
+    overflow-y: auto;
+    padding-bottom: 5%; 
+    padding-left: 5%;
+    padding-right: 5%;
+    padding-top: 5%;
+    scrollbar-width: none;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
 .chart {
   margin-left: auto;
   margin-right: auto;
@@ -400,8 +433,6 @@ canvas {
     width: 100%;
     height: 100%;
 }
-
-
 
 .image-small,
 .image-large {

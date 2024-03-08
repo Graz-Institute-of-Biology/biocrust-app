@@ -66,41 +66,42 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # return self.queryset.filter(created_by=self.request.user)
         return self.queryset.all()
-
+    
     def generate_class_dist(self, parent_image_url):
         response = requests.get(parent_image_url)
         img = Image.open(BytesIO(response.content))
         class_counts = defaultdict(int)
-        
-        # Unique colors in the mask
+        class_colors = {}
+
         pixels = img.load()
-        unique_colors = set()
+
+        with open('./biocrust_app/datasets/ontology.json', 'r') as file:
+            color_config = json.load(file)
+
+        pixel_to_label = {tuple(value['color']): value['name'] for value in color_config.values()}
+
+        for class_label in color_config:
+            class_counts[color_config[class_label]['name']] = 0
+
         for i in range(img.size[0]):
             for j in range(img.size[1]):
                 pixel_value = pixels[i, j]
-                unique_colors.add(pixel_value)
-
-        class_labels = {color: f'class_{i+1}' for i, color in enumerate(unique_colors)}
-
-        for i in range(img.size[0]):
-            for j in range(img.size[1]):
-                pixel_value = pixels[i, j]
-                class_label = class_labels[pixel_value]
-                class_counts[class_label] += 1
+                class_label = pixel_to_label.get(pixel_value)
+                if class_label:
+                    class_counts[class_label] += 1
 
         total_pixels = sum(class_counts.values())
         class_distribution = {key: round(value / total_pixels, 3) for key, value in class_counts.items()}
-        class_distribution = dict(sorted(class_distribution.items(), key=lambda item: item[0]))
-
-        return json.dumps({"class_distributions": class_distribution})
-
+        
+        class_colors = {value['name']: str(value['color']) for value in color_config.values()}
+        
+        return json.dumps({"class_distributions": class_distribution, "class_colors": class_colors})
     
     def perform_create(self, serializer):
         if serializer.validated_data.get('source_manual'):        
             try:
                 instance = serializer.save()
                 if not instance.class_distributions:
-                    # If class_distributions parameter is not created, generate it
                     parent_image_url = serializer.validated_data.get('parent_image_url')
                     parent_image_url = parent_image_url.replace("images", "masks")
                     parent_image_url = os.path.join(parent_image_url.rsplit("/", 1)[0], str(serializer.validated_data.get('mask')))
@@ -114,7 +115,6 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
         else:
             serializer.save()
 
-
 class Model_ModelViewSet(viewsets.ModelViewSet):
     queryset = Model_Model.objects.all()
     serializer_class = Model_ModelSerializer
@@ -124,7 +124,15 @@ class Model_ModelViewSet(viewsets.ModelViewSet):
         return self.queryset.all()
     
     def perform_create(self, serializer):
-        serializer.save()
+        serializer.save()    
+        file_name = serializer.validated_data.get('file')
+        
+        model_path = os.path.join('./biocrust_app/media', str(serializer.validated_data.get('dataset').id), 'models', str(file_name))
+        print(model_path)
+
+        
+
+
     
 
 class Analysis_ModelViewSet(viewsets.ModelViewSet):
@@ -181,3 +189,4 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
             print("Request sent...")
         except requests.exceptions.ReadTimeout: 
             pass
+
