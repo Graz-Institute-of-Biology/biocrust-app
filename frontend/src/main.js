@@ -14,4 +14,6 @@ app.use(store)
 app.use(router, axios)
 app.mount('#app')
 
+document.title = 'CC - Explorer'
+
 
