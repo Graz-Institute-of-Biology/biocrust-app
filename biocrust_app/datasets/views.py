@@ -154,6 +154,8 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         model_url = serializer.validated_data.get('ml_model_url')
         parent_img_id = serializer.validated_data.get('parent_img_id').id
         ml_model_id = serializer.validated_data.get('ml_model_id').id
+        token = serializer.validated_data.get('token')
+        dataset_id = serializer.validated_data.get('dataset').id
 
         instance = serializer.save() # call save to store analysis entry in db
 
@@ -162,9 +164,9 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         print("ID: ", analysis_id, file=sys.stderr)
         print("New Build")
         print(ml_model_id, file=sys.stderr)
-        self.send_analysis_request(parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id)
+        self.send_analysis_request(parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id, dataset_id, token)
 
-    def send_analysis_request(self, parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id):
+    def send_analysis_request(self, parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id, dataset_id, token):
         # Send the request to the analysis API
         # parent_image_url = parent_image_url.replace("127.0.0.1", "django")
         # model_url = model_url.replace("127.0.0.1", "django")
@@ -173,19 +175,25 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
             'ml_model_path': model_url,
             'analysis_id': analysis_id,
             'parent_img_id': parent_img_id,
-            'ml_model_id': ml_model_id
+            'ml_model_id': ml_model_id,
+            'token': token,
+            'dataset_id': dataset_id,
+            'debug': True
         }
         headers = {}
 
-        print("PAYLOAD:")
-        print(payload)
 
         # "Fire and forget" request hack: send request with very short timeout
         #  catch the timeout exception, ignore it and continue
         #  only needed for sqlite3 db while testing
+        
+        # ml_url = 'https://ml.cc-explorer.com/api/v1/predict' # production
+        # ml_url = 'http://ml-api:8082/api/v1/predict' # staging
+        ml_url = 'http://localhost:8082/api/v1/predict' # local
+        
         try:
             requests.post(
-            'http://ml-api:8082/api/v1/predict', headers=headers, json=payload, timeout=0.0000000001) # localhost or ml-api (docker service name)
+            url=ml_url, headers=headers, json=payload, timeout=0.0000000001) # localhost or ml-api (docker service name)
             print("Request sent...")
         except requests.exceptions.ReadTimeout: 
             pass

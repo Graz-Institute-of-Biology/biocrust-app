@@ -302,7 +302,6 @@ export default defineComponent({
 
         getMaskUrl(item) {
             for (let mask_item of this.mask_items) {
-                // console.log(mask_item.parent_image_url, item)
                 if (mask_item.parent_image_url.includes('django'))
                     item = item.replace('127.0.0.1', 'django')
                 if (mask_item.parent_image_url === item) {
@@ -351,10 +350,10 @@ export default defineComponent({
         async getImages() {
                 await axios.get('api/v1/images/')
                 .then(response => {
-                    this.Images = response.data.filter(image => image.dataset == this.$route.params.id)
+                    // this.Images = response.data.filter(image => image.dataset == this.$route.params.id)
                     let img_items = response.data.filter(image => image.dataset == this.$route.params.id)
                     for (let i = 0; i < img_items.length; i++) {
-                        this.items.push(img_items[i].img)
+                        this.items.push(img_items[i].img.replace('http', 'https'))
                     }
                 })
                 .catch(error => {
@@ -366,13 +365,13 @@ export default defineComponent({
         async getMasks() {
             await axios.get('api/v1/masks/')
             .then(response => {
-                this.Masks = response.data.filter(mask => mask.dataset == this.$route.params.id)
+                // this.Masks = response.data.filter(mask => mask.dataset == this.$route.params.id)
                 let mask_items = response.data.filter(mask => mask.dataset == this.$route.params.id)
                 for (let i = 0; i < mask_items.length; i++) {
+                    mask_items[i].parent_image_url = mask_items[i].parent_image_url.replace('http', 'https')
+                    mask_items[i].mask = mask_items[i].mask.replace('http', 'https')
                     this.mask_items.push(mask_items[i])
                 }
-                this.mask_item = this.mask_items[0]
-                // console.log(mask_items)
             })
             .catch(error => {
                 console.log(error)

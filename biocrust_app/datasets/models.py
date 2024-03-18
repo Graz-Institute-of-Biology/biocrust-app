@@ -145,6 +145,7 @@ class Analysis_Model(models.Model):
     end_time = models.DateTimeField(auto_now_add=True)
     completed = models.BooleanField(default=False)
     errors = models.TextField(blank=True, null=True)
+    token = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         ordering = ('-start_time',)
