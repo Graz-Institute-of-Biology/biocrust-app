@@ -319,6 +319,26 @@ export default defineComponent({
 
 <style scoped>
 
+.notification.is-success {
+    margin-top: 10px;
+    margin-bottom: 1px;
+}
+
+.notification.is-warning {
+    margin-top: 10px;
+    margin-bottom: 1px;
+}
+
+.notification.is-info {
+    margin-top: 10px;
+    margin-bottom: 1px;
+}
+
+.notification.is-error {
+    margin-top: 10px;
+    margin-bottom: 1px;
+}
+
 .selected {
     border: 1px solid rgb(44, 44, 47); /* Adjust border color and size as needed */
     box-shadow: 0 0 10px 0 rgb(51, 51, 55); /* Add shadow effect to the selected image */
@@ -334,6 +354,7 @@ export default defineComponent({
 }
 
 .image-container {
+    margin-top: 1px;
     position: relative;
 }
 
