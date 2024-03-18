@@ -317,3 +317,5 @@ biocrust_app/datasets/migrations
 
 # confidential stuff
 conf.yml
+biocrust_app/test_model.pth
+biocrust_app/datasets/ontology.json
