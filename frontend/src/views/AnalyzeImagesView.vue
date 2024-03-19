@@ -207,7 +207,7 @@ export default defineComponent({
                     this.Images = response.data.filter(image => image.dataset == this.$route.params.id)
                     let img_items = response.data.filter(image => image.dataset == this.$route.params.id)
                     for (let i = 0; i < img_items.length; i++) {
-                        // this.items.push(img_items[i].img.replace('http', 'https'))
+                        this.items.push(img_items[i].img.replace('http', 'https'))
                         this.items.push(img_items[i].img)
                     }
                 })
