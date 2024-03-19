@@ -185,7 +185,7 @@ export default defineComponent({
             console.log("Dataset loaded")
         },
         getAnalysisInfo(item) {
-            console.log(this.Images[item].id)
+            console.log(this.Images)
             console.log(this.Analyses)
             const analysis = this.Analyses.filter(analysis => analysis.parent_img_id == this.Images[item].id)
             const status = analysis.length > 0 ? analysis[0].status : 'No analysis started'
@@ -208,7 +208,6 @@ export default defineComponent({
                     let img_items = response.data.filter(image => image.dataset == this.$route.params.id)
                     for (let i = 0; i < img_items.length; i++) {
                         this.items.push(img_items[i].img.replace('http', 'https'))
-                        this.items.push(img_items[i].img)
                     }
                 })
                 .catch(error => {
