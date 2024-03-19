@@ -7,24 +7,38 @@
                         <div class="column is-half">
                         <div class="button is-success" @click="analyzeImage" v-if="!this.$store.loading">Analyze</div>
                         <!-- <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div> -->
+                        
                         </div>
                         <div class="column is-half">
-                        <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading">Delete dataset</div>
                     </div>
                     </div>
                 </div>
             </div>
             <div class="image-grid" v-if="!this.$store.loading">
                 <div v-for="(item, index) in items" :key="index" class="image-container">
-                    <div class="image-wrapper" 
-                        @click="selectImage(index)" 
-                        @wheel="handleMouseWheel(index, $event)"
-                        :class="{ 'selected': isSelected(index) }"
-                        :style="{ zIndex: isEnlarged(index) ? 1 : 0 }">
-                        <img :src="item" class="image-small" v-if="!isEnlarged(index)">
-                        <img :src="item" class="image-large" :style="{ transform: `scale(${getScale(index)})` }" v-if="isEnlarged(index)">
-                        <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
-                        <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${getScale(index)})` }" @error="handleMaskImageError" v-if="setOverlay && isEnlarged(index)">
+                    <div>
+                        <div v-if="getAnalysisInfo(index) == 'error'" class="notification is-error">
+                            Status: {{ getAnalysisInfo(index) }}
+                        </div>
+                        <div v-else-if="getAnalysisInfo(index) == 'processing'" class="notification is-info">
+                            Status: {{ getAnalysisInfo(index) }}
+                        </div>
+                        <div v-else-if="getAnalysisInfo(index) == 'processed & saved' || getAnalysisInfo(index) == 'processed/sending result'" class="notification is-success">
+                            Status: {{ getAnalysisInfo(index) }}
+                        </div>
+                        <div v-else class="notification is-warning">
+                            Status: {{ getAnalysisInfo(index) }}
+                        </div>
+                        <div class="image-wrapper" 
+                            @click="selectImage(index)" 
+                            @wheel="handleMouseWheel(index, $event)"
+                            :class="{ 'selected': isSelected(index) }"
+                            :style="{ zIndex: isEnlarged(index) ? 1 : 0 }">
+                            <img :src="item" class="image-small" v-if="!isEnlarged(index)">
+                            <img :src="item" class="image-large" :style="{ transform: `scale(${getScale(index)})` }" v-if="isEnlarged(index)">
+                            <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
+                            <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${getScale(index)})` }" @error="handleMaskImageError" v-if="setOverlay && isEnlarged(index)">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -34,18 +48,6 @@
                 <div class="column is-12">
                     <h1 class="title is-1">Loading...</h1>
                 </div>
-            </div>
-        </div>
-        <div class="modal is-active modal-background" v-if="deleteAlert">
-            <div class="modal-background"></div>
-            <div class="modal-card">
-                <header class="modal-card-head">
-                <p class="modal-card-title">Sure you want to delete dataset?</p>
-                </header>
-                <footer class="modal-card-foot">
-                <button class="button is-danger" @click="deleteDataset">Delete</button>
-                <button class="button" @click="setDeleteAlert">Cancel</button>
-                </footer>
             </div>
         </div>
     </div>
@@ -68,6 +70,7 @@ export default defineComponent({
     data () {
         return {
             Images: [],
+            Analyses: [],
             items: [],
             setOverlay: false,
             scale: 1,
@@ -119,6 +122,7 @@ export default defineComponent({
         this.getImages()
         this.getMasks()
         this.getModels()
+        this.getAnalyses()
     },
     methods: {
         show () {
@@ -180,6 +184,13 @@ export default defineComponent({
             })
             console.log("Dataset loaded")
         },
+        getAnalysisInfo(item) {
+            console.log(this.Images[item].id)
+            console.log(this.Analyses)
+            const analysis = this.Analyses.filter(analysis => analysis.parent_img_id == this.Images[item].id)
+            const status = analysis.length > 0 ? analysis[0].status : 'No analysis started'
+                return status
+        },
         async getModels() {
             await axios.get('api/v1/models/')
             .then(response => {
@@ -196,6 +207,7 @@ export default defineComponent({
                     this.Images = response.data.filter(image => image.dataset == this.$route.params.id)
                     let img_items = response.data.filter(image => image.dataset == this.$route.params.id)
                     for (let i = 0; i < img_items.length; i++) {
+                        this.items.push(img_items[i].img.replace('http', 'https'))
                         this.items.push(img_items[i].img)
                     }
                 })
@@ -204,14 +216,23 @@ export default defineComponent({
                 })
                 this.$store.commit('setLoading', false)
         },
+        async getAnalyses() {
+            await axios.get('api/v1/analyses/')
+            .then(response => {
+                this.Analyses = response.data.filter(analysis => analysis.dataset == this.$route.params.id)
+            })
+            .catch(error => {
+                console.log(error)
+            })
+        },
         async addInfos(index) {
-        this.mask.owner = localStorage.getItem('username')
-        this.mask.name = this.Images[index].name.split('.')[0]
-        this.mask.slug = this.mask.name.toLowerCase()
-        this.mask.dataset = this.$route.params.id
-        this.mask.ml_model_url = this.getModelUrl(this.$route.params.id)
-        this.mask.source_image_url = this.Images[index].img
-        this.mask.parent_image_id = this.Images[index].id
+            this.mask.owner = localStorage.getItem('username')
+            this.mask.name = this.Images[index].name.split('.')[0]
+            this.mask.slug = this.mask.name.toLowerCase()
+            this.mask.dataset = this.$route.params.id
+            this.mask.ml_model_url = this.getModelUrl(this.$route.params.id)
+            this.mask.source_image_url = this.Images[index].img
+            this.mask.parent_image_id = this.Images[index].id
     },
 
         getModelUrl(id) {
@@ -278,6 +299,7 @@ export default defineComponent({
             formData.append('source_image_url', this.mask.source_image_url)
             formData.append('parent_img_id', this.mask.parent_image_id)
             formData.append('ml_model_id', this.Models[0].id)
+            formData.append('token', localStorage.getItem('token'))
             console.log(formData)
             return axios.post('api/v1/analyses/', formData, {
                 headers: {
@@ -297,6 +319,26 @@ export default defineComponent({
 
 <style scoped>
 
+.notification.is-success {
+    margin-top: 10px;
+    margin-bottom: 1px;
+}
+
+.notification.is-warning {
+    margin-top: 10px;
+    margin-bottom: 1px;
+}
+
+.notification.is-info {
+    margin-top: 10px;
+    margin-bottom: 1px;
+}
+
+.notification.is-error {
+    margin-top: 10px;
+    margin-bottom: 1px;
+}
+
 .selected {
     border: 1px solid rgb(44, 44, 47); /* Adjust border color and size as needed */
     box-shadow: 0 0 10px 0 rgb(51, 51, 55); /* Add shadow effect to the selected image */
@@ -312,6 +354,7 @@ export default defineComponent({
 }
 
 .image-container {
+    margin-top: 1px;
     position: relative;
 }
 

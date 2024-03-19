@@ -75,6 +75,7 @@ class Analysis_ModelSerializer(serializers.ModelSerializer):
                   'start_time',
                   'end_time',
                   'completed',
+                  'token',
                   'errors')
          
      
