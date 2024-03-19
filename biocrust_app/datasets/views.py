@@ -141,11 +141,7 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
 
         instance = serializer.save() # call save to store analysis entry in db
 
-        print("Sending request...", file=sys.stderr)
         analysis_id = instance.id
-        print("ID: ", analysis_id, file=sys.stderr)
-        print("New Build")
-        print(ml_model_id, file=sys.stderr)
         self.send_analysis_request(parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id, dataset_id, token)
 
     def send_analysis_request(self, parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id, dataset_id, token):
@@ -163,20 +159,24 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
             'debug': True
         }
         headers = {}
+        # Production:
+        ml_url = 'https://ml.cc-explorer.com/api/v1/predict' 
+        requests.post(url=ml_url, headers=headers, json=payload) # USE THIS FOR PRODUCTION WITH POSTGRES!
 
 
+        # TESTING:
         # "Fire and forget" request hack: send request with very short timeout
         #  catch the timeout exception, ignore it and continue
         #  only needed for sqlite3 db while testing
         
-        ml_url = 'https://ml.cc-explorer.com/api/v1/predict' # production
         # ml_url = 'http://ml-api:8082/api/v1/predict' # staging
         # ml_url = 'http://localhost:8082/api/v1/predict' # local
         
-        try:
-            requests.post(
-            url=ml_url, headers=headers, json=payload, timeout=0.0000000001) # localhost or ml-api (docker service name)
-            print("Request sent...")
-        except requests.exceptions.ReadTimeout: 
-            pass
+        # ONLY WORKS WITH SQLITEDB:
+
+        # try:
+        #     requests.post(
+        #     url=ml_url, headers=headers, json=payload, timeout=0.0000000001) # localhost or ml-api (docker service name)
+        # except requests.exceptions.ReadTimeout: 
+        #     pass
 
