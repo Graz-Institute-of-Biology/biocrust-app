@@ -353,7 +353,7 @@ export default defineComponent({
                     // this.Images = response.data.filter(image => image.dataset == this.$route.params.id)
                     let img_items = response.data.filter(image => image.dataset == this.$route.params.id)
                     for (let i = 0; i < img_items.length; i++) {
-                        this.items.push(img_items[i].img.replace('http', 'https'))
+                        this.items.push(img_items[i].img) //.replace('http', 'https'))
                     }
                 })
                 .catch(error => {
@@ -368,8 +368,8 @@ export default defineComponent({
                 // this.Masks = response.data.filter(mask => mask.dataset == this.$route.params.id)
                 let mask_items = response.data.filter(mask => mask.dataset == this.$route.params.id)
                 for (let i = 0; i < mask_items.length; i++) {
-                    mask_items[i].parent_image_url = mask_items[i].parent_image_url.replace('http', 'https')
-                    mask_items[i].mask = mask_items[i].mask.replace('http', 'https')
+                    // mask_items[i].parent_image_url = mask_items[i].parent_image_url.replace('http', 'https')
+                    // mask_items[i].mask = mask_items[i].mask.replace('http', 'https')
                     this.mask_items.push(mask_items[i])
                 }
             })
