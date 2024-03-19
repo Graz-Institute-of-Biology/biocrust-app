@@ -1,20 +1,14 @@
 from django.shortcuts import render
-import threading
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets, status
-from PIL import Image
 import sys
 import requests
-from io import BytesIO
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.core.files.base import ContentFile
-from django.shortcuts import get_object_or_404
-import json
+from django.core.files.uploadedfile import InMemoryUploadedFile
 import os
-from collections import defaultdict
 from biocrust_app.datasets.models import Image_Model, Dataset_Model, Model_Model, Mask_Model, Analysis_Model
 from biocrust_app.datasets.serializers import Image_ModelSerializer, Dataset_ModelSerializer, Model_ModelSerializer, Mask_ModelSerializer, Analysis_ModelSerializer
+from biocrust_app.datasets.process_data import *
 
 class Image_ModelList(APIView):
     def get(self, request, format=None):
@@ -67,47 +61,39 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
         # return self.queryset.filter(created_by=self.request.user)
         return self.queryset.all()
     
-    def generate_class_dist(self, parent_image_url):
-        response = requests.get(parent_image_url)
-        img = Image.open(BytesIO(response.content))
-        class_counts = defaultdict(int)
-        class_colors = {}
-
-        pixels = img.load()
-
-        with open('./biocrust_app/datasets/ontology.json', 'r') as file:
-            color_config = json.load(file)
-
-        pixel_to_label = {tuple(value['color']): value['name'] for value in color_config.values()}
-
-        for class_label in color_config:
-            class_counts[color_config[class_label]['name']] = 0
-
-        for i in range(img.size[0]):
-            for j in range(img.size[1]):
-                pixel_value = pixels[i, j]
-                class_label = pixel_to_label.get(pixel_value)
-                if class_label:
-                    class_counts[class_label] += 1
-
-        total_pixels = sum(class_counts.values())
-        class_distribution = {key: round(value / total_pixels, 3) for key, value in class_counts.items()}
-        
-        class_colors = {value['name']: str(value['color']) for value in color_config.values()}
-        
-        return json.dumps({"class_distributions": class_distribution, "class_colors": class_colors})
-    
     def perform_create(self, serializer):
         if serializer.validated_data.get('source_manual'):        
             try:
-                instance = serializer.save()
-                if not instance.class_distributions:
-                    parent_image_url = serializer.validated_data.get('parent_image_url')
-                    parent_image_url = parent_image_url.replace("images", "masks")
-                    parent_image_url = os.path.join(parent_image_url.rsplit("/", 1)[0], str(serializer.validated_data.get('mask')))
-                    class_distribution = self.generate_class_dist(parent_image_url)
-                    instance.class_distributions = class_distribution
-                    instance.save()
+                instance = serializer.__class__(data=serializer.data)
+                instance.is_valid(raise_exception=True)
+                
+                mask_image_data_serialized = serializer.validated_data.get('mask')
+                mask_image = Image.open(mask_image_data_serialized)
+                
+                print("Mask Image Loaded")
+                input_image, pixels = translate_categorical_to_color(mask_image)
+                print(f'Colored Image Shape: {pixels.shape}')
+                colored_image = Image.fromarray(pixels)
+
+                buffer = BytesIO()
+                colored_image.save(buffer, format='PNG')
+
+                mask_file = InMemoryUploadedFile(
+                        buffer,  
+                        None, 
+                        instance.validated_data['name'] + '.png',  
+                        'image/png', 
+                        buffer.getbuffer().nbytes,  
+                        None  
+                    )
+                instance.validated_data['mask'] = mask_file
+                
+                if not instance.validated_data['class_distributions']:
+                    print('Generating class distribution:')
+                    class_distribution = generate_class_dist(mask_image)
+                    instance.validated_data['class_distributions'] = class_distribution
+                
+                instance.save()
             except Exception as e: 
                 print(e)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -130,10 +116,6 @@ class Model_ModelViewSet(viewsets.ModelViewSet):
         model_path = os.path.join('./biocrust_app/media', str(serializer.validated_data.get('dataset').id), 'models', str(file_name))
         print(model_path)
 
-        
-
-
-    
 
 class Analysis_ModelViewSet(viewsets.ModelViewSet):
     queryset = Analysis_Model.objects.all()
