@@ -5,7 +5,7 @@ import store from './store'
 import App from './App.vue'
 import axios from 'axios'
 
-axios.defaults.baseURL = 'https://api.ccexplorer.com'
+axios.defaults.baseURL = 'https://api.cc-explorer.com'
 // axios.defaults.baseURL = 'http://127.0.0.1:8000'
 // axios.defaults.baseURL = 'http://167.99.251.188:8000'
 // axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*'
