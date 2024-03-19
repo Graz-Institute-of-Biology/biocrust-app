@@ -168,8 +168,8 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
 
     def send_analysis_request(self, parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id, dataset_id, token):
         # Send the request to the analysis API
-        # parent_image_url = parent_image_url.replace("127.0.0.1", "django")
-        # model_url = model_url.replace("127.0.0.1", "django")
+        parent_image_url = parent_image_url.replace("127.0.0.1", "django") # needed for docker
+        model_url = model_url.replace("127.0.0.1", "django") # needed for docker
         payload = {
             'file_path': parent_image_url,
             'ml_model_path': model_url,
@@ -188,8 +188,8 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         #  only needed for sqlite3 db while testing
         
         # ml_url = 'https://ml.cc-explorer.com/api/v1/predict' # production
-        # ml_url = 'http://ml-api:8082/api/v1/predict' # staging
-        ml_url = 'http://localhost:8082/api/v1/predict' # local
+        ml_url = 'http://ml-api:8082/api/v1/predict' # staging
+        # ml_url = 'http://localhost:8082/api/v1/predict' # local
         
         try:
             requests.post(
