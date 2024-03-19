@@ -31,11 +31,12 @@
             <div class="col is-4 footerbox-left"> 
               <p>&copy; 2023</p>
               <p>CC-Explorer</p>
+              <p>ccexplorerdemo@gmail.com</p>
             </div>
             <div class="col is-4 footerbox-center">
               <h1>Created by</h1>
-              <p>philipp.faulhammer@uni-graz.at</p>
               <p>stefan.herdy@uni-graz.at</p>
+              <p>philipp.faulhammer@gmail.com</p>
             </div>
             <div class="col is-4 footerbox-right">
               <h1>Contact</h1>

@@ -128,7 +128,6 @@ export default {
             formData.append('description', this.image.description)
             formData.append('slug', this.image.slug)
             formData.append('dataset', this.image.dataset)
-            console.log(formData)
             return axios.post('api/v1/images/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
