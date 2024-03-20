@@ -18,13 +18,13 @@
             <div class="center-vertically">
             <div class="column">
                 <div class="card">
-                <img src="@/assets/stefanherdyprofile.jpg" alt="Stefan Herdy" style="width:100%">
+                <img src="@/assets/stefanherdyprofile.jpg" alt="Stefan Herdy" style="width:100%;border-radius:15px">
                 <div class="container">
                     <h2>Stefan Herdy</h2>
                     <p class="title">Co-Founder</p>
                     <p>PhD Student and Data Scientist</p>
                     <p>Institute of Biology, University of Graz</p>
-                    <p><button class="button" onclick="window.location.href='mailto:stefan.herdy@uni-graz.at';">Contact</button></p>
+                    <p><button class="button is-link" onclick="window.location.href='mailto:stefan.herdy@uni-graz.at';">Contact</button></p>
                 </div>
                 </div>
             </div>
@@ -32,13 +32,13 @@
 
             <div class="column">
                 <div class="card">
-                <img src="@/assets/logo.png" alt="Philipp Faulhammer" style="width:100%">
+                <img src="@/assets/logo.png" alt="Philipp Faulhammer" style="width:100%;border-radius:15px">
                 <div class="container">
                     <h2>Philipp Faulhammer</h2>
                     <p class="title">Co-Founder</p>
                     <p>PhD Student and Data Scientist</p>
                     <p>Institute of Biology, University of Graz</p>
-                    <p><button class="button" onclick="window.location.href='mailto:philipp.faulhammer@uni-graz.at';">Contact</button></p>
+                    <p><button class="button is-link" onclick="window.location.href='mailto:philipp.faulhammer@uni-graz.at';">Contact</button></p>
                 </div>
                 </div>
             </div>
