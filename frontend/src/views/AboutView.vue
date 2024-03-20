@@ -1,56 +1,56 @@
 <template>
-  <div class="container">
-    <div class="container">
-        <section class ="section" id="app">
-            <h2 class="is-size-2 has-text-centered">About</h2>
-            <p> About this project some example text</p>
-        </section>
+    <div class="is-fullheight">
+        <div class="columns is-multiline">
+            <div class="column is-10 header-col">
+                <h2 class="is-size-2">About</h2>
+            </div>
+        </div>
+        <div class="container has-text-centered">
+          <div class="abouttext">
+              <p> {{aboutText}} </p>
+          </div>
+          <div class="container has-text-centered">
+              <header class="container">
+              <img src="@/assets/logo.png" alt="Work Group" class="container logo" />
+              </header>
+              
+              <h2 class="is-size-3 has-text-centered">Our Team</h2>
+              <div class="center-vertically">
+              <div class="column">
+                  <div class="card">
+                  <img src="@/assets/stefanherdyprofile.jpg" alt="Stefan Herdy" style="width:100%">
+                  <div class="container">
+                      <h2>Stefan Herdy</h2>
+                      <p class="title">Co-Founder</p>
+                      <p>PhD Student and Data Scientist</p>
+                      <p>Institute of Biology, University of Graz</p>
+                      <p><button class="button" onclick="window.location.href='mailto:stefan.herdy@uni-graz.at';">Contact</button></p>
+                  </div>
+                  </div>
+              </div>
+
+
+              <div class="column">
+                  <div class="card">
+                  <img src="@/assets/logo.png" alt="Philipp Faulhammer" style="width:100%">
+                  <div class="container">
+                      <h2>Philipp Faulhammer</h2>
+                      <p class="title">Co-Founder</p>
+                      <p>PhD Student and Data Scientist</p>
+                      <p>Institute of Biology, University of Graz</p>
+                      <p><button class="button" onclick="window.location.href='mailto:philipp.faulhammer@uni-graz.at';">Contact</button></p>
+                  </div>
+                  </div>
+              </div>
+              </div>
+              <ul class="is-size-3 social-links">
+              <li v-for="socialLink in socialLinks" :key="socialLink.name">
+                  <a :href="socialLink.url" target="_blank">{{ socialLink.name }}</a>
+              </li>
+              </ul>
+          </div>
+        </div>
     </div>
-    <div class="container has-text-centered">
-        <header class="container">
-        <img src="@/assets/logo.png" alt="Work Group" class="container" />
-        </header>
-
-        <div class="container">
-        <p>{{ description }}</p>d
-        </div>
-
-        <ul class="social-links">
-        <li v-for="socialLink in socialLinks" :key="socialLink.name">
-            <a :href="socialLink.url" target="_blank">{{ socialLink.name }}</a>
-        </li>
-        </ul>
-
-        
-        <h2 style="text-align:center">Our Team</h2>
-        <div class="center-vertically">
-        <div class="column">
-            <div class="card">
-            <img src="@/assets/logo.png" alt="Stefan Herdy" style="width:100%">
-            <div class="container">
-                <h2>Stefan Herdy</h2>
-                <p class="title">Co-Founder</p>
-                <p>Some text that describes me lorem ipsum ipsum lorem.</p>
-                <p><button class="button" onclick="window.location.href='mailto:stefan.herdy@uni-graz.at';">Contact</button></p>
-            </div>
-            </div>
-        </div>
-
-
-        <div class="column">
-            <div class="card">
-            <img src="@/assets/logo.png" alt="Philipp Faulhammer" style="width:100%">
-            <div class="container">
-                <h2>Philipp Faulhammer</h2>
-                <p class="title">Co-Founder</p>
-                <p>Some text that describes me lorem ipsum ipsum lorem.</p>
-                <p><button class="button" onclick="window.location.href='mailto:philipp.faulhammer@uni-graz.at';">Contact</button></p>
-            </div>
-            </div>
-        </div>
-        </div>
-    </div>
-  </div>
 </template>
 
 <script>
@@ -58,7 +58,16 @@ export default {
   data() {
     return {
       workGroupImage: "work-group-image.jpg",
-      description: "Welcome to our website! We are a passionate group of individuals dedicated to excellence in our field. Our mission is to provide the best solutions for your needs.",
+      aboutText: `The realm of image processing is witnessing a profound transformation propelled by advancements 
+        in artificial intelligence, particularly within the domain of deep learning. This technological paradigm shift 
+        is increasingly recognized for its pivotal role in various facets of remote sensing applications, notably in 
+        biomonitoring endeavors. The development and deployment of deep learning models necessitate a deep understanding 
+        of programming methodologies. \n\n
+        In pursuit of democratizing access to cutting-edge advancements in the field, Stefan and Philipp have developed this 
+        web application. This platform facilitates data management, model deployment, and the analysis of 
+        biomonitoring data via an intuitive user interface. Leveraging state-of-the-art deep learning architectures, users 
+        can harness the power of our computational infrastructure to analyze and derive insights from their datasets.`,
+
       socialLinks: [
         { name: "GitHub", url: "https://github.com/Graz-Institute-of-Biology" },
       ],
@@ -79,17 +88,23 @@ export default {
 </script>
 
 <style scoped>
-body {
-  font-family: Arial, Helvetica, sans-serif;
-  margin: 0;
+
+.header-col {
+    text-align: center;
 }
 
-html {
-  box-sizing: border-box;
+.abouttext {
+  font-size: 25px;
+  
 }
 
-*, *:before, *:after {
-  box-sizing: inherit;
+.column {
+  float: left;
+  width: 30%;
+  margin: auto;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  padding: 0 8px;
 }
 
 .center-vertically {
@@ -98,14 +113,6 @@ html {
   align-items: center;
   width: 80%;
   margin: 0 auto;
-}
-
-.column {
-  float: left;
-  width: 30%;
-  margin: auto;
-  margin-bottom: 16px;
-  padding: 0 8px;
 }
 
 .card {
@@ -122,6 +129,13 @@ html {
 
 .container {
   padding: 0 16px;
+  
+}
+
+.logo {
+  text-align: center;
+  width: 100px; 
+  height: auto;
 }
 
 .container::after, .row::after {
