@@ -189,14 +189,6 @@ export default defineComponent({
         const viewer = this.$el.querySelector('.images').$viewer
         viewer.show()
         },
-        // getShowProcessingQueue() {
-        //     console.log(localStorage.getItem('showProcessingQueue'))
-        //     return getShowProcessingQueue()
-        // },
-        toggleInfoWindow() {
-             this.showInfoWindow = !this.showInfoWindow;
-             console.log("Toggling")
-        },
         setSelectedMlModel() {
              this.selectedMlModel = this.Models.filter(model => model.model_name == this.selectedMlModel)[0]
         },
@@ -228,13 +220,11 @@ export default defineComponent({
         async fetchClassDistribution(image) {
             const imageUrl = image; 
             const maskUrl = this.getMaskUrl(imageUrl); 
-            console.log("Mask URL:", maskUrl);
             try {
                 const response = await axios.get('api/v1/masks/');
                 const maskData = response.data;
 
                 const matchingMask = maskData.find(mask => mask.mask === maskUrl);
-                console.log(matchingMask.class_distributions)
 
                 if (matchingMask && matchingMask.class_distributions) {
                     return JSON.parse(matchingMask.class_distributions);
@@ -261,8 +251,6 @@ export default defineComponent({
                 this.setSelectedMlModel()
             }
             this.$store.commit('setShowProcessingQueue', true)
-            console.log("SELECTED:")
-            console.log(this.selectedMlModel)
             for (let i = 0; i < this.Images.length; i++) {
                 await this.analyzeImage(this.Images[i])
                 this.imageProcessingList.push(this.Images[i].name)
@@ -292,8 +280,6 @@ export default defineComponent({
             formData.append('ml_model_id', this.selectedMlModel.id)
             formData.append('token', localStorage.getItem('token'))
             
-            console.log("New Analysis:")
-            console.log(formData)
             return axios.post('api/v1/analyses/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -415,7 +401,6 @@ export default defineComponent({
         },
 
         getMaskUrl(item) {
-            console.log("Item:", item)
             for (let mask_item of this.mask_items) {
                 if (mask_item.parent_image_url.includes('django'))
                     item = item.replace('127.0.0.1', 'django')
