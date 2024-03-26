@@ -10,7 +10,14 @@
                         <RouterLink :to="{ name: 'AddModel', params: { id: dataset.id }}" class="button is-link">Add Model</RouterLink>
                     </div>
                     <div class="column is-half">
-                        <RouterLink :to="{ name: 'AnalyzeImagesView', params: { id: dataset.id }}" class="button is-primary" v-if="!this.$store.loading">Analyze images</RouterLink>
+                        <div class="select is-success" :class="{ 'blinking': selectModelWarning }">
+                            <select class="is-focused" v-model="selectedMlModel">
+                                <option disabled value="">Select ML-Model</option>
+                                <option v-for="(item, index) in Models" :key="index">{{ item.model_name }}</option>
+                            </select>
+                        </div>
+                        <!-- <RouterLink :to="{ name: 'AnalyzeImagesView', params: { id: dataset.id }}" class="button is-primary" v-if="!this.$store.loading">Analyze images</RouterLink> -->
+                        <div class="button is-primary" @click="handleAnalyses" v-if="!this.$store.loading">Analyze Images ({{ this.items.length }})</div>
                         <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading && this.mask_items.length > 0">Show Overlay</div>
                         <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading">Delete dataset</div>
                         <!-- <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div> -->
@@ -27,14 +34,14 @@
         </div>
         <div class="image-grid-container">
             <div class="image-grid" v-if="!this.$store.loading">
-                <div v-for="(item, index) in items" :key="index" class="image-container" >
+                <div v-for="(item, index) in Images" :key="index" class="image-container" >
                     <!-- <div class="image-wrapper" @click="toggleEnlarge(index)" @wheel="handleMouseWheel(index, $event)"> -->
                     <div class="image-wrapper" 
                             @click="() => { toggleEnlarge(index); handleImageClick(item); }"
                             @wheel="handleMouseWheel(index, $event)"
                             :style="{ zIndex: isEnlarged(index) ? 1 : 0 }">
-                        <img :src="item" class="image-small" v-if="!isEnlarged(index)">
-                        <img :src="item" class="image-large" :style="{ transform: `scale(${getScale(index)})` }" v-if="isEnlarged(index)">
+                        <img :src="item.img" class="image-small" v-if="!isEnlarged(index)">
+                        <img :src="item.img" class="image-large" :style="{ transform: `scale(${getScale(index)})` }" v-if="isEnlarged(index)">
                         <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
                         <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${getScale(index)})` }" @error="handleMaskImageError" v-if="setOverlay && isEnlarged(index)">
                     </div>
@@ -60,6 +67,7 @@
                 </footer>
             </div>
         </div>
+        <info-window v-if="getShowProcessingQueue" :processingList="imageProcessingList"></info-window>
     </div>
 </template>
 
@@ -71,12 +79,17 @@ import 'viewerjs/dist/viewer.css'
 import { directive as viewer } from "v-viewer"
 import { Bar } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
+import InfoWindow from './InfoWindow.vue'; // Import the InfoWindow component
+import { mapGetters } from 'vuex'
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
 export default defineComponent({
     name: 'DataSetView',
-    components: { Bar },
+    components: { 
+                    Bar,
+                    InfoWindow 
+                },
     directives: {
       viewer: viewer({
         debug: true
@@ -84,8 +97,16 @@ export default defineComponent({
     },
     data () {
         return {
+            analysesStarted: false,
+            info: "This is some information to display.",
+            selectModelWarning : false,
+            blinkDuration: 1000,
+            imageProcessingList: [],
             Images: [],
             items: [],
+            Models: [],
+            selectedMlModel: '',
+            selectedMlModelId: null,
             setOverlay: false,
             scale: 1,
             mask_items: [],
@@ -95,7 +116,7 @@ export default defineComponent({
             dataset_name: this.$route.params.name,
             index: null,
             enlargedIndexes: [], 
-            scales: {}, 
+            scales: {},
             chartData: {
                 labels: [ 'Taxon 1', 'Taxon 2', 'Taxon 2' ],
                 datasets: [{
@@ -154,14 +175,56 @@ export default defineComponent({
     },
     created () {
         this.$store.commit('setLoading', true)
-        this.getDataset()
+        this.$store.commit('setShowProcessingQueue', false)
+        this.getImages()
+        this.getMasks()
+        this.getModels()
+        this.getAnalyses()
+    },
+    computed: {
+        ...mapGetters(['getShowProcessingQueue'])
     },
     methods: {
         show () {
         const viewer = this.$el.querySelector('.images').$viewer
         viewer.show()
         },
-
+        // getShowProcessingQueue() {
+        //     console.log(localStorage.getItem('showProcessingQueue'))
+        //     return getShowProcessingQueue()
+        // },
+        toggleInfoWindow() {
+             this.showInfoWindow = !this.showInfoWindow;
+             console.log("Toggling")
+        },
+        setSelectedMlModel() {
+             this.selectedMlModel = this.Models.filter(model => model.model_name == this.selectedMlModel)[0]
+        },
+        setModelWarningFalse() {
+            this.selectModelWarning = false
+        },
+        async getAnalyses() {
+            await axios.get('api/v1/analyses/')
+            .then(response => {
+                this.Analyses = response.data.filter(analysis => analysis.dataset == this.$route.params.id)
+            })
+            .catch(error => {
+                console.log(error)
+            })
+            let processingAnalyses = this.Analyses.filter(analysis => analysis.status == "processing")
+            if (processingAnalyses.length > 0) {
+                this.$store.commit('setShowProcessingQueue', true)
+            }
+        },
+        async getModels() {
+            await axios.get('api/v1/models/')
+            .then(response => {
+                this.Models = response.data
+            })
+            .catch(error => {
+                console.log(error)
+            })
+        },
         async fetchClassDistribution(image) {
             const imageUrl = image; 
             const maskUrl = this.getMaskUrl(imageUrl); 
@@ -186,6 +249,57 @@ export default defineComponent({
             const parts = imageUrl.split('/');
             const filename = parts[parts.length - 1];
             return filename;
+        },
+        async handleAnalyses() {
+            if (this.selectedMlModel == '') {
+                this.selectModelWarning = true
+                setTimeout(() => {
+                    this.selectModelWarning = false; // Remove the blinking effect after the specified duration
+                }, this.blinkDuration);
+                return
+            } else {
+                this.setSelectedMlModel()
+            }
+            this.$store.commit('setShowProcessingQueue', true)
+            console.log("SELECTED:")
+            console.log(this.selectedMlModel)
+            for (let i = 0; i < this.Images.length; i++) {
+                await this.analyzeImage(this.Images[i])
+                this.imageProcessingList.push(this.Images[i].name)
+            }
+        },
+        async analyzeImage(image) {
+
+            await this.sendAnalysisRequest(image)
+                .then(response => {
+                    this.message = 'Analysis request sent successfully!'
+                    console.log(response)
+                })
+                .catch(error => {
+                    this.message = 'Analysis request Error!'
+                    console.log(error)
+                });
+            },
+
+        async sendAnalysisRequest(image) {
+            let formData = new FormData()
+            formData.append('owner', localStorage.getItem('username'))
+            formData.append('slug', image.slug)
+            formData.append('dataset', image.dataset)
+            formData.append('ml_model_url', this.selectedMlModel.file) // USE HTTPS URL!
+            formData.append('source_image_url', image.img) // USE HTTPS URL!
+            formData.append('parent_img_id', image.id)
+            formData.append('ml_model_id', this.selectedMlModel.id)
+            formData.append('token', localStorage.getItem('token'))
+            
+            console.log("New Analysis:")
+            console.log(formData)
+            return axios.post('api/v1/analyses/', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'X-CSRFToken': '{{ csrftoken }}'
+                },
+            })
         },
 
         async handleImageClick(image) {
@@ -301,11 +415,12 @@ export default defineComponent({
         },
 
         getMaskUrl(item) {
+            console.log("Item:", item)
             for (let mask_item of this.mask_items) {
                 if (mask_item.parent_image_url.includes('django'))
                     item = item.replace('127.0.0.1', 'django')
-                if (mask_item.parent_image_url === item) {
-                    return mask_item.mask;
+                if (mask_item.parent_image === item.id) {
+                    return mask_item.mask.replace('https', 'http'); // only for local development
                 }
             }
         },
@@ -334,26 +449,13 @@ export default defineComponent({
             )
         },
 
-        async getDataset() {
-            await axios.get(`api/v1/datasets/${this.$route.params.id}/`)
-            .then(response => {
-                this.dataset = response.data
-            })
-            .catch(error => {
-                console.log(error)
-            })
-            console.log("Dataset loaded")
-            this.getImages()
-            this.getMasks()
-        },
-
         async getImages() {
                 await axios.get('api/v1/images/')
                 .then(response => {
-                    // this.Images = response.data.filter(image => image.dataset == this.$route.params.id)
+                    this.Images = response.data.filter(image => image.dataset == this.$route.params.id)
                     let img_items = response.data.filter(image => image.dataset == this.$route.params.id)
                     for (let i = 0; i < img_items.length; i++) {
-                        this.items.push(img_items[i].img.replace('http', 'https'))
+                        this.items.push(img_items[i].img)
                     }
                 })
                 .catch(error => {
@@ -441,6 +543,16 @@ canvas {
     border-radius: 10px;
 }
 
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.blinking {
+  animation: blink 0.2s infinite;
+}
+
 .overlay-mask,
 .overlay-mask-large {
     position: absolute;
@@ -453,6 +565,10 @@ canvas {
 }
 
 .button {
+    margin-right: 10px;
+}
+
+.select {
     margin-right: 10px;
 }
 
