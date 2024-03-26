@@ -7,4 +7,5 @@ export default {
     token: '',
     loading: false,
     imagesUploaded: 0,
+    showProcessingQueue: false
 }
