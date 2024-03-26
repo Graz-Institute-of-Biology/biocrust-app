@@ -22,4 +22,7 @@ export default {
     setImagesUploaded(state, imagesUploaded) {
         state.imagesUploaded = state.imagesUploaded + imagesUploaded
     },
+    setShowProcessingQueue(state, showProcessingQueue) {
+        state.showProcessingQueue = showProcessingQueue
+    }
 }
