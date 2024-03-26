@@ -1,12 +1,29 @@
 <template>
   <div class="is-fullheight">
     
-        <div class="column is-10 header-col">
-            <h2 class="is-size-2">Home</h2>
+        <div class="column is-12 header-col">
+            <h1 class="is-size-1">Welcome to CC-Explorer</h1>
         </div>
-        <p> Deep Learning Webpage for an image based Biomonitoring</p>
-        <div class="column is-2 button-col">
-          <!-- <div class="button is-primary" @click="createDefaultDataset" >Try demo dataset</div> -->
+        <!-- <div class="column is-12 button-col">
+          <div class="button is-primary" @click="createDefaultDataset" >Try demo dataset</div>
+        </div> -->
+        <div class="container">
+          <div class="left-column">
+              <img src="@/assets/Mock_Africa_1.png" alt="Landing Page" class="image" />
+          </div>
+          <div class="right-column">
+            <div class="text">
+              <h2 class="header">Features</h2>
+              <ul class="features-list">
+                <li>Segmentation tools for Biomonitoring</li>
+                <li>Get started with pre-configured ML-Models</li>
+                <li>Analyse & assess your own data</li>
+                <!-- Add more feature items as needed -->
+              </ul>
+              <RouterLink :to="{ name: 'DataSetView', params: { id: 9 }}" class="button is-primary">Browse sample dataset</RouterLink>
+
+          </div>
+          </div>
         </div>
     
   </div>
@@ -18,6 +35,7 @@ import axios from 'axios'
 import { defineComponent } from 'vue'
 import 'viewerjs/dist/viewer.css'
 import { directive as viewer } from "v-viewer"
+import router from '@/router'
 
 export default defineComponent({
     name: 'HomeView',
@@ -33,6 +51,7 @@ export default defineComponent({
                 coordinates: ' ',
                 dataset_type: 'default',
                 owner: localStorage.getItem('username'),
+                router: router,
             }
         }
     },
@@ -77,12 +96,52 @@ export default defineComponent({
 
 <style scoped>
 
+.container {
+  display: flex;
+  width: 100%;
+}
+
+.left-column,
+.right-column {
+  flex: 1;
+}
+
+.image {
+  width: 100%;
+  height: auto;
+}
+
+.text {
+  padding: 40px; /* Add some padding to the text content */
+}
+
+.header {
+  font-size: 50px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.features-list {
+  list-style: none;
+  font-size: 20px;
+  padding: 30px;
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+.features-list li {
+  margin-bottom: 5px;
+}
 p {
   padding: 0.75rem;
 }
 
 .header-col {
     text-align: center;
+}
+
+.button {
+  margin-left: 32%;
 }
 
 </style>
