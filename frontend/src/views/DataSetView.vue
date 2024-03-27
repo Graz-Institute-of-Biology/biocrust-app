@@ -52,6 +52,8 @@
             
             <!-- Chart Column -->
             <div class="column">
+                <input v-if="this.showChart" type="checkbox" id="checkbox" v-model="checkExcludeBackground" @change="excludeBackground" />
+                <label v-if="this.showChart" for="checkbox">Exclude Background</label>
                 <div class="chart-container">
                     <Doughnut :data="chartData" :options="chartOptions" />
                 </div>
@@ -119,6 +121,9 @@ export default defineComponent({
             index: null,
             enlargedIndexes: [], 
             scales: {},
+            showChart: false,
+            checkExcludeBackground: false,
+            clickedImage: null,
             chartData: {
                 labels: [ ' ', ' ', ' ' ],
                 datasets: [{
@@ -229,7 +234,27 @@ export default defineComponent({
                 const matchingMask = maskData.find(mask => mask.mask === maskUrl);
 
                 if (matchingMask && matchingMask.class_distributions) {
-                    return JSON.parse(matchingMask.class_distributions);
+                    if (this.checkExcludeBackground) {
+                        const classDistributions = JSON.parse(matchingMask.class_distributions);
+                        const class_names = Object.keys(classDistributions.class_distributions)
+                        // const backgroundIndexDist = 0;
+                        for (let i = 0; i < class_names.length; i++) {
+                            if (class_names[i].includes('background')) {
+                                delete classDistributions.class_distributions[class_names[i]];
+                            }
+                            if (classDistributions.class_colors[i].name.includes('background')) {
+                                delete classDistributions.class_colors[i];
+                            }
+                        }
+                        // const backgroundIndexColor = null;
+
+                        // delete classDistributions.class_colors[backgroundIndexColor]
+                        console.log(classDistributions.class_distributions)
+                        return classDistributions;
+                    } else {
+                        console.log(JSON.parse(matchingMask.class_distributions))
+                        return JSON.parse(matchingMask.class_distributions);
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching class distribution:", error);
@@ -289,11 +314,18 @@ export default defineComponent({
                 },
             })
         },
+        excludeBackground() {
+            if (this.checkExcludeBackground) {
+                this.handleImageClick(this.clickedImage)
+            } else {
+                this.handleImageClick(this.clickedImage)
+            }
+        },
 
         async handleImageClick(image) {
+            this.clickedImage = image;
             const classDistribution = await this.fetchClassDistribution(image);
-            console.log("Class distribution for image:", image.img);
-            console.log(classDistribution);
+            this.showChart = true;
             if (classDistribution) {
                 const labels = Object.keys(classDistribution.class_distributions);
                 const data = Object.values(classDistribution.class_distributions);
