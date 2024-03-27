@@ -120,6 +120,7 @@ export default defineComponent({
     },
     data () {
         return {
+            Analyses: [],
             analysesStarted: false,
             info: "This is some information to display.",
             selectModelWarning : false,
