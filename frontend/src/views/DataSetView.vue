@@ -352,7 +352,7 @@ export default defineComponent({
                 // const colors = Object.values(classDistribution.class_colors).map(colorStr => {
                 //     return colorStr.replace(/\[|\]/g, '').split(',').map(Number);
                 // });
-
+                
                 this.chartData = {
                     labels: labels,
                     datasets: [{
