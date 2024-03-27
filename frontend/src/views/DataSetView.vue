@@ -294,14 +294,15 @@ export default defineComponent({
 
         async handleImageClick(image) {
             const classDistribution = await this.fetchClassDistribution(image);
-            console.log("Class distribution for image:", image);
+            console.log("Class distribution for image:", image.img);
             console.log(classDistribution);
             if (classDistribution) {
                 const labels = Object.keys(classDistribution.class_distributions);
                 const data = Object.values(classDistribution.class_distributions);
-                const colors = Object.values(classDistribution.class_colors).map(colorStr => {
-                    return colorStr.replace(/\[|\]/g, '').split(',').map(Number);
-                });
+                const colors = Object.values(classDistribution.class_colors).map(color => color.color);
+                // const colors = Object.values(classDistribution.class_colors).map(colorStr => {
+                //     return colorStr.replace(/\[|\]/g, '').split(',').map(Number);
+                // });
 
                 this.chartData = {
                     labels: labels,
@@ -317,7 +318,7 @@ export default defineComponent({
                     plugins: {
                         title: {
                             display: true,
-                            text: this.getImageName(image)
+                            text: this.getImageName(image.img)
                         },
                         legend: {
                             display: true,
