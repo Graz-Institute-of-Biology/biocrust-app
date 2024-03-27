@@ -123,6 +123,9 @@ export default defineComponent({
         this.getMasks()
         this.getModels()
         this.getAnalyses()
+        // this.interval = setInterval(() => {
+        //     this.getAnalyses()
+        // }, 5000)
     },
     methods: {
         show () {
@@ -182,11 +185,8 @@ export default defineComponent({
             .catch(error => {
                 console.log(error)
             })
-            console.log("Dataset loaded")
         },
         getAnalysisInfo(item) {
-            console.log(this.Images[item].id)
-            console.log(this.Analyses)
             const analysis = this.Analyses.filter(analysis => analysis.parent_img_id == this.Images[item].id)
             const status = analysis.length > 0 ? analysis[0].status : 'No analysis started'
                 return status
@@ -195,7 +195,6 @@ export default defineComponent({
             await axios.get('api/v1/models/')
             .then(response => {
                 this.Models = response.data
-                console.log(this.Models)
             })
             .catch(error => {
                 console.log(error)
@@ -208,7 +207,6 @@ export default defineComponent({
                     let img_items = response.data.filter(image => image.dataset == this.$route.params.id)
                     for (let i = 0; i < img_items.length; i++) {
                         this.items.push(img_items[i].img.replace('http', 'https'))
-                        this.items.push(img_items[i].img)
                     }
                 })
                 .catch(error => {
@@ -237,26 +235,8 @@ export default defineComponent({
 
         getModelUrl(id) {
             const model = this.Models.filter(model => model.dataset == id)
-            console.log("MODEL URL")
-            console.log(model[0].file)
             return model[0].file
         },
-
-        createFileObjectFromUrl(fileUrl) {
-            const fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1)
-            return new Promise((resolve, reject) => {
-                fetch(fileUrl)
-                    .then(response => response.blob())
-                    .then(blob => {
-                        const file = new File([blob], fileName)
-                        resolve(file);
-                    })
-                    .catch(error => {
-                        reject(error)
-                    })
-            })
-        },
-
         async getMasks() {
             await axios.get('api/v1/masks/')
             .then(response => {
@@ -300,7 +280,6 @@ export default defineComponent({
             formData.append('parent_img_id', this.mask.parent_image_id)
             formData.append('ml_model_id', this.Models[0].id)
             formData.append('token', localStorage.getItem('token'))
-            console.log(formData)
             return axios.post('api/v1/analyses/', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',

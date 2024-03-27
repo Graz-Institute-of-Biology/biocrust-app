@@ -1,7 +1,7 @@
 
 <template>
     <div id="wrapper" class="body">
-      <nav class="navbar is-dark is-fixed-top">
+      <!-- <nav class="navbar is-dark is-fixed-top">
         <div class="navbar-brand">
           <RouterLink to="/" class="navbar-item">Home</RouterLink>
         </div>
@@ -20,13 +20,71 @@
               </template>
           </div>
         </div>
+      </nav> -->
+
+      <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+
+          <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+          </a>
+        </div>
+
+        <div id="navbarBasicExample" class="navbar-menu">
+            <template v-if="$store.state.isAuthenticated">
+              <div class="navbar-start">
+              <RouterLink to="/" class="navbar-item">Home</RouterLink>
+              <RouterLink to="/datasets" class="navbar-item">Datasets</RouterLink>
+              <RouterLink to="/models" class="navbar-item">Models</RouterLink>
+              <RouterLink to="/about" class="navbar-item">About</RouterLink>
+            </div>
+            <div class="navbar-end">
+                <div class="navbar-item">
+                  <RouterLink to="/logout" class="navbar-item">Log out</RouterLink>
+                </div>
+              </div>
+            </template>
+            <template v-else>
+              <div class="navbar-end">
+                <div class="navbar-item">
+                  <RouterLink to="/signup" class="navbar-item">Sign Up</RouterLink>
+                  <RouterLink to="/login" class="navbar-item">Log in</RouterLink>
+                </div>
+              </div>
+            </template>
+
+            <!-- <div class="navbar-item has-dropdown is-hoverable">
+              <a class="navbar-link">
+                More
+              </a>
+
+              <div class="navbar-dropdown">
+                <a class="navbar-item">
+                  About
+                </a>
+                <a class="navbar-item is-selected">
+                  Jobs
+                </a>
+                <a class="navbar-item">
+                  Contact
+                </a>
+                <hr class="navbar-divider">
+              </div>
+            </div> -->
+
+
+        </div>
       </nav>
 
         <div class="section">
             <router-view></router-view>
         </div>
 
-        <footer class="footer is-fixed-bottom">
+        <!-- <footer class="footer is-fixed-bottom"> -->
+          <footer class="footer">
           <div class="columns is-multiline">
             <div class="col is-4 footerbox-left"> 
               <p>&copy; 2023</p>
@@ -95,6 +153,18 @@ export default {
   padding: 1rem 0rem 3rem;
   line-height: 1
 }
+.footer {
+  height: 10px;
+  width: 100%;
+  background-color: #333;
+  color: #fff;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  padding: 1rem 0rem 3rem;
+  line-height: 1
+}
 .footerbox-left {
   text-align: center;
   justify-content: center;
@@ -112,7 +182,11 @@ export default {
 }
 .wrapper {
   display: flex;
-  min-height: calc(100vh + 50px);
+  // min-height: calc(100vh + 50px);
   flex-direction: column;
+}
+.section {
+  padding: 0.5rem 5rem 10rem;
+  min-height: calc(120vh - 10rem);
 }
 </style>

@@ -1,0 +1,11 @@
+{   "0": {"name": "background", "color": [200, 0, 10]},
+    "1": {"name": "lichen", "color": [187,207, 74]},
+    "2": {"name": "cyano pale", "color": [0,108,132]},
+    "3": {"name": "cyano dark", "color": [255,204,184]},
+    "4": {"name": "vascular plants", "color": [0, 0, 0]},
+    "5": {"name": "moss", "color": [226,232,228]},
+    "6": {"name": "other", "color": [174,214,220]}
+}
+
+
+

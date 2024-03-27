@@ -319,3 +319,4 @@ biocrust_app/datasets/migrations
 conf.yml
 biocrust_app/test_model.pth
 biocrust_app/datasets/ontology.json
+production.yml
