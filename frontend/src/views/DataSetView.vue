@@ -57,6 +57,25 @@
                 <div class="chart-container">
                     <Doughnut :data="chartData" :options="chartOptions" />
                 </div>
+                <div class="chart-table">
+                        <table class="table is-bordered is-striped is-narrow is-hoverable">
+                            <thead>
+                                <tr>
+                                    <th class="is-primary">Index</th>
+                                    <th class="is-primary">Data</th>
+                                    <th class="is-primary">Label</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(data, label) in chartData.datasets[0].data" :key="label">
+                                    <td>{{ label }}</td>
+                                    <td>{{ data }}</td>
+                                    <td>{{ chartData.labels[label] }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="modal is-active modal-background" v-if="deleteAlert">
