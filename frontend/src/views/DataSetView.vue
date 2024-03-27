@@ -1,5 +1,5 @@
 <template>
-    <div class="container page-dataset">
+    <div class="is-fullheight">
         <div class="columns">
             <div class="column">
                 <h1 class="title is-1">{{ dataset.dataset_name }}</h1>
@@ -16,42 +16,44 @@
                                 <option v-for="(item, index) in Models" :key="index">{{ item.model_name }}</option>
                             </select>
                         </div>
-                        <!-- <RouterLink :to="{ name: 'AnalyzeImagesView', params: { id: dataset.id }}" class="button is-primary" v-if="!this.$store.loading">Analyze images</RouterLink> -->
                         <div class="button is-primary" @click="handleAnalyses" v-if="!this.$store.loading">Analyze Images ({{ this.items.length }})</div>
                         <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading && this.mask_items.length > 0">Show Overlay</div>
                         <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading">Delete dataset</div>
-                        <!-- <div class="button is-success" @click="analyze" v-if="!this.$store.loading">Analyze images</div> -->
                     </div>
                 </div>
             </div>
         </div>
-        <div class="chart">
-            <Bar
-                id="my-chart-id"
-                :options="chartOptions"
-                :data="chartData"
-            />
-        </div>
-        <div class="image-grid-container">
-            <div class="image-grid" v-if="!this.$store.loading">
-                <div v-for="(item, index) in Images" :key="index" class="image-container" >
-                    <!-- <div class="image-wrapper" @click="toggleEnlarge(index)" @wheel="handleMouseWheel(index, $event)"> -->
-                    <div class="image-wrapper" 
-                            @click="() => { toggleEnlarge(index); handleImageClick(item); }"
-                            @wheel="handleMouseWheel(index, $event)"
-                            :style="{ zIndex: isEnlarged(index) ? 1 : 0 }">
-                        <img :src="item.img" class="image-small" v-if="!isEnlarged(index)">
-                        <img :src="item.img" class="image-large" :style="{ transform: `scale(${getScale(index)})` }" v-if="isEnlarged(index)">
-                        <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
-                        <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${getScale(index)})` }" @error="handleMaskImageError" v-if="setOverlay && isEnlarged(index)">
+        <div class="columns">
+            <!-- Image Grid Column -->
+            <div class="column is-two-thirds">
+                <div class="image-grid-container">
+                    <div class="image-grid" v-if="!this.$store.loading">
+                        <div v-for="(item, index) in Images" :key="index" class="image-container" >
+                            <div class="image-wrapper" 
+                                    @click="() => { toggleEnlarge(index); handleImageClick(item); }"
+                                    @wheel="handleMouseWheel(index, $event)"
+                                    :style="{ zIndex: isEnlarged(index) ? 1 : 0 }">
+                                <img :src="item.img" class="image-small" v-if="!isEnlarged(index)">
+                                <img :src="item.img" class="image-large" :style="{ transform: `scale(${getScale(index)})` }" v-if="isEnlarged(index)">
+                                <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
+                                <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${getScale(index)})` }" @error="handleMaskImageError" v-if="setOverlay && isEnlarged(index)">
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <div class="columns is-multiline">
+                            <div class="column is-12">
+                                <h1 class="title is-1">Loading...</h1>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div v-else>
-                <div class="columns is-multiline">
-                    <div class="column is-12">
-                        <h1 class="title is-1">Loading...</h1>
-                    </div>
+            
+            <!-- Chart Column -->
+            <div class="column">
+                <div class="chart-container">
+                    <Doughnut :data="chartData" :options="chartOptions" />
                 </div>
             </div>
         </div>
@@ -77,17 +79,17 @@ import axios from 'axios'
 import { defineComponent } from 'vue'
 import 'viewerjs/dist/viewer.css'
 import { directive as viewer } from "v-viewer"
-import { Bar } from 'vue-chartjs'
-import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
+import { Doughnut } from 'vue-chartjs'
+import { Chart as ChartJS, Title, Tooltip, Legend, DoughnutController, CategoryScale, ArcElement } from 'chart.js'
 import InfoWindow from './InfoWindow.vue'; // Import the InfoWindow component
 import { mapGetters } from 'vuex'
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
+ChartJS.register(Title, Tooltip, Legend, DoughnutController, CategoryScale, ArcElement)
 
 export default defineComponent({
     name: 'DataSetView',
     components: { 
-                    Bar,
+                    Doughnut,
                     InfoWindow 
                 },
     directives: {
@@ -118,19 +120,19 @@ export default defineComponent({
             enlargedIndexes: [], 
             scales: {},
             chartData: {
-                labels: [ 'Taxon 1', 'Taxon 2', 'Taxon 2' ],
+                labels: [ ' ', ' ', ' ' ],
                 datasets: [{
-                    backgroundColor: 'aqua',
-                    label: "Taxon 1",
-                    data: [123, null, null]
+                    backgroundColor: 'white',
+                    label: " ",
+                    data: [null, null, null]
                     }, {
-                    backgroundColor: 'lightgreen',
-                    label: "Taxon 2",
-                    data: [null, 321, null]
+                    backgroundColor: 'white',
+                    label: " ",
+                    data: [null, null, null]
                     }, {
-                    backgroundColor: 'pink',
-                    label: "Taxon 2",
-                    data: [null, null, 213]
+                    backgroundColor: 'white',
+                    label: " ",
+                    data: [null, null, null]
                     }]
             },
             chartOptions: {
@@ -290,14 +292,15 @@ export default defineComponent({
 
         async handleImageClick(image) {
             const classDistribution = await this.fetchClassDistribution(image);
-            console.log("Class distribution for image:", image);
+            console.log("Class distribution for image:", image.img);
             console.log(classDistribution);
             if (classDistribution) {
                 const labels = Object.keys(classDistribution.class_distributions);
                 const data = Object.values(classDistribution.class_distributions);
-                const colors = Object.values(classDistribution.class_colors).map(colorStr => {
-                    return colorStr.replace(/\[|\]/g, '').split(',').map(Number);
-                });
+                const colors = Object.values(classDistribution.class_colors).map(color => color.color);
+                // const colors = Object.values(classDistribution.class_colors).map(colorStr => {
+                //     return colorStr.replace(/\[|\]/g, '').split(',').map(Number);
+                // });
 
                 this.chartData = {
                     labels: labels,
@@ -313,7 +316,7 @@ export default defineComponent({
                     plugins: {
                         title: {
                             display: true,
-                            text: this.getImageName(image)
+                            text: this.getImageName(image.img)
                         },
                         legend: {
                             display: true,
@@ -440,7 +443,7 @@ export default defineComponent({
                     this.Images = response.data.filter(image => image.dataset == this.$route.params.id)
                     let img_items = response.data.filter(image => image.dataset == this.$route.params.id)
                     for (let i = 0; i < img_items.length; i++) {
-                        this.items.push(img_items[i].img)
+                        this.items.push(img_items[i].img.replace('http', 'https'))
                     }
                 })
                 .catch(error => {
@@ -455,8 +458,8 @@ export default defineComponent({
                 // this.Masks = response.data.filter(mask => mask.dataset == this.$route.params.id)
                 let mask_items = response.data.filter(mask => mask.dataset == this.$route.params.id)
                 for (let i = 0; i < mask_items.length; i++) {
-                    mask_items[i].parent_image_url = mask_items[i].parent_image_url.replace('http', 'https')
-                    mask_items[i].mask = mask_items[i].mask.replace('http', 'https')
+                    // mask_items[i].parent_image_url = mask_items[i].parent_image_url.replace('http', 'https')
+                    // mask_items[i].mask = mask_items[i].mask.replace('http', 'https')
                     this.mask_items.push(mask_items[i])
                 }
             })
@@ -476,8 +479,38 @@ export default defineComponent({
 
 <style scoped>
 
-.image-grid-container {
-    max-height: calc(100vh - 200px); 
+.chart-container {
+    width: 100%; /* Set width to any desired value */
+    height: 0;
+    padding-top: 100%; /* This ensures 1:1 aspect ratio */
+    padding-bottom: 20px; /* Optional: Add padding to create some space */
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    background-color: #ffffff;
+    margin-bottom: 20px; 
+    position: relative;
+    overflow: hidden; /* Hide overflow to prevent scrollbars */
+}
+
+.chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.page-dataset {
+    margin-bottom: 10%;
+}
+
+@media (max-width: 768px) {
+    .column {
+        width: 100%;
+    }
+}
+
+.image-grid-container { 
     overflow-y: auto;
     padding-bottom: 5%; 
     padding-left: 5%;
@@ -496,8 +529,8 @@ export default defineComponent({
 } 
 
 canvas {
-    width: 40% !important;
-    height: 40% !important;
+    /* width: 100% !important; */
+    height: 100% !important;
     margin: 0 auto;
 }
 .page-dataset {

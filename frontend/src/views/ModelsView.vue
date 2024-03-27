@@ -8,7 +8,7 @@
                 <RouterLink :to="{ name: 'AddModel' }" class="button is-primary">Add Model</RouterLink>
             </div> -->
         </div>
-            <div class="columns is-multiline">
+        <div class="columns is-multiline">
                 <div 
                     class="column is-3"
                     v-for="model in models"
@@ -72,4 +72,10 @@ export default {
     min-height: 50hv;
 }
 
+@media screen and (max-width: 650px) {
+  .column {
+    width: 100%;
+    display: block;
+  }
+}
 </style>

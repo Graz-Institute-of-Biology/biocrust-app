@@ -19,11 +19,11 @@ def load_image(parent_image_url):
 
     return img
 
-def generate_class_dist(image):
+def generate_class_dist(image, dataset_type):
     pixels = image.load()
     class_counts = defaultdict(int)
     class_colors = {}
-    with open('./biocrust_app/datasets/ontology.json', 'r') as file:
+    with open('./biocrust_app/datasets/{0}_ontology.json'.format(dataset_type), 'r') as file:
         color_config = json.load(file)
 
     pixel_to_label = {tuple(value['color']): value['name'] for value in color_config.values()}
@@ -50,7 +50,7 @@ def generate_class_dist(image):
     total_pixels = sum(class_counts.values())
     class_distribution = {key: round(value / total_pixels, 3) for key, value in class_counts.items()}
     
-    class_colors = {value['name']: str(value['color']) for value in color_config.values()}
+    class_colors = {i : {'name' : value['name'], 'color': value['color']} for i, value in enumerate(color_config.values())}
     
     return json.dumps({"class_distributions": class_distribution, "class_colors": class_colors})
 
@@ -64,12 +64,12 @@ def get_color(category):
     ontology = get_ontology()
     return ontology.get(str(category), {}).get('color', [0, 0, 0])  
 
-def translate_categorical_to_color(input_image):
+def translate_categorical_to_color(input_image, dataset_type):
     pixels = input_image.load()
     if len(input_image.size) == 2:
         print('Translating categorical to color')
         colored_image = np.zeros((input_image.size[1], input_image.size[0], 3), dtype=np.uint8) 
-        ontology_path = './biocrust_app/datasets/ontology.json'
+        ontology_path = './biocrust_app/datasets/{0}_ontology.json'.format(dataset_type)
         with open(ontology_path, 'r') as f:
             ontology = json.load(f)
         

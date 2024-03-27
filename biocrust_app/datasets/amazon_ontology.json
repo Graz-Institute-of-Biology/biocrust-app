@@ -1,0 +1,10 @@
+{   "0": {"name": "background", "color": [0, 0, 0]},
+    "1": {"name": "Liverwort", "color": [28,255,187]},
+    "2": {"name": "Moss", "color": [0,188,255]},
+    "3": {"name": "CyanosLiverwort", "color": [0,89,255]},
+    "4": {"name": "CyanosMoss", "color": [38, 1, 216]},
+    "5": {"name": "Lichen", "color": [255,0,195]},
+    "6": {"name": "BarkDominated", "color": [255,74,70]},
+    "7": {"name": "CyanosBark", "color": [255,117,0]},
+    "8": {"name": "Other", "color": [146,142,0]}
+}

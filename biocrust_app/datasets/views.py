@@ -66,12 +66,13 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
             try:
                 instance = serializer.__class__(data=serializer.data)
                 instance.is_valid(raise_exception=True)
+                dataset_type = instance.validated_data.get('dataset').dataset_type
                 
                 mask_image_data_serialized = serializer.validated_data.get('mask')
                 mask_image = Image.open(mask_image_data_serialized)
                 
                 print("Mask Image Loaded")
-                input_image, pixels = translate_categorical_to_color(mask_image)
+                input_image, pixels = translate_categorical_to_color(mask_image, dataset_type)
                 print(f'Colored Image Shape: {pixels.shape}')
                 colored_image = Image.fromarray(pixels)
 
@@ -90,7 +91,7 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
                 
                 if not instance.validated_data['class_distributions']:
                     print('Generating class distribution:')
-                    class_distribution = generate_class_dist(mask_image)
+                    class_distribution = generate_class_dist(mask_image, dataset_type)
                     instance.validated_data['class_distributions'] = class_distribution
                 
                 instance.save()
@@ -99,6 +100,7 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
         else:
+            # instance = serializer.__class__(data=serializer.data)
             serializer.save()
 
 class Model_ModelViewSet(viewsets.ModelViewSet):
