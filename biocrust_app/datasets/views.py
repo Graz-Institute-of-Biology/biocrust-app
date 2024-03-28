@@ -63,36 +63,42 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         if serializer.validated_data.get('source_manual'):        
-            try:
-                instance = serializer.__class__(data=serializer.data)
-                instance.is_valid(raise_exception=True)
-                dataset_type = instance.validated_data.get('dataset').dataset_type
-                
+            try:            
                 mask_image_data_serialized = serializer.validated_data.get('mask')
                 mask_image = Image.open(mask_image_data_serialized)
                 
                 print("Mask Image Loaded")
-                input_image, pixels = translate_categorical_to_color(mask_image, dataset_type)
-                print(f'Colored Image Shape: {pixels.shape}')
-                colored_image = Image.fromarray(pixels)
+                print("Mask Image Mode: ", mask_image.mode)
+                if mask_image.mode == "L":
+                    instance = serializer.__class__(data=serializer.data)
+                    instance.is_valid(raise_exception=True)
+                    dataset_type = instance.validated_data.get('dataset').dataset_type
+                    _, pixels = translate_categorical_to_color(mask_image, dataset_type)
+                    colored_image = Image.fromarray(pixels)
 
-                buffer = BytesIO()
-                colored_image.save(buffer, format='PNG')
-
-                mask_file = InMemoryUploadedFile(
-                        buffer,  
-                        None, 
-                        instance.validated_data['name'] + '.png',  
-                        'image/png', 
-                        buffer.getbuffer().nbytes,  
-                        None  
-                    )
-                instance.validated_data['mask'] = mask_file
-                
-                if not instance.validated_data['class_distributions']:
-                    print('Generating class distribution:')
-                    class_distribution = generate_class_dist(mask_image, dataset_type)
-                    instance.validated_data['class_distributions'] = class_distribution
+                    buffer = BytesIO()
+                    colored_image.save(buffer, format='PNG')
+                    mask_file = InMemoryUploadedFile(
+                            buffer,  
+                            None, 
+                            instance.validated_data['name'] + '.png',  
+                            'image/png', 
+                            buffer.getbuffer().nbytes,  
+                            None  
+                        )
+                    
+                    instance.validated_data['mask'] = mask_file
+                    if not instance.validated_data['class_distributions']:
+                        print('Generating class distribution:')
+                        class_distribution = generate_class_dist(mask_image, dataset_type)
+                        instance.validated_data['class_distributions'] = class_distribution
+                else:
+                    instance = serializer.save()
+                    if not instance.class_distributions:
+                        print('Generating class distribution:')
+                        dataset_type = instance.dataset.dataset_type
+                        class_distribution = generate_class_dist(mask_image, dataset_type)
+                        instance.class_distributions = class_distribution
                 
                 instance.save()
             except Exception as e: 
