@@ -1,0 +1,9 @@
+{   "0": {"name": "Other", "color": [200, 0, 10]},
+    "1": {"name": "Toninia", "color": [187,207, 74]},
+    "2": {"name": "Psora", "color": [0,108,132]},
+    "3": {"name": "Fulgensia", "color": [255,204,184]},
+    "4": {"name": "Placidium", "color": [0, 0, 0]},
+    "5": {"name": "Syntrichia", "color": [226,232,228]},
+    "6": {"name": "Collema", "color": [174,214,220]},
+    "7": {"name": "Cyano", "color": [232,167,53]}
+}
