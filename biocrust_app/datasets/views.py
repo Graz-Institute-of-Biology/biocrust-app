@@ -151,9 +151,10 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         dataset_type = serializer.validated_data.get('dataset').dataset_type
         ontology = get_ontology(dataset_type)
         num_classes = len(ontology.keys())
-
-
         analysis_id = instance.id
+
+        import time
+        time.sleep(0.5) # sleep for 1 second to allow the analysis entry to be saved in the db before sending the request
         self.send_analysis_request(parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id, dataset_id, num_classes, token)
 
     def send_analysis_request(self, parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id, dataset_id, num_classes, token):
