@@ -52,8 +52,6 @@ EMAIL_HOST_PASSWORD=config("EMAIL_HOST_PASSWORD")
 EMAIL_HOST_USER=config("EMAIL_HOST_USER")
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 
-print("HERE")
-print(EMAIL_HOST_USER)
 # DOMAIN = "localhost:8080"
 DOMAIN = "cc-explorer.com"
 

@@ -153,7 +153,7 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         instance = serializer.save() # call save to store analysis entry in db
 
         analysis_id = instance.id
-        self.send_analysis_request(parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id, dataset_id, num_classes, token)
+        # self.send_analysis_request(parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id, dataset_id, num_classes, token)
 
     def send_analysis_request(self, parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id, dataset_id, num_classes, token):
         # Send the request to the analysis API
