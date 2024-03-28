@@ -57,7 +57,7 @@
                 <div class="chart-container">
                     <Doughnut :data="chartData" :options="chartOptions" />
                 </div>
-                <div class="chart-table">
+                <div v-if="this.showChart" class="chart-table">
                         <table class="table is-bordered is-striped is-narrow is-hoverable">
                             <thead>
                                 <tr>
