@@ -52,8 +52,8 @@ def generate_class_dist(image, dataset_type):
     
     return json.dumps({"class_distributions": class_distribution, "class_colors": class_colors})
 
-def get_ontology():
-        ontology_path = './biocrust_app/datasets/ontology.json'
+def get_ontology(dataset_type):
+        ontology_path = './biocrust_app/datasets/{0}_ontology.json'.format(dataset_type)
         with open(ontology_path, 'r') as f:
             ontology = json.load(f)
         return ontology
