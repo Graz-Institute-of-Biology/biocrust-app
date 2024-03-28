@@ -140,6 +140,8 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
             serializer.save()
     
     def perform_create(self, serializer):
+        instance = serializer.save() # call save to store analysis entry in db
+
         parent_image_url = serializer.validated_data.get('source_image_url')
         model_url = serializer.validated_data.get('ml_model_url')
         parent_img_id = serializer.validated_data.get('parent_img_id').id
@@ -150,8 +152,6 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         ontology = get_ontology(dataset_type)
         num_classes = len(ontology.keys())
 
-        print("NUM CLASSES: ", num_classes)
-        instance = serializer.save() # call save to store analysis entry in db
 
         analysis_id = instance.id
         self.send_analysis_request(parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id, dataset_id, num_classes, token)
@@ -161,8 +161,8 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         # parent_image_url = parent_image_url.replace("127.0.0.1", "django") # needed for docker
         # model_url = model_url.replace("127.0.0.1", "django") # needed for docker
         payload = {
-            'file_path': parent_image_url,
-            'ml_model_path': model_url,
+            'file_path': parent_image_url.replace("http", "https"),
+            'ml_model_path': model_url.replace("http", "https"),
             'analysis_id': analysis_id,
             'parent_img_id': parent_img_id,
             'ml_model_id': ml_model_id,
