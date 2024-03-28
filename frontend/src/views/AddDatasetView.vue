@@ -12,19 +12,26 @@
                             <input class="input" type="text" placeholder="Dataset Name" v-model="dataset.dataset_name" required>
                         </div>
                     </div>
-                    <div class="field">
+                    <!-- <div class="field">
                         <label class="label">Coordinates</label>
                         <div class="control">
                             <input class="input" type="text" placeholder="Coordinates [Long / Lat]" v-model="dataset.coordinates" required>
                         </div>
-                    </div>
+                    </div> -->
             </div>
 
                 <div class="column is-6">
                     <div class="field">
-                        <label class="label">Dataset Type</label>
+                        <!-- <label class="label">Dataset Type</label>
                         <div class="control">
                             <input class="input" type="text" placeholder="Dataset Type eg. Biocrust" v-model="dataset.dataset_type" required>
+                        </div> -->
+                        <label class="label">Select ontology</label>
+                        <div class="select is-success">
+                            <select class="is-focused" v-model="selectedOntology" @change="setOntology">
+                                <option disabled value="">ontology...</option>
+                                <option v-for="item in Ontology" :key="item">{{ item }}</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -62,11 +69,13 @@ export default {
         return {
             dataset: {
                 dataset_name: '',
-                coordinates: '',
+                coordinates: '0/0',
                 dataset_type: '',
                 owner: localStorage.getItem('username'),
             },
             nameExists: false,
+            Ontology: ['africa', 'amazon', 'usa'],
+            selectedOntology: ''
         }
     },
     created() {
@@ -82,6 +91,10 @@ export default {
                 console.log(JSON.stringify(error))
             })
             console.log(this.datasets)
+        },
+        setOntology() {
+            this.dataset.dataset_type = this.selectedOntology
+            console.log(this.dataset.dataset_type)
         },
         setNameExists() {
             this.nameExists = false

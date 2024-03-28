@@ -42,22 +42,23 @@ CACHES = {
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
 # EMAIL_BACKEND = env("DJANGO_EMAIL_BACKEND", default="'django.core.mail.backends.console.EmailBackend'")
 
-# EMAIL_HOST = "smtp.gmail.com"
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# DEFAULT_FROM_EMAIL = "CC-Explorer ccexplorerdemo@gmail.com"
-# EMAIL_HOST_PASSWORD=config("EMAIL_HOST_PASSWORD")
-# EMAIL_HOST_USER=config("EMAIL_HOST_USER")
-# ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = "CC-Explorer ccexplorerdemo@gmail.com"
+EMAIL_HOST_PASSWORD=config("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER=config("EMAIL_HOST_USER")
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 
-# # DOMAIN = "localhost:8080"
+print(EMAIL_HOST_PASSWORD)
+DOMAIN = "localhost:8080"
 # DOMAIN = "cc-explorer.com"
 
 
-# DJOSER = {
-#     'SEND_ACTIVATION_EMAIL' : True,
-#     'ACTIVATION_URL': 'activate/{uid}/{token}',
-# }
+DJOSER = {
+    'SEND_ACTIVATION_EMAIL' : True,
+    'ACTIVATION_URL': 'activate/{uid}/{token}',
+}
 
 # WhiteNoise
 # ------------------------------------------------------------------------------
