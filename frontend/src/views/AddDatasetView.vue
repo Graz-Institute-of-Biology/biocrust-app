@@ -36,6 +36,17 @@
                         </div>
                     </div>
                 </div>
+                <div class="modal is-active modal-background" v-if="nameExists">
+                    <div class="modal-background"></div>
+                    <div class="modal-card">
+                        <header class="modal-card-head">
+                        <p class="modal-card-title">Dataset name already exists! Please choose a new name</p>
+                        </header>
+                        <footer class="modal-card-foot">
+                        <button class="button is-success" @click="setNameExists">Ok</button>
+                        </footer>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
@@ -54,12 +65,32 @@ export default {
                 coordinates: '',
                 dataset_type: '',
                 owner: localStorage.getItem('username'),
-            }
+            },
+            nameExists: false,
         }
     },
+    created() {
+        this.getDatasets()
+    },
     methods : {
+        async getDatasets() {
+            await axios.get('api/v1/datasets/')
+            .then(response => {
+                this.datasets = response.data
+            })
+            .catch(error => {
+                console.log(JSON.stringify(error))
+            })
+            console.log(this.datasets)
+        },
+        setNameExists() {
+            this.nameExists = false
+        },
         submitForm() {
             this.addSlug()
+            if (this.checkDatasetName()) {
+                return
+            }
             axios.post('api/v1/datasets/', this.dataset, { headers: { 'Content-Type': 'application/json' } })
             .then(response => {
                 console.log(response)
@@ -69,6 +100,14 @@ export default {
                 console.log(JSON.stringify(error))
             })
             
+        },
+        checkDatasetName() {
+            for (let i = 0; i < this.datasets.length; i++) {
+                if (this.datasets[i].dataset_name === this.dataset.dataset_name) {
+                    this.nameExists = true
+                    return true
+                }
+            }
         },
         addSlug() {
             this.dataset.slug = this.dataset.dataset_name.toLowerCase()

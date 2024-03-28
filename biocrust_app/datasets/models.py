@@ -14,7 +14,7 @@ def dataset_model_path(instance, filename):
         return str(str(instance.dataset.id) + '/models/' + filename)
 
 class Dataset_Model(models.Model):
-    dataset_name = models.CharField(max_length=255, blank=True)
+    dataset_name = models.CharField(max_length=255, blank=True, unique=True)
     owner = models.CharField(max_length=255, blank=True)
     slug = models.SlugField()
     coordinates = models.CharField(max_length=255, blank=True)
