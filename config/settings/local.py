@@ -25,6 +25,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://167.99.251.188:81",
     "http://167.99.251.188",
     "https://cc-explorer.com",
+    "https://api.cc-explorer.com",
+    "https://ml.cc-explorer.com",
     ]
 # CORS_ALLOW_ALL_ORIGINS = True
 # CACHES
