@@ -172,8 +172,8 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         }
         headers = {}
         # Production:
-        # ml_url = 'https://ml.cc-explorer.com/api/v1/predict' 
-        # requests.post(url=ml_url, headers=headers, json=payload) # USE THIS FOR PRODUCTION WITH POSTGRES!
+        ml_url = 'https://ml.cc-explorer.com/api/v1/predict'
+        requests.post(url=ml_url, headers=headers, json=payload) # USE THIS FOR PRODUCTION WITH POSTGRES!
 
 
         # TESTING:
@@ -181,10 +181,9 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         #  catch the timeout exception, ignore it and continue
         #  only needed for sqlite3 db while testing
         
-        # ml_url = 'https://ml.cc-explorer.com/api/v1/predict' # production
         # ml_url = 'http://ml-api:8082/api/v1/predict' # staging
-        ml_url = 'http://localhost:8082/api/v1/predict' # local
-        requests.post(url=ml_url, headers=headers, json=payload) # USE THIS FOR PRODUCTION WITH POSTGRES!
+        # ml_url = 'http://localhost:8082/api/v1/predict' # local
+        # requests.post(url=ml_url, headers=headers, json=payload) # USE THIS FOR PRODUCTION WITH POSTGRES!
 
         # ONLY WORKS WITH SQLITEDB:
 
