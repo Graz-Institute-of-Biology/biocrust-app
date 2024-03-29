@@ -409,19 +409,19 @@ export default defineComponent({
             } else {
                 // temporary default data
                 this.chartData = { 
-                    labels: [ 'Taxon 1', 'Taxon 2', 'Taxon 2' ],
+                    labels: [ ' ', ' ', ' ' ],
                     datasets: [{
-                        backgroundColor: 'aqua',
-                        label: "Taxon 1",
-                        data: [123, null, null]
+                        backgroundColor: 'white',
+                        label: " ",
+                        data: [null, null, null]
                     }, {
-                        backgroundColor: 'lightgreen',
-                        label: "Taxon 2",
-                        data: [null, 321, null]
+                        backgroundColor: 'white',
+                        label: " ",
+                        data: [null, null, null]
                     }, {
-                        backgroundColor: 'pink',
-                        label: "Taxon 2",
-                        data: [null, null, 213]
+                        backgroundColor: 'white',
+                        label: " ",
+                        data: [null, null, null]
                     }]
                 };
                 this.chartOptions = {
