@@ -123,7 +123,7 @@ export default {
             }
         },
         addSlug() {
-            this.dataset.slug = this.dataset.dataset_name.toLowerCase()
+            this.dataset.slug = this.dataset.dataset_name.toLowerCase().replace(/ /g,"_")
         }
     }
 }
