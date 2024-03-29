@@ -65,7 +65,7 @@ export default {
         addInfos() {
             this.image.dataset = this.$route.params.id
             this.image.name = this.document.name.split('.')[0] // remove file extension and add filename as image name
-            this.image.slug = this.image.name.toLowerCase()
+            this.image.slug = this.image.name.toLowerCase().replace(/ /g,"_")
             console.log(this.image)
 
         },

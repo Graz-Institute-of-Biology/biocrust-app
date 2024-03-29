@@ -76,7 +76,7 @@ export default {
     methods : {
         addInfos() {
             this.model.dataset = this.$route.params.id
-            this.model.slug = this.model.model_name.toLowerCase()
+            this.model.slug = this.model.model_name.toLowerCase().replace(/ /g,"_")
 
         },
         selectFile() {

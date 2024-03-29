@@ -70,7 +70,7 @@ export default {
         addInfos() {
             this.mask.name = this.document.name.split('.')[0] // remove file extension and add filename as image name
             this.mask.owner = localStorage.getItem('username')
-            this.mask.slug = this.mask.name.toLowerCase()
+            this.mask.slug = this.mask.name.toLowerCase().replace(/ /g,"_")
             this.mask.dataset = this.$route.params.id
             this.mask.parentImage = this.searchParent()
             this.mask.source_manual = true

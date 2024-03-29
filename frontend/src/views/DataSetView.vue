@@ -413,15 +413,15 @@ export default defineComponent({
                     datasets: [{
                         backgroundColor: 'white',
                         label: " ",
-                        data: [123, null, null]
+                        data: [null, null, null]
                     }, {
                         backgroundColor: 'white',
                         label: " ",
-                        data: [null, 321, null]
+                        data: [null, null, null]
                     }, {
                         backgroundColor: 'white',
                         label: " ",
-                        data: [null, null, 213]
+                        data: [null, null, null]
                     }]
                 };
                 this.chartOptions = {
