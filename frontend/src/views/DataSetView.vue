@@ -52,12 +52,14 @@
             
             <!-- Chart Column -->
             <div class="column">
+                <h1 class="title is-3">Class Distribution</h1>
                 <input v-if="this.showChart" type="checkbox" id="checkbox" v-model="checkExcludeBackground" @change="excludeBackground" />
                 <label v-if="this.showChart" for="checkbox">Exclude Background</label>
                 <div class="chart-container">
                     <Doughnut :data="chartData" :options="chartOptions" />
                 </div>
                 <div v-if="this.showChart" class="chart-table">
+                    <button class="button is-primary" @click="downloadCSV" style="margin-bottom: 10px;">Download CSV </button>
                         <table class="table is-bordered is-striped is-narrow is-hoverable">
                             <thead>
                                 <tr>
@@ -131,7 +133,7 @@ export default defineComponent({
             selectedMlModel: '',
             selectedMlModelId: null,
             setOverlay: false,
-            allowActions: false,
+            allowActions: true,
             scale: 1,
             mask_items: [],
             enlarged: false,
@@ -207,7 +209,7 @@ export default defineComponent({
         this.getDataset()
         this.getMasks()
         this.getModels()
-        this.getAnalyses()
+        //this.getAnalyses()
     },
     computed: {
         ...mapGetters(['getShowProcessingQueue'])
@@ -230,6 +232,25 @@ export default defineComponent({
             .catch(error => {
                 console.log(error)
             })
+        },
+        downloadCSV() {
+            const datasetName = this.dataset.dataset_name;
+            const imageName = this.clickedImage ? this.clickedImage.name : 'data';
+            const fileName = `${datasetName}_${imageName}_data.csv`;
+            const csvContent = this.generateCSVContent();
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodedUri);
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+        },
+        generateCSVContent() {
+            let csvContent = "Index,Data,Label\n";
+            this.chartData.datasets[0].data.forEach((data, index) => {
+                csvContent += `${index},${data},${this.chartData.labels[index]}\n`;
+            });
+            return csvContent;
         },
         setSelectedMlModel() {
              this.selectedMlModel = this.Models.filter(model => model.model_name == this.selectedMlModel)[0]
