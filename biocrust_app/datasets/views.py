@@ -146,29 +146,34 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         ml_model_id = serializer.validated_data.get('ml_model_id').id
         token = serializer.validated_data.get('token')
         dataset_id = serializer.validated_data.get('dataset').id
+        dataset_type = serializer.validated_data.get('dataset').dataset_type
+        ontology = get_ontology(dataset_type)
+        num_classes = len(ontology.keys())
 
         instance = serializer.save() # call save to store analysis entry in db
 
         analysis_id = instance.id
-        self.send_analysis_request(parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id, dataset_id, token)
+        print("Saved: ", analysis_id)
+        self.send_analysis_request(parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id, dataset_id, num_classes, token)
 
-    def send_analysis_request(self, parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id, dataset_id, token):
+    def send_analysis_request(self, parent_image_url, model_url, analysis_id, parent_img_id, ml_model_id, dataset_id, num_classes, token):
         # Send the request to the analysis API
         # parent_image_url = parent_image_url.replace("127.0.0.1", "django") # needed for docker
         # model_url = model_url.replace("127.0.0.1", "django") # needed for docker
         payload = {
-            'file_path': parent_image_url,
-            'ml_model_path': model_url,
+            'file_path': parent_image_url.replace("http", "https"),
+            'ml_model_path': model_url.replace("http", "https"),
             'analysis_id': analysis_id,
             'parent_img_id': parent_img_id,
             'ml_model_id': ml_model_id,
             'token': token,
             'dataset_id': dataset_id,
+            'num_classes': num_classes
         }
         headers = {}
         # Production:
-        # ml_url = 'https://ml.cc-explorer.com/api/v1/predict' 
-        # requests.post(url=ml_url, headers=headers, json=payload) # USE THIS FOR PRODUCTION WITH POSTGRES!
+        ml_url = 'https://ml.cc-explorer.com/api/v1/predict'
+        requests.post(url=ml_url, headers=headers, json=payload) # USE THIS FOR PRODUCTION WITH POSTGRES!
 
 
         # TESTING:
@@ -176,10 +181,9 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         #  catch the timeout exception, ignore it and continue
         #  only needed for sqlite3 db while testing
         
-        # ml_url = 'https://ml.cc-explorer.com/api/v1/predict' # production
         # ml_url = 'http://ml-api:8082/api/v1/predict' # staging
-        ml_url = 'http://localhost:8082/api/v1/predict' # local
-        requests.post(url=ml_url, headers=headers, json=payload) # USE THIS FOR PRODUCTION WITH POSTGRES!
+        # ml_url = 'http://localhost:8082/api/v1/predict' # local
+        # requests.post(url=ml_url, headers=headers, json=payload) # USE THIS FOR PRODUCTION WITH POSTGRES!
 
         # ONLY WORKS WITH SQLITEDB:
 

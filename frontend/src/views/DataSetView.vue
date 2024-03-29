@@ -5,20 +5,20 @@
                 <h1 class="title is-1">{{ dataset.dataset_name }}</h1>
                 <div class="columns is-mobile">
                     <div class="column is-half">
-                        <RouterLink :to="{ name: 'AddImageView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add images</RouterLink>
-                        <RouterLink :to="{ name: 'AddMaskView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading">Add masks</RouterLink>
-                        <RouterLink :to="{ name: 'AddModel', params: { id: dataset.id }}" class="button is-link">Add Model</RouterLink>
+                        <RouterLink :to="{ name: 'AddImageView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading && this.allowActions">Add images</RouterLink>
+                        <RouterLink :to="{ name: 'AddMaskView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading && this.allowActions">Add masks</RouterLink>
+                        <RouterLink :to="{ name: 'AddModel', params: { id: dataset.id }}" class="button is-link" v-if="this.allowActions">Add Model</RouterLink>
                     </div>
                     <div class="column is-half">
-                        <div class="select is-success" :class="{ 'blinking': selectModelWarning }">
-                            <select class="is-focused" v-model="selectedMlModel">
+                        <div class="select is-success" :class="{ 'blinking': selectModelWarning }" v-if="this.allowActions">
+                            <select class="is-focused" v-model="selectedMlModel" >
                                 <option disabled value="">Select ML-Model</option>
                                 <option v-for="(item, index) in Models" :key="index">{{ item.model_name }}</option>
                             </select>
                         </div>
-                        <div class="button is-primary" @click="handleAnalyses" v-if="!this.$store.loading">Analyze Images ({{ this.items.length }})</div>
+                        <div class="button is-primary" @click="handleAnalyses" v-if="!this.$store.loading && this.allowActions">Analyze Images ({{ this.items.length }})</div>
                         <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading && this.mask_items.length > 0">Show Overlay</div>
-                        <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading">Delete dataset</div>
+                        <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading && this.allowActions">Delete dataset</div>
                     </div>
                 </div>
             </div>
@@ -57,7 +57,7 @@
                 <div class="chart-container">
                     <Doughnut :data="chartData" :options="chartOptions" />
                 </div>
-                <div class="chart-table">
+                <div v-if="this.showChart" class="chart-table">
                         <table class="table is-bordered is-striped is-narrow is-hoverable">
                             <thead>
                                 <tr>
@@ -74,9 +74,9 @@
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
                 </div>
             </div>
+        </div>
         <div class="modal is-active modal-background" v-if="deleteAlert">
             <div class="modal-background"></div>
             <div class="modal-card">
@@ -131,6 +131,7 @@ export default defineComponent({
             selectedMlModel: '',
             selectedMlModelId: null,
             setOverlay: false,
+            allowActions: false,
             scale: 1,
             mask_items: [],
             enlarged: false,
@@ -203,6 +204,7 @@ export default defineComponent({
         this.$store.commit('setLoading', true)
         this.$store.commit('setShowProcessingQueue', false)
         this.getImages()
+        this.getDataset()
         this.getMasks()
         this.getModels()
         this.getAnalyses()
@@ -214,6 +216,20 @@ export default defineComponent({
         show () {
         const viewer = this.$el.querySelector('.images').$viewer
         viewer.show()
+        },
+        async getDataset() {
+            await axios.get(`api/v1/datasets/${this.$route.params.id}/`)
+            .then(response => {
+                this.dataset = response.data
+                if (localStorage.getItem('username').includes('Guest') && this.dataset.owner == localStorage.getItem('username')) {
+                    this.allowActions = true
+                } else if (localStorage.getItem('username').includes('Admin')) {
+                    this.allowActions = true
+                }
+            })
+            .catch(error => {
+                console.log(error)
+            })
         },
         setSelectedMlModel() {
              this.selectedMlModel = this.Models.filter(model => model.model_name == this.selectedMlModel)[0]
@@ -509,8 +525,8 @@ export default defineComponent({
                 // this.Masks = response.data.filter(mask => mask.dataset == this.$route.params.id)
                 let mask_items = response.data.filter(mask => mask.dataset == this.$route.params.id)
                 for (let i = 0; i < mask_items.length; i++) {
-                    // mask_items[i].parent_image_url = mask_items[i].parent_image_url.replace('http', 'https')
-                    // mask_items[i].mask = mask_items[i].mask.replace('http', 'https')
+                    mask_items[i].parent_image_url = mask_items[i].parent_image_url.replace('http', 'https')
+                    mask_items[i].mask = mask_items[i].mask.replace('http', 'https')
                     this.mask_items.push(mask_items[i])
                 }
             })

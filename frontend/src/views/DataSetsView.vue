@@ -17,7 +17,7 @@
                 <div class="box is-3">
                     <h3 class="is-size-2"> {{ dataset.dataset_name }} </h3>
                     <p> {{ dataset.dataset_type }} </p>
-                    <RouterLink :to="{ name: 'DataSetView', params: { id: dataset.id }}" class="button is-link">Details</RouterLink>
+                    <RouterLink :to="{ name: 'DataSetView', params: { id: dataset.id }}" class="button is-link">Show</RouterLink>
                 </div>                
             </div>
         </div>

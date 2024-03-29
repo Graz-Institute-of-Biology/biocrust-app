@@ -1,27 +1,6 @@
 
 <template>
     <div id="wrapper" class="body">
-      <!-- <nav class="navbar is-dark is-fixed-top">
-        <div class="navbar-brand">
-          <RouterLink to="/" class="navbar-item">Home</RouterLink>
-        </div>
-          <div class="navbar-menu">
-            <div class="navbar-end">
-              <template v-if="$store.state.isAuthenticated">
-                <RouterLink to="/datasets" class="navbar-item">Datasets</RouterLink>
-                <RouterLink to="/models" class="navbar-item">Models</RouterLink>
-                <RouterLink to="/logout" class="navbar-item">My Account</RouterLink>
-                <RouterLink to="/about" class="navbar-item">About</RouterLink>
-              </template>
-              <template v-else>
-                <RouterLink to="/signup" class="navbar-item">Sign Up</RouterLink>
-                <RouterLink to="/login" class="navbar-item">Log in</RouterLink>
-                <RouterLink to="/about" class="navbar-item">About</RouterLink>
-              </template>
-          </div>
-        </div>
-      </nav> -->
-
       <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
 
@@ -38,16 +17,19 @@
               <div class="navbar-start">
               <RouterLink to="/" class="navbar-item">Home</RouterLink>
               <RouterLink to="/datasets" class="navbar-item">Datasets</RouterLink>
-              <RouterLink to="/models" class="navbar-item">Models</RouterLink>
+              <RouterLink to="/models" class="navbar-item" v-if="!this.checkGuest">Models</RouterLink>
               <RouterLink to="/about" class="navbar-item">About</RouterLink>
             </div>
             <div class="navbar-end">
                 <div class="navbar-item">
-                  <RouterLink to="/logout" class="navbar-item">Log out</RouterLink>
+                  <button @click="logout()" class="button is-danger">Log out</button>
                 </div>
               </div>
             </template>
             <template v-else>
+              <div class="navbar-start">
+                <RouterLink to="/" class="navbar-item">Home</RouterLink>
+              </div>
               <div class="navbar-end">
                 <div class="navbar-item">
                   <RouterLink to="/signup" class="navbar-item">Sign Up</RouterLink>
@@ -122,6 +104,23 @@ export default {
       axios.defaults.headers.common['Authorization'] = "Token " + token
     } else {
       axios.defaults.headers.common['Authorization'] = ""
+    }
+  },
+  methods: {
+    checkGuest() {
+      if (localStorage.getItem('username').includes('Guest')) {
+        return true
+      } else {
+        return false
+      }
+      // return localStorage.getItem('username')
+    },
+    logout() {
+      localStorage.removeItem('token')
+      localStorage.removeItem('username')
+
+      this.$store.commit('removeToken')
+      this.$router.push('/')
     }
   }
 }
