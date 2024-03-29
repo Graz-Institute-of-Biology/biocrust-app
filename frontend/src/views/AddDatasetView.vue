@@ -74,7 +74,7 @@ export default {
                 owner: localStorage.getItem('username'),
             },
             nameExists: false,
-            Ontology: ['africa', 'amazon', 'usa'],
+            Ontology: ['southafrica', 'amazon', 'usa'],
             selectedOntology: ''
         }
     },
