@@ -13,11 +13,11 @@
           </div>
           <div class="right-column">
             <div class="text">
-              <h2 class="header">Features</h2>
+              <h1 class="header">Analyses tools for bio-monitoring</h1>
               <ul class="features-list">
-                <li>Segmentation tools for Biomonitoring</li>
-                <li>Get started with pre-configured ML-Models</li>
-                <li>Analyse & assess your own data</li>
+                <li>Segment your research image dataset.</li>
+                <li>Provided Machine Learning models.</li>
+                <li>Analyse & assess your own data.</li>
                 <!-- Add more feature items as needed -->
               </ul>
               <RouterLink :to="{ name: 'DataSetView', params: { id: 9 }}" class="button is-primary">Browse sample dataset</RouterLink>
@@ -25,6 +25,42 @@
           </div>
           </div>
         </div>
+
+        <div class="container">
+          <div class="left-column">
+              <div class="text">
+              <h1 class="header">Visualize & export statistics</h1>
+              <ul class="features-list">
+                <li>Calculate statistics from ML-Predictions.</li>
+                <li>Visualise statistics as pie chart.</li>
+                <li>Export results as CSV file.</li>
+                <!-- Add more feature items as needed -->
+              </ul>
+              <RouterLink :to="{ name: 'DataSetView', params: { id: 9 }}" class="button is-primary">Browse sample dataset</RouterLink>
+            </div>
+          </div>
+          <div class="right-column">
+            <img src="@/assets/Mock_Data_Amazon.png" alt="Landing Page" class="image" />
+          </div>
+        </div>
+
+        <!-- <div class="container">
+          <div class="left-column">
+              <img src="@/assets/USA_Mock.png" alt="Landing Page" class="image" />
+          </div>
+          <div class="right-column">
+            <div class="text">
+              <h1 class="header">Upload & analyse your own data</h1>
+              <ul class="features-list">
+                <li>Upload images.</li>
+                <li>Use our ML-Models.</li>
+                <li>Analyse & assess your own data.</li>
+              </ul>
+              <RouterLink :to="{ name: 'DataSetView', params: { id: 9 }}" class="button is-primary">Browse sample dataset</RouterLink>
+
+          </div>
+          </div>
+        </div> -->
     
   </div>
 </template>
@@ -99,6 +135,7 @@ export default defineComponent({
 .container {
   display: flex;
   width: 100%;
+  margin-top: 5%;
 }
 
 .left-column,
@@ -126,14 +163,14 @@ export default defineComponent({
   font-size: 20px;
   padding: 30px;
   margin-bottom: 30px;
-  text-align: left;
+  text-align: center;
 }
 
 .features-list li {
   margin-bottom: 5px;
 }
 p {
-  padding: 0.75rem;
+  padding: 0.8rem;
 }
 
 .header-col {
@@ -141,7 +178,7 @@ p {
 }
 
 .button {
-  margin-left: 32%;
+  margin-left: 35%;
 }
 
 </style>
