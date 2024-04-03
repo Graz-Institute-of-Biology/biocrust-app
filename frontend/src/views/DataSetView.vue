@@ -225,7 +225,7 @@ export default defineComponent({
                 this.dataset = response.data
                 if (localStorage.getItem('username').includes('Guest') && this.dataset.owner == localStorage.getItem('username')) {
                     this.allowActions = true
-                } else if (localStorage.getItem('username').includes('Admin')) {
+                } else if (localStorage.getItem('username').toLowerCase().includes('Admin') || localStorage.getItem('username').toLowerCase() == 'admin') {
                     this.allowActions = true
                 }
             })
@@ -532,6 +532,7 @@ export default defineComponent({
                     let img_items = response.data.filter(image => image.dataset == this.$route.params.id)
                     for (let i = 0; i < img_items.length; i++) {
                         this.items.push(img_items[i].img.replace('http', 'https'))
+                        // this.items.push(img_items[i].img)
                     }
                 })
                 .catch(error => {
