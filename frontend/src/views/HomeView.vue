@@ -16,8 +16,8 @@
               <h1 class="header">Analyses tools for bio-monitoring</h1>
               <ul class="features-list">
                 <li>Segment your research image dataset.</li>
-                <li>Provided Machine Learning models.</li>
-                <li>Analyse & assess your own data.</li>
+                <li>Use provided Machine Learning models.</li>
+                <li>Visualise results & statistics.</li>
                 <!-- Add more feature items as needed -->
               </ul>
               <RouterLink :to="{ name: 'DataSetView', params: { id: 9 }}" class="button is-primary">Browse sample dataset</RouterLink>
@@ -31,12 +31,12 @@
               <div class="text">
               <h1 class="header">Visualize & export statistics</h1>
               <ul class="features-list">
-                <li>Calculate statistics from ML-Predictions.</li>
-                <li>Visualise statistics as pie chart.</li>
+                <li>Upload your own data set.</li>
+                <li>Analyse & assess your data.</li>
                 <li>Export results as CSV file.</li>
                 <!-- Add more feature items as needed -->
               </ul>
-              <RouterLink :to="{ name: 'DataSetView', params: { id: 9 }}" class="button is-primary">Browse sample dataset</RouterLink>
+              <RouterLink :to="{ name: 'AddDataset' }" class="button is-primary">Add your Dataset</RouterLink>
             </div>
           </div>
           <div class="right-column">
