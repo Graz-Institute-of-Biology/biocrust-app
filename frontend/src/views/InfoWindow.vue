@@ -12,7 +12,7 @@
                     <tr v-for="item in Analyses" :key="item">
                     <th scope="row">{{ getImageName(item.source_image_url)  }}</th>
                     <th scope="row" v-if="getLoading(item.status)"><clip-loader :loading="getLoading(item.status)" :color="color" :size="size"></clip-loader></th>
-                    <th scope="row" v-else> {{ getStatusText(item.status) }}</th>
+                    <th scope="row" v-else> {{ getStatusText(item) }}</th>
                     <!-- <div v-for="item in this.Analyses" :key="item">{{ getImageName(item.source_image_url) }}</div> -->
                     </tr>
                 </tbody>
@@ -73,12 +73,13 @@ import ClipLoader from 'vue-spinner/src/ClipLoader.vue'
                 clearInterval(this.timer)
             }
         },
-        getStatusText(status) {
+        getStatusText(item) {
+            let status = item.status
             if (status == 'processing') {
-                return ''
+                return item
             }
             else {
-                return status
+                return item
             }
         },
         getLoading(status) {
