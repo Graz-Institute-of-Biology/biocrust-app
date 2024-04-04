@@ -162,8 +162,8 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         # parent_image_url = parent_image_url.replace("127.0.0.1", "django") # needed for docker
         # model_url = model_url.replace("127.0.0.1", "django") # needed for docker
         payload = {
-            'file_path': parent_image_url, # .replace("http", "https"),
-            'ml_model_path': model_url, # .replace("http", "https"),
+            'file_path': parent_image_url.replace("http", "https"),
+            'ml_model_path': model_url.replace("http", "https"),
             'analysis_id': analysis_id,
             'parent_img_id': parent_img_id,
             'ml_model_id': ml_model_id,
@@ -176,7 +176,7 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         print(settings.DATABASES)
         # Production:
         ml_url = 'https://ml.cc-explorer.com/api/v1/predict'
-        # requests.post(url=ml_url, headers=headers, json=payload) # USE THIS FOR PRODUCTION WITH POSTGRES!
+        requests.post(url=ml_url, headers=headers, json=payload) # USE THIS FOR PRODUCTION WITH POSTGRES!
 
 
         # TESTING:
@@ -191,9 +191,9 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
 
         # ONLY WORKS WITH SQLITEDB:
 
-        try:
-            requests.post(
-            url=ml_url, headers=headers, json=payload, timeout=0.0000000001) # localhost or ml-api (docker service name)
-        except requests.exceptions.ReadTimeout: 
-            pass
+        # try:
+        #     requests.post(
+        #     url=ml_url, headers=headers, json=payload, timeout=0.0000000001) # localhost or ml-api (docker service name)
+        # except requests.exceptions.ReadTimeout: 
+        #     pass
 

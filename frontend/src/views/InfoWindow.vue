@@ -51,7 +51,7 @@ import ClipLoader from 'vue-spinner/src/ClipLoader.vue'
     },
     mounted: function() {
         this.timer = setInterval(() => {
-            this.getAnalyses()
+            // this.getAnalyses()
             this.timerCalls++
         }, this.intervallTime)
     },
