@@ -262,6 +262,8 @@ export default defineComponent({
             await axios.get('api/v1/analyses/')
             .then(response => {
                 this.Analyses = response.data.filter(analysis => analysis.dataset == this.$route.params.id)
+                console.log("HERE")
+                console.log(this.Analyses)
             })
             .catch(error => {
                 console.log(error)
