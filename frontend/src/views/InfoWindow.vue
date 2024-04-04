@@ -75,6 +75,7 @@ import ClipLoader from 'vue-spinner/src/ClipLoader.vue'
         },
         getStatusText(item) {
             let status = item.status
+            console.log(item)
             if (status == 'processing') {
                 return item
             }
