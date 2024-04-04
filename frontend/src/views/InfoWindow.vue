@@ -12,7 +12,7 @@
                     <tr v-for="item in Analyses" :key="item">
                     <th scope="row">{{ getImageName(item.source_image_url)  }}</th>
                     <th scope="row" v-if="getLoading(item.status)"><clip-loader :loading="getLoading(item.status)" :color="color" :size="size"></clip-loader></th>
-                    <th scope="row" v-else> {{ getStatusText(item) }}</th>
+                    <th scope="row" v-else> {{ getStatusText(item.status) }}</th>
                     <!-- <div v-for="item in this.Analyses" :key="item">{{ getImageName(item.source_image_url) }}</div> -->
                     </tr>
                 </tbody>
@@ -51,7 +51,7 @@ import ClipLoader from 'vue-spinner/src/ClipLoader.vue'
     },
     mounted: function() {
         this.timer = setInterval(() => {
-            // this.getAnalyses()
+            this.getAnalyses()
             this.timerCalls++
         }, this.intervallTime)
     },
@@ -63,8 +63,7 @@ import ClipLoader from 'vue-spinner/src/ClipLoader.vue'
             console.log(this.Analyses)
             await axios.get('api/v1/analyses/')
             .then(response => {
-                this.Analyses = response.data.filter(analysis => analysis.dataset == this.$route.params.id)
-                console.log(this.Analyses)
+                this.Analyses = response.data.filter(analysis => analysis.dataset == this.$route.params.id && analysis.completed == false)
             })
             .catch(error => {
                 console.log(error)
@@ -74,14 +73,12 @@ import ClipLoader from 'vue-spinner/src/ClipLoader.vue'
                 clearInterval(this.timer)
             }
         },
-        getStatusText(item) {
-            let status = item.status
-            console.log(item)
+        getStatusText(status) {
             if (status == 'processing') {
-                return item
+                return ''
             }
             else {
-                return item
+                return status
             }
         },
         getLoading(status) {
