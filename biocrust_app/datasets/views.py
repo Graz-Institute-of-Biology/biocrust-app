@@ -172,8 +172,6 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
             'num_classes': num_classes
         }
         headers = {}
-        print("Analysis sent to DB:")
-        print(settings.DATABASES)
         # Production:
         ml_url = 'https://ml.cc-explorer.com/api/v1/predict'
         requests.post(url=ml_url, headers=headers, json=payload) # USE THIS FOR PRODUCTION WITH POSTGRES!
