@@ -9,6 +9,7 @@ import os
 from biocrust_app.datasets.models import Image_Model, Dataset_Model, Model_Model, Mask_Model, Analysis_Model
 from biocrust_app.datasets.serializers import Image_ModelSerializer, Dataset_ModelSerializer, Model_ModelSerializer, Mask_ModelSerializer, Analysis_ModelSerializer
 from biocrust_app.datasets.process_data import *
+from django.conf import settings
 
 class Image_ModelList(APIView):
     def get(self, request, format=None):
@@ -161,8 +162,8 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         # parent_image_url = parent_image_url.replace("127.0.0.1", "django") # needed for docker
         # model_url = model_url.replace("127.0.0.1", "django") # needed for docker
         payload = {
-            'file_path': parent_image_url.replace("http", "https"),
-            'ml_model_path': model_url.replace("http", "https"),
+            'file_path': parent_image_url, # .replace("http", "https"),
+            'ml_model_path': model_url, # .replace("http", "https"),
             'analysis_id': analysis_id,
             'parent_img_id': parent_img_id,
             'ml_model_id': ml_model_id,
@@ -171,9 +172,11 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
             'num_classes': num_classes
         }
         headers = {}
+        print("Analysis sent to DB:")
+        print(settings.DATABASES)
         # Production:
         ml_url = 'https://ml.cc-explorer.com/api/v1/predict'
-        requests.post(url=ml_url, headers=headers, json=payload) # USE THIS FOR PRODUCTION WITH POSTGRES!
+        # requests.post(url=ml_url, headers=headers, json=payload) # USE THIS FOR PRODUCTION WITH POSTGRES!
 
 
         # TESTING:
@@ -183,13 +186,14 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         
         # ml_url = 'http://ml-api:8082/api/v1/predict' # staging
         # ml_url = 'http://localhost:8082/api/v1/predict' # local
+        # print("Other post:")
         # requests.post(url=ml_url, headers=headers, json=payload) # USE THIS FOR PRODUCTION WITH POSTGRES!
 
         # ONLY WORKS WITH SQLITEDB:
 
-        # try:
-        #     requests.post(
-        #     url=ml_url, headers=headers, json=payload, timeout=0.0000000001) # localhost or ml-api (docker service name)
-        # except requests.exceptions.ReadTimeout: 
-        #     pass
+        try:
+            requests.post(
+            url=ml_url, headers=headers, json=payload, timeout=0.0000000001) # localhost or ml-api (docker service name)
+        except requests.exceptions.ReadTimeout: 
+            pass
 
