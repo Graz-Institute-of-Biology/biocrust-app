@@ -3,13 +3,38 @@
     <div id="wrapper" class="body">
       <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
-
-          <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
+          <a role="button" class="navbar-burger burger"
+            :class="{ 'is-active': isHamburgerOpen }"
+            @click="openHamburgerMenu"
+            data-target="navMenu">
+              <span></span>
+              <span></span>
+              <span></span>
           </a>
+        </div>
+        <div id="navMenu"
+            class="navbar-menu"
+            :class="{ 'is-active': isHamburgerOpen }">
+            <div class="navbar-end">
+              <template v-if="$store.state.isAuthenticated">
+              <RouterLink to="/" class="navbar-item">Home</RouterLink>
+              <RouterLink to="/datasets" class="navbar-item">Datasets</RouterLink>
+              <RouterLink to="/models" class="navbar-item" v-if="!this.checkGuest">Models</RouterLink>
+              <RouterLink to="/about" class="navbar-item">About</RouterLink>
+              <button @click="logout()" class="button is-danger">Log out</button>
+            </template>
+            <template v-else>
+              <div class="navbar-start">
+                <RouterLink to="/" class="navbar-item">Home</RouterLink>
+              </div>
+              <div class="navbar-end">
+                <div class="navbar-item">
+                  <RouterLink to="/signup" class="navbar-item">Sign Up</RouterLink>
+                  <RouterLink to="/login" class="navbar-item">Log in</RouterLink>
+                </div>
+              </div>
+            </template>
+            </div>
         </div>
 
         <div id="navbarBasicExample" class="navbar-menu">
@@ -95,6 +120,12 @@ import axios from 'axios'
 export default {
   name: 'App',
 
+  data() {
+    return {
+      isHamburgerOpen: false
+    }
+  },
+
   beforeCreate() {
     this.$store.commit('initializeStore')
 
@@ -107,6 +138,10 @@ export default {
     }
   },
   methods: {
+    openHamburgerMenu() {
+        this.isHamburgerOpen = !this.isHamburgerOpen;
+        console.log("klicked")
+      },
     checkGuest() {
       if (localStorage.getItem('username').includes('Guest')) {
         return true
