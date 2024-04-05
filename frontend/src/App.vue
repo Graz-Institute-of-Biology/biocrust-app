@@ -15,13 +15,16 @@
         <div id="navMenu"
             class="navbar-menu"
             :class="{ 'is-active': isHamburgerOpen }">
-            <div class="navbar-end">
               <template v-if="$store.state.isAuthenticated">
-              <RouterLink to="/" class="navbar-item">Home</RouterLink>
-              <RouterLink to="/datasets" class="navbar-item">Datasets</RouterLink>
-              <RouterLink to="/models" class="navbar-item" v-if="!this.checkGuest">Models</RouterLink>
-              <RouterLink to="/about" class="navbar-item">About</RouterLink>
-              <button @click="logout()" class="button is-danger">Log out</button>
+                <div class="navbar-start">
+                  <RouterLink to="/" class="navbar-item">Home</RouterLink>
+                  <RouterLink to="/datasets" class="navbar-item">Datasets</RouterLink>
+                  <RouterLink to="/models" class="navbar-item" v-if="!this.checkGuest">Models</RouterLink>
+                  <RouterLink to="/about" class="navbar-item">About</RouterLink>
+                </div>
+                <div class="navbar-end">
+                  <RouterLink to="/logout" class="navbar-item">Log out</RouterLink>
+                </div>
             </template>
             <template v-else>
               <div class="navbar-start">
@@ -34,55 +37,6 @@
                 </div>
               </div>
             </template>
-            </div>
-        </div>
-
-        <div id="navbarBasicExample" class="navbar-menu">
-            <template v-if="$store.state.isAuthenticated">
-              <div class="navbar-start">
-              <RouterLink to="/" class="navbar-item">Home</RouterLink>
-              <RouterLink to="/datasets" class="navbar-item">Datasets</RouterLink>
-              <RouterLink to="/models" class="navbar-item" v-if="!this.checkGuest">Models</RouterLink>
-              <RouterLink to="/about" class="navbar-item">About</RouterLink>
-            </div>
-            <div class="navbar-end">
-                <div class="navbar-item">
-                  <button @click="logout()" class="button is-danger">Log out</button>
-                </div>
-              </div>
-            </template>
-            <template v-else>
-              <div class="navbar-start">
-                <RouterLink to="/" class="navbar-item">Home</RouterLink>
-              </div>
-              <div class="navbar-end">
-                <div class="navbar-item">
-                  <RouterLink to="/signup" class="navbar-item">Sign Up</RouterLink>
-                  <RouterLink to="/login" class="navbar-item">Log in</RouterLink>
-                </div>
-              </div>
-            </template>
-
-            <!-- <div class="navbar-item has-dropdown is-hoverable">
-              <a class="navbar-link">
-                More
-              </a>
-
-              <div class="navbar-dropdown">
-                <a class="navbar-item">
-                  About
-                </a>
-                <a class="navbar-item is-selected">
-                  Jobs
-                </a>
-                <a class="navbar-item">
-                  Contact
-                </a>
-                <hr class="navbar-divider">
-              </div>
-            </div> -->
-
-
         </div>
       </nav>
 
