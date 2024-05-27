@@ -9,6 +9,7 @@ import os
 from biocrust_app.datasets.models import Image_Model, Dataset_Model, Model_Model, Mask_Model, Analysis_Model
 from biocrust_app.datasets.serializers import Image_ModelSerializer, Dataset_ModelSerializer, Model_ModelSerializer, Mask_ModelSerializer, Analysis_ModelSerializer
 from biocrust_app.datasets.process_data import *
+from django.conf import settings
 
 class Image_ModelList(APIView):
     def get(self, request, format=None):
@@ -183,6 +184,7 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         
         # ml_url = 'http://ml-api:8082/api/v1/predict' # staging
         # ml_url = 'http://localhost:8082/api/v1/predict' # local
+        # print("Other post:")
         # requests.post(url=ml_url, headers=headers, json=payload) # USE THIS FOR PRODUCTION WITH POSTGRES!
 
         # ONLY WORKS WITH SQLITEDB:

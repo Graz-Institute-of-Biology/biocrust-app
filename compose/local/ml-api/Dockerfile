@@ -1,5 +1,8 @@
 FROM anibali/pytorch:2.0.1-cuda11.8-ubuntu22.04
 
+USER root
+RUN apt-get -y update
+RUN apt install nano
 #
 RUN git clone https://github.com/Graz-Institute-of-Biology/cc-machine-learning ml-api
 

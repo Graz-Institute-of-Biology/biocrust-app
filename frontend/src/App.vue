@@ -3,28 +3,28 @@
     <div id="wrapper" class="body">
       <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
-
-          <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
+          <a role="button" class="navbar-burger burger"
+            :class="{ 'is-active': isHamburgerOpen }"
+            @click="openHamburgerMenu"
+            data-target="navMenu">
+              <span></span>
+              <span></span>
+              <span></span>
           </a>
         </div>
-
-        <div id="navbarBasicExample" class="navbar-menu">
-            <template v-if="$store.state.isAuthenticated">
-              <div class="navbar-start">
-              <RouterLink to="/" class="navbar-item">Home</RouterLink>
-              <RouterLink to="/datasets" class="navbar-item">Datasets</RouterLink>
-              <RouterLink to="/models" class="navbar-item" v-if="!this.checkGuest">Models</RouterLink>
-              <RouterLink to="/about" class="navbar-item">About</RouterLink>
-            </div>
-            <div class="navbar-end">
-                <div class="navbar-item">
-                  <button @click="logout()" class="button is-danger">Log out</button>
+        <div id="navMenu"
+            class="navbar-menu"
+            :class="{ 'is-active': isHamburgerOpen }">
+              <template v-if="$store.state.isAuthenticated">
+                <div class="navbar-start">
+                  <RouterLink to="/" class="navbar-item">Home</RouterLink>
+                  <RouterLink to="/datasets" class="navbar-item">Datasets</RouterLink>
+                  <RouterLink to="/models" class="navbar-item" v-if="!this.checkGuest">Models</RouterLink>
+                  <RouterLink to="/about" class="navbar-item">About</RouterLink>
                 </div>
-              </div>
+                <div class="navbar-end">
+                  <RouterLink to="/logout" class="navbar-item">Log out</RouterLink>
+                </div>
             </template>
             <template v-else>
               <div class="navbar-start">
@@ -37,27 +37,6 @@
                 </div>
               </div>
             </template>
-
-            <!-- <div class="navbar-item has-dropdown is-hoverable">
-              <a class="navbar-link">
-                More
-              </a>
-
-              <div class="navbar-dropdown">
-                <a class="navbar-item">
-                  About
-                </a>
-                <a class="navbar-item is-selected">
-                  Jobs
-                </a>
-                <a class="navbar-item">
-                  Contact
-                </a>
-                <hr class="navbar-divider">
-              </div>
-            </div> -->
-
-
         </div>
       </nav>
 
@@ -95,6 +74,12 @@ import axios from 'axios'
 export default {
   name: 'App',
 
+  data() {
+    return {
+      isHamburgerOpen: false
+    }
+  },
+
   beforeCreate() {
     this.$store.commit('initializeStore')
 
@@ -107,6 +92,10 @@ export default {
     }
   },
   methods: {
+    openHamburgerMenu() {
+        this.isHamburgerOpen = !this.isHamburgerOpen;
+        console.log("klicked")
+      },
     checkGuest() {
       if (localStorage.getItem('username').includes('Guest')) {
         return true

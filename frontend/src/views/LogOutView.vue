@@ -14,6 +14,9 @@
 
 export default {
     name: 'LogOut',
+    created() {
+        this.logout()
+    },
     methods: {
         logout() {
             localStorage.removeItem('token')
