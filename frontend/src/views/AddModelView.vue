@@ -1,49 +1,51 @@
 <template>
-    <div class="page-add-dataset">
-        <div class="columns is-multiline">
-            <div class="column is-12">
-                <h1 class="title is-1">Add Model</h1>
-            </div>
-            <form class="columns is-multiline" @submit.prevent="modelUpload">
-            <div class="column is-6">
+    <div class="container">
+        <div class="page-add-dataset">
+            <div class="columns is-multiline">
+                <div class="column is-12">
+                    <h1 class="title is-1">Add Model</h1>
+                </div>
+                <form class="columns is-multiline" @submit.prevent="modelUpload">
+                <div class="column is-6">
+                        <div class="field">
+                            <label class="label">Model Name</label>
+                            <div class="control">
+                                <input class="input" type="text" placeholder="Model Name" v-model="model.model_name" required>
+                            </div>
+                        </div>
+                </div>
+                <div class="column is-6">
                     <div class="field">
-                        <label class="label">Model Name</label>
+                        <label class="label">Description</label>
                         <div class="control">
-                            <input class="input" type="text" placeholder="Model Name" v-model="model.model_name" required>
+                            <input class="input" type="text" placeholder="Description" v-model="model.description" required>
                         </div>
                     </div>
-            </div>
-            <div class="column is-6">
-                <div class="field">
-                    <label class="label">Description</label>
-                    <div class="control">
-                        <input class="input" type="text" placeholder="Description" v-model="model.description" required>
-                    </div>
                 </div>
-            </div>
-            <div class="file">
-            <label class="file-label">
-                <input type="file" ref="file" class="file-input" @change="selectFile" required>
+                <div class="file">
+                <label class="file-label">
+                    <input type="file" ref="file" class="file-input" @change="selectFile" required>
 
-                <span class="file-cta">
-                    <span class="file-label">Choose a file...</span>
-                </span>
-            </label>
-            </div>
-            <div class="column is-12">
-                <div class="field">
-                    <div class="control">
-                        <button class="button is-success" type="submit">Submit</button>
+                    <span class="file-cta">
+                        <span class="file-label">Choose a file...</span>
+                    </span>
+                </label>
+                </div>
+                <div class="column is-12">
+                    <div class="field">
+                        <div class="control">
+                            <button class="button is-success" type="submit">Submit</button>
+                        </div>
                     </div>
                 </div>
+                <div class="notification mt-6" v-if="message">
+                {{ message }}
             </div>
-            <div class="notification mt-6" v-if="message">
-            {{ message }}
-        </div>
-        </form>
-        <div v-if="document" class="progress mb-6">
-                <progress class="progress is-primary" :value="progress" max="100">50%</progress>
-        </div>
+            </form>
+            <div v-if="document" class="progress mb-6">
+                    <progress class="progress is-primary" :value="progress" max="100">50%</progress>
+            </div>
+            </div>
         </div>
     </div>
 </template>
@@ -144,8 +146,14 @@ export default {
 <style>
 @import "https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css";
 
+.columns {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+}
+
 .file {
     text-align: center;
+    padding: 0 0 0 0.75rem;
 }
 
 </style>

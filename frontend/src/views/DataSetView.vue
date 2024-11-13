@@ -573,122 +573,57 @@ export default defineComponent({
 
 <style scoped>
 
-.chart-container {
-    width: 100%; 
-    height: 0;
-    padding-top: 100%; 
-    padding-bottom: 20px; 
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    background-color: #ffffff;
-    margin-bottom: 20px; 
-    position: relative;
-    overflow: hidden; 
-}
-
-.chart-container canvas {
-    width: 100% !important;
-    height: 100% !important;
-    position: absolute;
-    top: 0;
-    left: 0;
-}
-
-.page-dataset {
-    margin-bottom: 10%;
-}
-
-.image-grid-container { 
-    overflow-y: auto;
-    padding-bottom: 5%; 
-    padding-left: 5%;
-    padding-right: 5%;
-    padding-top: 5%;
-    scrollbar-width: none;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    width: 100vw; 
-    height: 100vh; 
-    max-width: 100%; 
-    max-height: 100%; 
-    margin: 0 auto; 
-}
-
-.chart {
-  margin-left: auto;
-  margin-right: auto;
-  padding-top: 5%;
-  padding-bottom: 5%;
-} 
-
-canvas {
-    /* width: 100% !important; */
-    height: 100% !important;
-    margin: 0 auto;
-}
-.page-dataset {
-    margin-bottom: 10%;
-}
-
-.image-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
-    grid-gap: 10px;
-}
-
-.image-container {
-    position: relative;
-}
-
-.image-wrapper {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-.image-small,
-.image-large {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 10px;
-}
-
-@keyframes blink {
-  0% { opacity: 1; }
-  50% { opacity: 0; }
-  100% { opacity: 1; }
-}
-
 .blinking {
-  animation: blink 0.2s infinite;
-}
-
-.overlay-mask,
-.overlay-mask-large {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0.6;
-    border-radius: 10px;
+    animation: blink 0.2s infinite;
 }
 
 .button {
-    margin-right: 10px;
-    margin-left: 10px;
-    width: 140px;
     margin-bottom: 2%;
+    margin-left: 10px;
+    margin-right: 10px;
+    width: 140px;
 }
 
-.select {
-    margin-right: 10px;
-    margin-left: 10px;
+.canvas {
+    height: 100% !important;
+    margin: 0 auto;
+}
+
+.chart {
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 5%;
+    padding-top: 5%;
+}
+
+.chart-container {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    height: 0;
+    margin-bottom: 20px;
+    overflow: hidden;
+    padding-bottom: 20px;
+    padding-top: 100%;
+    position: relative;
+    width: 100%;
+}
+
+.chart-container canvas {
+    height: 100% !important;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100% !important;
 }
 
 .column-header {
     text-align: center;
+}
+
+.column.is-half {
+    align-items: center;
+    display: flex;
 }
 
 .columns.is-mobile {
@@ -696,9 +631,64 @@ canvas {
     justify-content: space-between;
 }
 
-.column.is-half {
-    display: flex;
-    align-items: center; 
+.image-container {
+    position: relative;
+}
+
+.image-grid {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+}
+
+.image-grid-container {
+    border-radius: 10px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    height: 100vh;
+    margin: 0 auto;
+    max-height: 100%;
+    max-width: 100%;
+    overflow-y: auto;
+    padding-bottom: 5%;
+    padding-left: 5%;
+    padding-right: 5%;
+    padding-top: 5%;
+    scrollbar-width: none;
+    width: 100vw;
+}
+
+.image-large,
+.image-small {
+    border-radius: 10px;
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+}
+
+.image-wrapper {
+    height: 100%;
+    position: relative;
+    width: 100%;
+}
+
+.overlay-mask,
+.overlay-mask-large {
+    border-radius: 10px;
+    height: 100%;
+    left: 0;
+    opacity: 0.6;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+.page-dataset {
+    margin-bottom: 10%;
+}
+
+.select {
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 .title {
@@ -706,21 +696,23 @@ canvas {
     margin-left: 1rem;
 }
 
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
 @media (max-width: 768px) {
-    .column {
-        width: 100%;
-        flex-direction: column;
-        width: 100vw; 
-    }
     .button {
         width: 80%;
+    }
+    .column {
+        flex-direction: column;
+        width: 100%;
     }
     .image-wrapper {
         width: 50%;
     }
 }
 
-/* .delete-button {
-    float: right;
-} */
 </style>

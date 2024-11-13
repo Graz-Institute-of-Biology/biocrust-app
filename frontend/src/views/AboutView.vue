@@ -89,29 +89,81 @@ methods: {
 
 <style scoped>
 
-.header-col {
+.about-section {
+  background-color: #474e5d;
+  color: white;
+  padding: 50px;
   text-align: center;
 }
 
 .abouttext {
-font-size: 25px;
+  font-size: 25px;
+}
 
+.button {
+  background-color: #000;
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: inline-block;
+  outline: 0;
+  padding: 8px;
+  text-align: center;
+  width: 100%;
+}
+
+.button:hover {
+  background-color: #555;
+}
+
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  margin: 8px;
+}
+
+.center-vertically {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  margin: 0 auto;
+  text-align: center;
+  width: 80%;
 }
 
 .column {
-  margin: auto;
-  margin-top: 16px;
-  margin-bottom: 16px;
-  padding: 0 8px;
   align-items: center;
+  margin: auto;
+  margin-bottom: 16px;
+  margin-top: 16px;
+  padding: 0 8px;
 }
 
 .container {
   display: flex;
-  width: 100%;
-  margin-top: 5%;
-  flex-wrap: wrap;
   flex-direction: column;
+  flex-wrap: wrap;
+  margin-top: 5%;
+  padding: 0 16px;
+  width: 100%;
+}
+
+.container::after, .row::after {
+  clear: both;
+  content: "";
+  display: table;
+  margin: auto;
+  padding: 10px;
+  width: 100%;
+}
+
+.header-col {
+  text-align: center;
+}
+
+.logo {
+  height: auto;
+  text-align: center;
+  width: 100px;
 }
 
 .responsive-column {
@@ -120,86 +172,23 @@ font-size: 25px;
   width: 100%;
 }
 
-.center-vertically {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 80%;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.card {
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-  margin: 8px;
+.title {
+  color: grey;
 }
 
 @media (max-width: 768px) {
-  .responsive-column, .column {
-    flex-basis: 100%;
-    width: 100%;
+  .center-vertically {
+    flex-direction: column; 
   }
 
   .container {
     flex-direction: column;
   }
 
-  .center-vertically {
-    flex-direction: column; 
+  .responsive-column, .column {
+    flex-basis: 100%;
+    width: 100%;
   }
-}
-
-
-.card {
-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-margin: 8px;
-}
-
-.about-section {
-padding: 50px;
-text-align: center;
-background-color: #474e5d;
-color: white;
-}
-
-.container {
-padding: 0 16px;
-
-}
-
-.logo {
-text-align: center;
-width: 100px; 
-height: auto;
-}
-
-.container::after, .row::after {
-margin: auto;
-width: 100%;
-padding: 10px;
-content: "";
-clear: both;
-display: table;
-}
-
-.title {
-color: grey;
-}
-
-.button {
-border: none;
-outline: 0;
-display: inline-block;
-padding: 8px;
-color: white;
-background-color: #000;
-text-align: center;
-cursor: pointer;
-width: 100%;
-}
-
-.button:hover {
-background-color: #555;
 }
 
 </style>

@@ -131,43 +131,27 @@ export default defineComponent({
 
 <style scoped>
 
+.button {
+  margin-left: 35%;
+}
+
 .container {
   display: flex;
-  width: 100%;
-  margin-top: 5%;
   flex-wrap: wrap;
-}
-
-.responsive-column {
-  flex: 1;
-  padding: 10px;
+  margin-top: 5%;
   width: 100%;
 }
 
-@media (max-width: 768px) {
-  .responsive-column {
-    flex-basis: 100%;
-    padding: auto;
-    width: 100%;
-  }
-  .container {
-    flex-direction: column;
-  }
+.features-list {
+  font-size: 20px;
+  list-style: none;
+  margin-bottom: 30px;
+  padding: 30px;
+  text-align: center;
 }
 
-.left-column,
-.right-column {
-  flex: 1;
-  width: 100%;
-}
-
-.image {
-  width: 100%;
-  height: auto;
-}
-
-.text {
-  padding: 40px; 
+.features-list li {
+  margin-bottom: 5px;
 }
 
 .header {
@@ -176,28 +160,47 @@ export default defineComponent({
   text-align: center;
 }
 
-.features-list {
-  list-style: none;
-  font-size: 20px;
-  padding: 30px;
-  margin-bottom: 30px;
+.header-col {
   text-align: center;
 }
 
-.features-list li {
-  margin-bottom: 5px;
+.image {
+  height: auto;
+  width: 100%;
 }
-p {
+
+.left-column,
+.right-column {
+  flex: 1;
+  width: 100%;
+}
+
+.p {
   padding: 0.8rem;
 }
 
-.header-col {
-    text-align: center;
+.responsive-column {
+  flex: 1;
+  padding: 10px;
+  width: 100%;
 }
 
-.button {
-  margin-left: 35%;
+.text {
+  padding: 40px;
 }
 
+@media (max-width: 768px) {
+  .button {
+    width: 60%;
+  }
+  .container {
+    flex-direction: column;
+  }
+  .responsive-column {
+    flex-basis: 100%;
+    padding: auto;
+    width: 100%;
+  }
+}
 
 </style>
