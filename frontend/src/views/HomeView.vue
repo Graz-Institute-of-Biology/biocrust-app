@@ -1,6 +1,5 @@
 <template>
   <div class="is-fullheight">
-    
         <div class="column is-12 header-col">
             <h1 class="is-size-1">Welcome to CC-Explorer</h1>
         </div>
@@ -8,12 +7,12 @@
           <div class="button is-primary" @click="createDefaultDataset" >Try demo dataset</div>
         </div> -->
         <div class="container">
-          <div class="left-column">
+          <div class="left-column responsive-column">
               <img src="@/assets/Mock_Africa_1.png" alt="Landing Page" class="image" />
           </div>
-          <div class="right-column">
+          <div class="right-column responsive-column">
             <div class="text">
-              <h1 class="header">Analyses tools for bio-monitoring</h1>
+              <h1 class="header">Analyses Tools for Bio-Monitoring</h1>
               <ul class="features-list">
                 <li>Segment your research image dataset.</li>
                 <li>Use provided Machine Learning models.</li>
@@ -27,7 +26,7 @@
         </div>
 
         <div class="container">
-          <div class="left-column">
+          <div class="left-column responsive-column">
               <div class="text">
               <h1 class="header">Visualize & export statistics</h1>
               <ul class="features-list">
@@ -39,7 +38,7 @@
               <RouterLink :to="{ name: 'AddDataset' }" class="button is-primary">Add your Dataset</RouterLink>
             </div>
           </div>
-          <div class="right-column">
+          <div class="right-column responsive-column">
             <img src="@/assets/Mock_Data_Amazon.png" alt="Landing Page" class="image" />
           </div>
         </div>
@@ -136,11 +135,30 @@ export default defineComponent({
   display: flex;
   width: 100%;
   margin-top: 5%;
+  flex-wrap: wrap;
+}
+
+.responsive-column {
+  flex: 1;
+  padding: 10px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .responsive-column {
+    flex-basis: 100%;
+    padding: auto;
+    width: 100%;
+  }
+  .container {
+    flex-direction: column;
+  }
 }
 
 .left-column,
 .right-column {
   flex: 1;
+  width: 100%;
 }
 
 .image {
@@ -149,7 +167,7 @@ export default defineComponent({
 }
 
 .text {
-  padding: 40px; /* Add some padding to the text content */
+  padding: 40px; 
 }
 
 .header {
@@ -180,5 +198,6 @@ p {
 .button {
   margin-left: 35%;
 }
+
 
 </style>

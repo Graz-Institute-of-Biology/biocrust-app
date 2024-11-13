@@ -124,6 +124,11 @@ export default {
   font-weight: bold;
 }
 
+.body {
+  width: 100%;
+  padding: 0;
+}
+
 .navbar-item {
   font-size: 1.2rem;
   color: lightgrey;
@@ -144,7 +149,7 @@ export default {
 .footer {
   height: 10px;
   width: 100%;
-  background-color: #333;
+  // background-color: #333;
   color: #fff;
   bottom: 0;
   left: 0;
@@ -153,20 +158,24 @@ export default {
   padding: 1rem 0rem 3rem;
   line-height: 1
 }
+
 .footerbox-left {
   text-align: center;
   justify-content: center;
   flex: auto;
+  padding: 0 0 0.5rem 0;
 }
 .footerbox-center {
   text-align: center;
   justify-content: center;
   flex: auto;
+  padding: 0 0 0.5rem 0;
 }
 .footerbox-right {
   text-align: center;
   justify-content: center;
   flex: auto;
+  padding: 0 0 1rem 0;
 }
 .wrapper {
   display: flex;
@@ -177,4 +186,21 @@ export default {
   padding: 0.5rem 5rem 10rem;
   min-height: calc(120vh - 10rem);
 }
+
+.footer .columns {
+    background-color: #333;
+  }
+
+@media (max-width: 768px) {
+  .section {
+    padding: 0 0.5rem 0 0.5rem;
+  }
+  .footer {
+    height: 40px;
+  }
+  .footerbox-left {
+    padding: 0.5rem 0 0.5rem 0;
+  }
+}
+
 </style>

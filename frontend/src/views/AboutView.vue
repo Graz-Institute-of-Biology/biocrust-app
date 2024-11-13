@@ -9,14 +9,14 @@
         <div class="abouttext">
             <p> {{aboutText}} </p>
         </div>
-        <div class="container has-text-centered">
+        <div class="container has-text-centered ">
             <header class="container">
             <img src="@/assets/logo.png" alt="Work Group" class="container logo" />
             </header>
             
             <h2 class="is-size-3 has-text-centered">Our Team</h2>
             <div class="center-vertically">
-            <div class="column">
+            <div class="column responsive-column">
                 <div class="card">
                 <img src="@/assets/stefanherdyprofile.jpg" alt="Stefan Herdy" style="width:100%;border-radius:15px">
                 <div class="container">
@@ -30,7 +30,7 @@
             </div>
 
 
-            <div class="column">
+            <div class="column responsive-column">
                 <div class="card">
                 <img src="@/assets/logo.png" alt="Philipp Faulhammer" style="width:100%;border-radius:15px">
                 <div class="container">
@@ -99,21 +99,56 @@ font-size: 25px;
 }
 
 .column {
-float: left;
-width: 30%;
-margin: auto;
-margin-top: 16px;
-margin-bottom: 16px;
-padding: 0 8px;
+  margin: auto;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  padding: 0 8px;
+  align-items: center;
+}
+
+.container {
+  display: flex;
+  width: 100%;
+  margin-top: 5%;
+  flex-wrap: wrap;
+  flex-direction: column;
+}
+
+.responsive-column {
+  flex: 1;
+  padding: 10px;
+  width: 100%;
 }
 
 .center-vertically {
-display: flex;
-justify-content: center;
-align-items: center;
-width: 80%;
-margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
+  margin: 0 auto;
+  text-align: center;
 }
+
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  margin: 8px;
+}
+
+@media (max-width: 768px) {
+  .responsive-column, .column {
+    flex-basis: 100%;
+    width: 100%;
+  }
+
+  .container {
+    flex-direction: column;
+  }
+
+  .center-vertically {
+    flex-direction: column; 
+  }
+}
+
 
 .card {
 box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
@@ -167,10 +202,4 @@ width: 100%;
 background-color: #555;
 }
 
-@media screen and (max-width: 650px) {
-.column {
-  width: 100%;
-  display: block;
-}
-}
 </style>

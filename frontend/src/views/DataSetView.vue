@@ -10,15 +10,19 @@
                         <RouterLink :to="{ name: 'AddModel', params: { id: dataset.id }}" class="button is-link" v-if="this.allowActions">Add Model</RouterLink>
                     </div>
                     <div class="column is-half">
+                        <div class="button is-primary" @click="handleAnalyses" v-if="!this.$store.loading && this.allowActions">Analyze Images ({{ this.items.length }})</div>
+                        <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading && this.mask_items.length > 0">Show Overlay</div>
+                        <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading && this.allowActions">Delete dataset</div>
+                    </div>
+                </div>
+                <div class="columns is-mobile">
+                    <div class="column is-half">
                         <div class="select is-success" :class="{ 'blinking': selectModelWarning }" v-if="this.allowActions">
                             <select class="is-focused" v-model="selectedMlModel" >
                                 <option disabled value="">Select ML-Model</option>
                                 <option v-for="(item, index) in Models" :key="index">{{ item.model_name }}</option>
                             </select>
                         </div>
-                        <div class="button is-primary" @click="handleAnalyses" v-if="!this.$store.loading && this.allowActions">Analyze Images ({{ this.items.length }})</div>
-                        <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading && this.mask_items.length > 0">Show Overlay</div>
-                        <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading && this.allowActions">Delete dataset</div>
                     </div>
                 </div>
             </div>
@@ -328,7 +332,7 @@ export default defineComponent({
             if (this.selectedMlModel == '') {
                 this.selectModelWarning = true
                 setTimeout(() => {
-                    this.selectModelWarning = false; // Remove the blinking effect after the specified duration
+                    this.selectModelWarning = false; 
                 }, this.blinkDuration);
                 return
             } else {
@@ -570,16 +574,16 @@ export default defineComponent({
 <style scoped>
 
 .chart-container {
-    width: 100%; /* Set width to any desired value */
+    width: 100%; 
     height: 0;
-    padding-top: 100%; /* This ensures 1:1 aspect ratio */
-    padding-bottom: 20px; /* Optional: Add padding to create some space */
+    padding-top: 100%; 
+    padding-bottom: 20px; 
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     background-color: #ffffff;
     margin-bottom: 20px; 
     position: relative;
-    overflow: hidden; /* Hide overflow to prevent scrollbars */
+    overflow: hidden; 
 }
 
 .chart-container canvas {
@@ -594,12 +598,6 @@ export default defineComponent({
     margin-bottom: 10%;
 }
 
-@media (max-width: 768px) {
-    .column {
-        width: 100%;
-    }
-}
-
 .image-grid-container { 
     overflow-y: auto;
     padding-bottom: 5%; 
@@ -609,6 +607,11 @@ export default defineComponent({
     scrollbar-width: none;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
     border-radius: 10px;
+    width: 100vw; 
+    height: 100vh; 
+    max-width: 100%; 
+    max-height: 100%; 
+    margin: 0 auto; 
 }
 
 .chart {
@@ -674,17 +677,50 @@ canvas {
 
 .button {
     margin-right: 10px;
+    margin-left: 10px;
+    width: 140px;
+    margin-bottom: 2%;
 }
 
 .select {
     margin-right: 10px;
+    margin-left: 10px;
 }
 
 .column-header {
     text-align: center;
 }
 
-.delete-button {
-    float: right;
+.columns.is-mobile {
+    display: flex;
+    justify-content: space-between;
 }
+
+.column.is-half {
+    display: flex;
+    align-items: center; 
+}
+
+.title {
+    margin-bottom: 1rem;
+    margin-left: 1rem;
+}
+
+@media (max-width: 768px) {
+    .column {
+        width: 100%;
+        flex-direction: column;
+        width: 100vw; 
+    }
+    .button {
+        width: 80%;
+    }
+    .image-wrapper {
+        width: 50%;
+    }
+}
+
+/* .delete-button {
+    float: right;
+} */
 </style>
