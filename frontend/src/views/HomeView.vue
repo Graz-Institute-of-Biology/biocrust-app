@@ -191,7 +191,7 @@ export default defineComponent({
 
 @media (max-width: 768px) {
   .button {
-    width: 60%;
+    width: 70%;
   }
   .container {
     flex-direction: column;

@@ -9,7 +9,7 @@
                         <RouterLink :to="{ name: 'AddMaskView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading && this.allowActions">Add masks</RouterLink>
                         <RouterLink :to="{ name: 'AddModel', params: { id: dataset.id }}" class="button is-link" v-if="this.allowActions">Add Model</RouterLink>
                     </div>
-                    <div class="column is-half">
+                    <div class="column is-half right">
                         <div class="button is-primary" @click="handleAnalyses" v-if="!this.$store.loading && this.allowActions">Analyze Images ({{ this.items.length }})</div>
                         <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading && this.mask_items.length > 0">Show Overlay</div>
                         <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading && this.allowActions">Delete dataset</div>
@@ -65,9 +65,9 @@
                         <table class="table is-bordered is-striped is-narrow is-hoverable">
                             <thead>
                                 <tr>
-                                    <th class="is-primary">Index</th>
-                                    <th class="is-primary">Data</th>
-                                    <th class="is-primary">Label</th>
+                                    <th class="is-primary">Class Index</th>
+                                    <th class="is-primary">Coverage</th>
+                                    <th class="is-primary">Class</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -577,7 +577,7 @@ export default defineComponent({
 
 .button {
     margin-bottom: 2%;
-    margin-left: 10px;
+    /* margin-left: 10px; */
     margin-right: 10px;
     width: 140px;
 }
@@ -684,6 +684,10 @@ export default defineComponent({
     margin-bottom: 10%;
 }
 
+.right {
+    justify-content: flex-end;
+}
+
 .select {
     margin-left: calc(.75rem + 10px);
     margin-right: 10px;
@@ -703,7 +707,7 @@ export default defineComponent({
 @media (max-width: 768px) {
     .button {
         width: 85%;
-        margin-left: 5px;
+        /* margin-left: 5px; */
     }
     .canvas {
         height: 70% !important;
@@ -712,15 +716,26 @@ export default defineComponent({
         flex-direction: column;
         width: 100%;
     }
+    .column.is-half {
+        padding-left: 0px;
+        align-items: left;
+    }
     .image-wrapper {
         width: 30%;
     }
     .image-grid-container {
         height: 50vh;
     }
+    .right .button{
+        margin-right: 0;
+    }
+    .column.is-half.right{
+        padding-right: 0;
+        padding-left: 10px;
+    }
     .select {
         /* width: 90%; */
-        margin-left: calc(.75rem + 10px);
+        margin-left: 5px;
     }
 }
 
