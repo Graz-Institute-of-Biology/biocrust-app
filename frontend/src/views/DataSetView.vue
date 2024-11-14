@@ -16,13 +16,11 @@
                     </div>
                 </div>
                 <div class="columns is-mobile">
-                    <div class="column is-half">
-                        <div class="select is-success" :class="{ 'blinking': selectModelWarning }" v-if="this.allowActions">
-                            <select class="is-focused" v-model="selectedMlModel" >
-                                <option disabled value="">Select ML-Model</option>
-                                <option v-for="(item, index) in Models" :key="index">{{ item.model_name }}</option>
-                            </select>
-                        </div>
+                    <div class="select is-success" :class="{ 'blinking': selectModelWarning }" v-if="this.allowActions">
+                        <select class="is-focused" v-model="selectedMlModel" >
+                            <option disabled value="">Select ML-Model</option>
+                            <option v-for="(item, index) in Models" :key="index">{{ item.model_name }}</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -687,7 +685,7 @@ export default defineComponent({
 }
 
 .select {
-    margin-left: 10px;
+    margin-left: calc(.75rem + 10px);
     margin-right: 10px;
 }
 
@@ -704,14 +702,25 @@ export default defineComponent({
 
 @media (max-width: 768px) {
     .button {
-        width: 80%;
+        width: 85%;
+        margin-left: 5px;
+    }
+    .canvas {
+        height: 70% !important;
     }
     .column {
         flex-direction: column;
         width: 100%;
     }
     .image-wrapper {
-        width: 50%;
+        width: 30%;
+    }
+    .image-grid-container {
+        height: 50vh;
+    }
+    .select {
+        /* width: 90%; */
+        margin-left: calc(.75rem + 10px);
     }
 }
 

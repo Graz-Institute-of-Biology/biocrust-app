@@ -23,7 +23,7 @@ To build and serve docs, use the commands::
     docker compose -f local.yml up docs
 
 
-1. uncomment django superuser settings in ./compose/local/django/start
+1. Uncomment django superuser settings in ./compose/local/django/start
 2. Go to ./frontend, run::
 
     npm install
@@ -32,11 +32,11 @@ To build and serve docs, use the commands::
 
     npm run build
 
-4. go to the dockerfile with "cd .." and run::
+4. Go to the dockerfile with "cd .." and run::
     
     docker compose -f local.yml up -d --build
 
-5. Got to ./frontend, run:: 
+5. Go to ./frontend, run:: 
     
     npm run serve
 
@@ -100,7 +100,7 @@ FastAPI for development
 
 - run fastAPI server: python main.py
 
-install segmentation-models-pytorch
+Install segmentation-models-pytorch
 
 - install albumentations with imgaug: pip install -U albumentations[imgaug]
 
