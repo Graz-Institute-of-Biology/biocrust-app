@@ -622,6 +622,8 @@ export default defineComponent({
 .column.is-half {
     align-items: center;
     display: flex;
+    padding-left: 0px;
+    padding-right: 0px;
 }
 
 .columns.is-mobile {
@@ -688,8 +690,13 @@ export default defineComponent({
     justify-content: flex-end;
 }
 
+.right .button {
+    margin-right: 0px;
+    margin-left: 10px;
+}
+
 .select {
-    margin-left: calc(.75rem + 10px);
+    margin-left: 0;
     margin-right: 10px;
 }
 
@@ -717,8 +724,12 @@ export default defineComponent({
         width: 100%;
     }
     .column.is-half {
-        padding-left: 0px;
-        align-items: left;
+        align-items: flex-start;
+    }
+    .column.is-half.right{
+        padding-right: 0;
+        padding-left: 10px;
+        align-items: flex-end;
     }
     .image-wrapper {
         width: 30%;
@@ -728,14 +739,6 @@ export default defineComponent({
     }
     .right .button{
         margin-right: 0;
-    }
-    .column.is-half.right{
-        padding-right: 0;
-        padding-left: 10px;
-    }
-    .select {
-        /* width: 90%; */
-        margin-left: 5px;
     }
 }
 
