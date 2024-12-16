@@ -6,7 +6,7 @@
 
                 <form @submit.prevent="submitForm">
                     <div class="field">
-                        <label class="label">Name</label>
+                        <label class="label">Account name</label>
                         <div class="control">
                             <input class="input" type="text" placeholder="Name" v-model="username">
                         </div>
@@ -24,11 +24,47 @@
                         </div>
                     </div>
 
-                    <div class="notification is-danger" v-if="errors.length">
-                        <p 
-                            v-for="error in errors"
-                            :key="error"
-                        >
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                        <input
+                            id="terms"
+                            v-model="acceptedTerms"
+                            type="checkbox"
+                            class="w-4 h-4 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                            required
+                        />
+                        <label for="terms" class="ml-2 text-sm font-medium text-gray-700">
+                            I accept the
+                            <a href="/terms" class="text-blue-600 hover:text-blue-500 underline">
+                            Terms and Conditions
+                            </a>
+                        </label>
+                        </div>
+
+                        <div class="flex items-center">
+                        <input
+                            id="privacy"
+                            v-model="acceptedPrivacy"
+                            type="checkbox"
+                            class="w-4 h-4 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                            required
+                        />
+                        <label for="privacy" class="ml-2 text-sm font-medium text-gray-700">
+                            I agree to the
+                            <a href="/privacy" class="text-blue-600 hover:text-blue-500 underline">
+                            Privacy Policy
+                            </a>
+                        </label>
+                        </div>
+                    </div>
+                    <div class="notification is-danger" v-if="errors.length" style="position: relative;">
+                        <button class="delete" 
+                                style="position: absolute; right: 0.5rem; top: 0.5rem;"
+                                @click="clearErrors"
+                                aria-label="close">
+                        </button>
+                        <p v-for="error in errors"
+                        :key="error">
                             {{ error }}
                         </p>
                     </div>
@@ -73,7 +109,9 @@ export default {
             password: '',
             captchaDone: false,
             siteKey: '',
-            errors: []
+            errors: [],
+            acceptedTerms: false,
+            acceptedPrivacy: false
         }
     },
 
@@ -81,11 +119,18 @@ export default {
         captchaSuccess () {
             this.captchaDone = true
         },
+        clearErrors() {
+            this.errors = [];
+            },
         submitForm () {
             const formData = {
                 username: this.username,
                 email: this.email,
                 password: this.password
+            }
+            if (!this.acceptedTerms || !this.acceptedPrivacy) {
+                this.errors.push('You must accept the terms and privacy policy')
+                return
             }
             axios.interceptors.request.use(function (config) {
                 const token = localStorage.getItem("token")
@@ -111,7 +156,15 @@ export default {
             })
         }
     }
-    
+    ,
+  watch: {
+    acceptedTerms(newVal) {
+      this.$emit('terms-updated', newVal)
+    },
+    acceptedPrivacy(newVal) {
+      this.$emit('privacy-updated', newVal)
+    }
+  } 
 }
 
 </script>

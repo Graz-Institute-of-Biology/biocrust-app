@@ -15,6 +15,8 @@ import AddModelView from '../views/AddModelView.vue'
 import AddMaskView from '../views/AddMaskView.vue'
 import AnalyzeImagesView from '../views/AnalyzeImagesView.vue'
 import AccountActivationView from '../views/AccountActivationView.vue'
+import PrivacyView from '../views/PrivacyView.vue'
+import DataProtectionView from '../views/DataProtectionView.vue'
 import store from '../store'
 
 const routes = [
@@ -22,6 +24,16 @@ const routes = [
         path: '/',
         name: 'HomeView',
         component: HomeView
+    },
+    {
+        path: '/terms',
+        name: 'DataProtectionView',
+        component: DataProtectionView
+    },
+    {
+        path: '/privacy',
+        name: 'PrivacyView',
+        component: PrivacyView
     },
     {
         path: '/about',
