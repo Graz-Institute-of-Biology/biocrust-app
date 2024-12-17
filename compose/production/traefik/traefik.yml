@@ -12,24 +12,15 @@ entryPoints:
     http:
       redirections:
         entryPoint:
-          to: websecure
+          to: https
           scheme: https
   https:
     address: ':443'
     http:
       tls:
-        certResolver: cloudflare
-
-certificatesResolvers:
-  cloudflare:
-    acme:
-      email: 'philipp.faulhammer@gmail.com'
-      storage: /etc/traefik/acme/acme.json
-      dnsChallenge:
-        provider: cloudflare
-        resolvers:
-          - '1.1.1.1:53'
-          - '1.0.0.1:53'
+        certificates:
+          - certFile: /etc/traefik/certs/fullchain.pem
+            keyFile: /etc/traefik/certs/privkey.pem
 
 
 providers:
@@ -51,7 +42,3 @@ providers:
 #   file:
 #     filename: /etc/traefik/traefik.yml
 #     watch: true
-
-
-
-
