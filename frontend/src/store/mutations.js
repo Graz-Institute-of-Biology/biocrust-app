@@ -1,3 +1,4 @@
+
 export default {
     initializeStore(state) {
         if (localStorage.getItem('token')) {
@@ -24,5 +25,13 @@ export default {
     },
     setShowProcessingQueue(state, showProcessingQueue) {
         state.showProcessingQueue = showProcessingQueue
-    }
+    },
+    setIsUploader(state) {
+        state.is_uploader = JSON.parse(localStorage.getItem('is_uploader'))
+        console.log("SET UPLOADER")
+        console.log(state.is_uploader)
+    },
+    setUserLoaded(state, userLoaded) {
+        state.userLoaded = userLoaded
+    },
 }

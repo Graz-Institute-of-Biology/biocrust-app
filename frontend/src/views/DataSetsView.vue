@@ -4,8 +4,8 @@
             <div class="column is-10 header-col">
                 <h2 class="is-size-2">Datasets</h2>
             </div>
-            <div class="column is-2 button-col">
-                <RouterLink :to="{ name: 'AddDataset' }" class="button is-primary">Add Dataset</RouterLink>
+            <div v-if="getUserLoaded" class="column is-2 button-col">
+                <RouterLink v-if="isUploader" :to="{ name: 'AddDataset' }" class="button is-primary">Add Dataset</RouterLink>
             </div>
         </div>
             <div class="columns is-multiline">
@@ -26,6 +26,7 @@
 
 <script>
 import axios from 'axios'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
     name: 'DataSets',
@@ -40,7 +41,11 @@ export default {
     created() {
         this.getDatasets()
     },
+    computed: {
+        ...mapGetters(['isUploader', 'getUserLoaded'])
+    },
     methods : {
+        ...mapActions(['initializeStatus']),
         getDatasets() {
             axios.get('api/v1/datasets/')
             .then(response => {
@@ -51,8 +56,11 @@ export default {
             .catch(error => {
                 console.log(error)
             })
-        }
-    }
+        },
+    },
+    mounted() {
+    this.initializeStatus()
+  }
 }
 
 </script>

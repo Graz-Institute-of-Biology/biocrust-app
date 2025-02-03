@@ -86,6 +86,18 @@ export default {
             this.clearFields()
             this.$router.push('/login')
         },
+        async setUserPermissions(token) {
+            const userResponse = await axios.get('api/v1/users/me/', {
+            headers: {
+                'Authorization': 'Token ' + token,
+                'Content-Type': 'application/json'
+            }
+        })        
+        const isUploader = userResponse.data.is_uploader
+        console.log(isUploader)
+        store.commit('setIsUploader', isUploader)
+        localStorage.setItem('is_uploader', JSON.stringify(isUploader))
+        },
         async submitForm() {
             axios.defaults.headers.common['Authorization'] = ''
 
@@ -103,7 +115,7 @@ export default {
                 axios.defaults.headers.common['Authorization'] = 'Token ' + token
                 localStorage.setItem('token', token)
                 localStorage.setItem('username', this.username)
-
+                this.setUserPermissions(token)
                 this.$router.push('/datasets')
             })
             .catch(error => {
@@ -119,6 +131,7 @@ export default {
                     console.log(JSON.stringify(error))
                 }
             })
+
         }
     }
 }

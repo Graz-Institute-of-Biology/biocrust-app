@@ -12,18 +12,23 @@
 
 <script>
 
+import { mapActions } from 'vuex'
+
 export default {
     name: 'LogOut',
-    created() {
-        this.logout()
-    },
     methods: {
+        ...mapActions(['resetStatus']),
         logout() {
             localStorage.removeItem('token')
             localStorage.removeItem('username')
+            localStorage.removeItem('is_uploader')
 
             this.$store.commit('removeToken')
             this.$router.push('/')
+    },
+    mounted() {
+        this.logout()
+        this.resetStatus()
     }
 }
 }
