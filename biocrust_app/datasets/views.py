@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets, status
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 import sys
 import requests
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -10,7 +11,17 @@ from biocrust_app.datasets.models import Image_Model, Dataset_Model, Model_Model
 from biocrust_app.datasets.serializers import Image_ModelSerializer, Dataset_ModelSerializer, Model_ModelSerializer, Mask_ModelSerializer, Analysis_ModelSerializer
 from biocrust_app.datasets.process_data import *
 from django.conf import settings
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import AllowAny
 
+
+class PublicDatasetFilterMixin:
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.request.user.is_authenticated:
+            return queryset
+        return queryset.filter(dataset__is_public=True)
+    
 class Image_ModelList(APIView):
     def get(self, request, format=None):
         images = Image_Model.objects.all()
@@ -33,36 +44,48 @@ class Model_ModelList(APIView):
 class Dataset_ModelViewSet(viewsets.ModelViewSet):
     queryset = Dataset_Model.objects.all()
     serializer_class = Dataset_ModelSerializer
-
-    def get_queryset(self):
-        # return self.queryset.filter(created_by=self.request.user)
-        return self.queryset.all()
+    permission_classes = [AllowAny]
     
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            return Dataset_Model.objects.all()
+        return Dataset_Model.objects.filter(is_public=True)
+   
     def perform_create(self, serializer):
+        user = self.request.user
+        if not (user.is_uploader or user.is_superuser or user.is_staff):
+            raise PermissionDenied("User not authorized to create datasets")
         serializer.save()
 
 
-class Image_ModelViewSet(viewsets.ModelViewSet):
+class Image_ModelViewSet(viewsets.ModelViewSet, PublicDatasetFilterMixin):
     queryset = Image_Model.objects.all()
     serializer_class = Image_ModelSerializer
-
-    def get_queryset(self):
-        # return self.queryset.filter(created_by=self.request.user)
-        return self.queryset.all()
+    permission_classes = [AllowAny]
     
     def perform_create(self, serializer):
+        user = self.request.user
+
+        if not (user.is_uploader or user.is_superuser or user.is_staff):
+            raise PermissionDenied("User not authorized to upload images")
+        
+        if user.daily_uploads > 10:  # Set your limit
+            raise PermissionDenied("Daily upload limit reached")
+        
+        user.increment_uploads()
         serializer.save()
 
 
-class Mask_ModelViewSet(viewsets.ModelViewSet):
+class Mask_ModelViewSet(viewsets.ModelViewSet, PublicDatasetFilterMixin):
     queryset = Mask_Model.objects.all()
     serializer_class = Mask_ModelSerializer
-
-    def get_queryset(self):
-        # return self.queryset.filter(created_by=self.request.user)
-        return self.queryset.all()
+    permission_classes = [AllowAny]
     
     def perform_create(self, serializer):
+        user = self.request.user
+        if not (user.is_uploader or user.is_superuser or user.is_staff):
+            raise PermissionDenied("User not authorized to upload masks")
+        
         if serializer.validated_data.get('source_manual'):        
             try:            
                 mask_image_data_serialized = serializer.validated_data.get('mask')
@@ -110,14 +133,11 @@ class Mask_ModelViewSet(viewsets.ModelViewSet):
             # instance = serializer.__class__(data=serializer.data)
             serializer.save()
 
-class Model_ModelViewSet(viewsets.ModelViewSet):
+class Model_ModelViewSet(viewsets.ModelViewSet, PublicDatasetFilterMixin):
     queryset = Model_Model.objects.all()
     serializer_class = Model_ModelSerializer
+    permission_classes = [AllowAny]
 
-    def get_queryset(self):
-        # return self.queryset.filter(created_by=self.request.user)
-        return self.queryset.all()
-    
     def perform_create(self, serializer):
         serializer.save()    
         file_name = serializer.validated_data.get('file')
@@ -126,14 +146,11 @@ class Model_ModelViewSet(viewsets.ModelViewSet):
         print(model_path)
 
 
-class Analysis_ModelViewSet(viewsets.ModelViewSet):
+class Analysis_ModelViewSet(viewsets.ModelViewSet, PublicDatasetFilterMixin):
     queryset = Analysis_Model.objects.all()
     serializer_class = Analysis_ModelSerializer
+    permission_classes = [AllowAny]
 
-    def get_queryset(self):
-        # return self.queryset.filter(created_by=self.request.user)
-        return self.queryset.all()
-    
     def patch(self, request, pk):
         model_object = self.get_object(pk)
         serializer = Analysis_ModelSerializer(model_object, data=request.data, partial=True) # set partial=True to update a data partially
@@ -161,6 +178,7 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet):
         # Send the request to the analysis API
         # parent_image_url = parent_image_url.replace("127.0.0.1", "django") # needed for docker
         # model_url = model_url.replace("127.0.0.1", "django") # needed for docker
+        
         payload = {
             'file_path': parent_image_url.replace("http", "https"),
             'ml_model_path': model_url.replace("http", "https"),

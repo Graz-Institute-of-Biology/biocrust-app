@@ -1,4 +1,3 @@
-
 export default {
     initializeStore(state) {
         if (localStorage.getItem('token')) {
@@ -28,10 +27,19 @@ export default {
     },
     setIsUploader(state) {
         state.is_uploader = JSON.parse(localStorage.getItem('is_uploader'))
-        console.log("SET UPLOADER")
-        console.log(state.is_uploader)
+    },
+    setIsSuperUser(state) {
+        state.is_superuser = JSON.parse(localStorage.getItem('is_superuser'))
+    },
+    setPublicUser(state, publicUser) {
+        state.publicUser = publicUser
     },
     setUserLoaded(state, userLoaded) {
         state.userLoaded = userLoaded
+    },
+    resetUser(state) {
+        state.is_uploader = false
+        state.is_superuser = false
+        state.userLoaded = false
     },
 }

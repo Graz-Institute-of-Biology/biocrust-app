@@ -44,7 +44,8 @@ class Dataset_ModelSerializer(serializers.ModelSerializer):
                   'coordinates',
                   'dataset_created',
                   'description',
-                  'dataset_type'
+                  'dataset_type',
+                  'is_public',
                   )
         
 class Model_ModelSerializer(serializers.ModelSerializer):

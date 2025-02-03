@@ -9,5 +9,7 @@ export default {
     imagesUploaded: 0,
     showProcessingQueue: false,
     is_uploader: false,
+    isSuperUser: false,
     userLoaded: false,
+    publicUser: false,
 }

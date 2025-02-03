@@ -21,6 +21,24 @@ class Dataset_Model(models.Model):
     dataset_created = models.DateTimeField(auto_now_add=True)
     description = models.TextField(blank=True, null=True)
     dataset_type = models.CharField(max_length=255, blank=True)
+
+    is_public = models.BooleanField(
+        'is_public',
+        default=False,
+        help_text='Designates whether dataset is public  (can be viewed by all registered users of the webapp) or not.'
+    )
+
+    is_demo = models.BooleanField(
+        'is_demo',
+        default=False,
+        help_text='Designates whether dataset is used as demo dataset.'
+    )
+
+    share_results = models.BooleanField(
+        'share_results',
+        default=False,
+        help_text='Designates whether dataset results are shared with other users.'
+    )
     
     class Meta:
         ordering = ('-dataset_created',)

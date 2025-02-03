@@ -7,11 +7,12 @@ export default {
         return state.showProcessingQueue
     },
     isUploader(state) {
-        console.log("GET_USER_UPLOADER")
         return state.is_uploader
     },
+    isSuperUser(state) {
+        return state.is_superuser
+    },
     getUserLoaded(state) {
-        console.log("GET_USER_LOADED")
         return state.userLoaded
     }
 }

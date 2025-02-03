@@ -22,8 +22,10 @@ export default {
             localStorage.removeItem('token')
             localStorage.removeItem('username')
             localStorage.removeItem('is_uploader')
+            localStorage.removeItem('is_superuser')
 
             this.$store.commit('removeToken')
+            this.$store.commit('resetUser')
             this.$router.push('/')
     },
     mounted() {

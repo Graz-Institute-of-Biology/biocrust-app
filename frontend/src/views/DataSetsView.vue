@@ -5,7 +5,7 @@
                 <h2 class="is-size-2">Datasets</h2>
             </div>
             <div v-if="getUserLoaded" class="column is-2 button-col">
-                <RouterLink v-if="isUploader" :to="{ name: 'AddDataset' }" class="button is-primary">Add Dataset</RouterLink>
+                <RouterLink v-if="isUploader || isSuperUser" :to="{ name: 'AddDataset' }" class="button is-primary">Add Dataset</RouterLink>
             </div>
         </div>
             <div class="columns is-multiline">
@@ -42,7 +42,7 @@ export default {
         this.getDatasets()
     },
     computed: {
-        ...mapGetters(['isUploader', 'getUserLoaded'])
+        ...mapGetters(['isUploader', 'getUserLoaded', 'isSuperUser'])
     },
     methods : {
         ...mapActions(['initializeStatus']),

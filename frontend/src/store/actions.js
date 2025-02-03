@@ -7,10 +7,13 @@ export default {
 
     async initializeStatus({ commit }) {
         try {
-        const stored = localStorage.getItem('is_uploader')
-        if (stored !== null) {
-            commit('setIsUploader', JSON.parse(stored))
-        } else {
+        const uploader = localStorage.getItem('is_uploader')
+        const superuser = localStorage.getItem('is_superuser')
+        if (uploader !== null && superuser !== null) {
+            commit('setIsUploader', JSON.parse(uploader))
+            commit('setIsSuperUser', JSON.parse(superuser))
+        }
+        if (localStorage.getItem('token')) {
             const userResponse = await axios.get('api/v1/users/me/', {
                 headers: {
                     'Authorization': 'Token ' + localStorage.getItem('token'),
@@ -18,7 +21,10 @@ export default {
                 }
             })        
             commit('setIsUploader', userResponse.is_uploader)
-        }
+            commit('setIsSuperUser', userResponse.is_superuser)
+         } else {
+                commit('setPublicUser', true)
+            } 
         } finally {
         commit('setUserLoaded', true)
         }
@@ -26,5 +32,6 @@ export default {
     async resetStatus({ commit }) {
         commit('setIsUploader', false)
         commit('setUserLoaded', false)
+        commit('setIsSuperUser', false)
     }
 }

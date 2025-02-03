@@ -19,7 +19,8 @@
                 <li>Visualise results & statistics.</li>
                 <!-- Add more feature items as needed -->
               </ul>
-              <RouterLink :to="{ name: 'DataSetView', params: { id: 9 }}" class="button is-primary">Browse sample dataset</RouterLink>
+              <!-- <RouterLink :to="{ name: 'DataSetView', params: { id: 9 }}" class="button is-primary">Browse sample dataset</RouterLink> -->
+               <RouterLink :to="{ name: 'datasets' }" class="button is-primary">Browse Datasets</RouterLink>
 
           </div>
           </div>

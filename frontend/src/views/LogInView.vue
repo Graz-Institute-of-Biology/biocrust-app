@@ -94,9 +94,12 @@ export default {
             }
         })        
         const isUploader = userResponse.data.is_uploader
+        const isSuperUser = userResponse.data.is_superuser
         console.log(isUploader)
         store.commit('setIsUploader', isUploader)
         localStorage.setItem('is_uploader', JSON.stringify(isUploader))
+        store.commit('setUserLoaded', isSuperUser)
+        localStorage.setItem('is_superuser', JSON.stringify(isSuperUser))
         },
         async submitForm() {
             axios.defaults.headers.common['Authorization'] = ''

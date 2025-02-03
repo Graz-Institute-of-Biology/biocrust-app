@@ -5,18 +5,18 @@
                 <h1 class="title is-1">{{ dataset.dataset_name }}</h1>
                 <div class="columns is-mobile">
                     <div class="column is-half">
-                        <RouterLink :to="{ name: 'AddImageView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading && this.allowActions">Add images</RouterLink>
-                        <RouterLink :to="{ name: 'AddMaskView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading && this.allowActions">Add masks</RouterLink>
-                        <RouterLink :to="{ name: 'AddModel', params: { id: dataset.id }}" class="button is-link" v-if="this.allowActions">Add Model</RouterLink>
+                        <RouterLink :to="{ name: 'AddImageView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading && isSuperUser || allowActions">Add images</RouterLink>
+                        <RouterLink :to="{ name: 'AddMaskView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading && isSuperUser">Add masks</RouterLink>
+                        <RouterLink :to="{ name: 'AddModel', params: { id: dataset.id }}" class="button is-link" v-if="isSuperUser">Add Model</RouterLink>
                     </div>
                     <div class="column is-half right">
-                        <div class="button is-primary" @click="handleAnalyses" v-if="!this.$store.loading && this.allowActions">Analyze Images ({{ this.items.length }})</div>
-                        <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading && this.mask_items.length > 0">Show Overlay</div>
-                        <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading && this.allowActions">Delete dataset</div>
+                        <div class="button is-primary" @click="handleAnalyses" v-if="!this.$store.loading && isSuperUser || this.allowActions">Analyze Images ({{ this.items.length }})</div>
+                        <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading && isSuperUser || this.mask_items.length > 0">Show Overlay</div>
+                        <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading && isSuperUser">Delete dataset</div>
                     </div>
                 </div>
                 <div class="columns is-mobile">
-                    <div class="select is-success" :class="{ 'blinking': selectModelWarning }" v-if="this.allowActions">
+                    <div class="select is-success" :class="{ 'blinking': selectModelWarning }" v-if="isSuperUser || this.allowActions">
                         <select class="is-focused" v-model="selectedMlModel" >
                             <option disabled value="">Select ML-Model</option>
                             <option v-for="(item, index) in Models" :key="index">{{ item.model_name }}</option>
@@ -106,7 +106,7 @@ import { directive as viewer } from "v-viewer"
 import { Doughnut } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, DoughnutController, CategoryScale, ArcElement } from 'chart.js'
 import InfoWindow from './InfoWindow.vue'; // Import the InfoWindow component
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 ChartJS.register(Title, Tooltip, Legend, DoughnutController, CategoryScale, ArcElement)
 
@@ -135,7 +135,7 @@ export default defineComponent({
             selectedMlModel: '',
             selectedMlModelId: null,
             setOverlay: false,
-            allowActions: false,
+            allowActions: true,
             scale: 1,
             mask_items: [],
             enlarged: false,
@@ -207,6 +207,7 @@ export default defineComponent({
     created () {
         this.$store.commit('setLoading', true)
         this.$store.commit('setShowProcessingQueue', false)
+        this.initializeStatus()
         this.getImages()
         this.getDataset()
         this.getMasks()
@@ -214,21 +215,25 @@ export default defineComponent({
         this.getAnalyses()
     },
     computed: {
-        ...mapGetters(['getShowProcessingQueue'])
+        ...mapGetters(['getShowProcessingQueue', 'isSuperUser'])
     },
     methods: {
         show () {
         const viewer = this.$el.querySelector('.images').$viewer
         viewer.show()
         },
+        ...mapActions(['initializeStatus']),
         async getDataset() {
+            console.log("SU")
+            console.log(this.isSuperUser)
             await axios.get(`api/v1/datasets/${this.$route.params.id}/`)
             .then(response => {
                 this.dataset = response.data
-                if (localStorage.getItem('username').includes('Guest') && this.dataset.owner == localStorage.getItem('username')) {
+
+                if (this.dataset.owner == localStorage.getItem('username')) {
                     this.allowActions = true
-                } else if (localStorage.getItem('username').toLowerCase().includes('Admin') || localStorage.getItem('username').toLowerCase() == 'admin') {
-                    this.allowActions = true
+                } else {
+                    this.allowActions = false
                 }
             })
             .catch(error => {
