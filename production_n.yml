@@ -46,6 +46,13 @@ services:
     image: biocrust_app_local_django
     container_name: biocrust_app_local_django
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.django.rule=Host(`it245151.uni-graz.at`) && PathPrefix(`/django`)"
+      - "traefik.http.routers.django.entrypoints=https"
+      - "traefik.http.routers.django.tls=true"
+      - "traefik.http.routers.django.tls.domains[0].main=it245151.uni-graz.at"
+      - "traefik.http.services.django.loadbalancer.server.port=8000"
     depends_on:
       - postgres
     volumes:
