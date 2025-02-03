@@ -27,9 +27,9 @@ CORS_ALLOWED_ORIGINS = [
     "https://cc-explorer.com",
     "https://api.cc-explorer.com",
     "https://ml.cc-explorer.com",
-    "https://it245151.uni-graz.at:8000"
+    "https://it245151.uni-graz.at"
     ]
-# CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True
 # CACHES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#caches
