@@ -8,7 +8,7 @@ volumes:
 services:
   frontend:
     container_name: frontend
-    restart: always
+    restart: unless-stopped
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -31,6 +31,7 @@ services:
       - ML_ENV=staging
     image: biocrust_app_local_ml-api
     container_name: biocrust_app_local_ml-api
+    restart: unless-stopped
     depends_on:
       - django
     networks:
@@ -44,6 +45,7 @@ services:
       dockerfile: ./compose/local/django/Dockerfile
     image: biocrust_app_local_django
     container_name: biocrust_app_local_django
+    restart: unless-stopped
     depends_on:
       - postgres
     volumes:
@@ -63,6 +65,7 @@ services:
       dockerfile: ./compose/production/postgres/Dockerfile
     image: biocrust_app_production_postgres
     container_name: biocrust_app_local_postgres
+    restart: unless-stopped
     volumes:
       - production_postgres_data:/var/lib/postgresql/data
       - production_postgres_data_backups:/backups
