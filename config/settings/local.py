@@ -42,7 +42,7 @@ CACHES = {
 # EMAIL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
-# EMAIL_BACKEND = env("DJANGO_EMAIL_BACKEND", default="'django.core.mail.backends.console.EmailBackend'")
+EMAIL_BACKEND = env("DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
 
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
@@ -50,15 +50,18 @@ EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = "CC-Explorer ccexplorerdemo@gmail.com"
 EMAIL_HOST_PASSWORD=config("EMAIL_HOST_PASSWORD")
 EMAIL_HOST_USER=config("EMAIL_HOST_USER")
-ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+# ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 
-# DOMAIN = "localhost:8080"
-DOMAIN = "cc-explorer.com"
+DOMAIN = "localhost:8080"
+# DOMAIN = "cc-explorer.com"
 
 
 DJOSER = {
-    'SEND_ACTIVATION_EMAIL' : False,
+    'SEND_ACTIVATION_EMAIL' : True,
     'ACTIVATION_URL': 'activate/{uid}/{token}',
+    "SERIALIZERS": {
+        "current_user" : "biocrust_app.users.serializers.UserSerializer"
+    }
 }
 
 # WhiteNoise
