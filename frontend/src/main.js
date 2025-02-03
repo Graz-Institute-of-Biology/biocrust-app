@@ -5,12 +5,17 @@ import store from './store'
 import App from './App.vue'
 import axios from 'axios'
 
-axios.defaults.baseURL = 'https://it245151.uni-graz.at'
-// axios.defaults.baseURL = 'https://api.cc-explorer.com'
-// axios.defaults.baseURL = 'http://127.0.0.1:8000'
+
+console.log('Current NODE_ENV:', process.env.NODE_ENV)
+const isDevelopment = process.env.NODE_ENV
+
+if (isDevelopment === 'development') {
+  axios.defaults.baseURL = 'http://localhost:8000'
+} else {
+  axios.defaults.baseURL = 'https://it245151.uni-graz.at'
+}
+// axios.defaults.baseURL = 'https://it245151.uni-graz.at'
 // axios.defaults.baseURL = 'http://localhost:8000'
-// axios.defaults.baseURL = 'http://django:8000'
-// axios.defaults.baseURL = 'http://167.99.251.188:8000'
 // axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*'
 const app = createApp(App)
 app.use(Vuex)
