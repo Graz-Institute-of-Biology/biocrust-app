@@ -12,7 +12,7 @@ SECRET_KEY = env(
     default="8OmLatOrLmWP8ujI6JiuIxGhfjGB87ULLpWxwzvY03Jr50bMs9wjEdgyKTNDlVJV",
 )
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "django"]
+ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "django", "it245151.uni-graz.at"]
 # ALLOWED_HOSTS = ["167.99.251.188"]
 # ALLOWED_HOSTS = ["cc-explorer.com", "api.cc-explorer.com", "167.99.251.188", "django"]
 
@@ -27,6 +27,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://cc-explorer.com",
     "https://api.cc-explorer.com",
     "https://ml.cc-explorer.com",
+    "https://it245151.uni-graz.at"
     ]
 # CORS_ALLOW_ALL_ORIGINS = True
 # CACHES

@@ -12,7 +12,7 @@ const isDevelopment = process.env.NODE_ENV
 if (isDevelopment === 'development') {
   axios.defaults.baseURL = 'http://localhost:8000'
 } else {
-  axios.defaults.baseURL = 'https://it245151.uni-graz.at'
+  axios.defaults.baseURL = 'https://it245151.uni-graz.at:8000'
 }
 // axios.defaults.baseURL = 'https://it245151.uni-graz.at'
 // axios.defaults.baseURL = 'http://localhost:8000'
