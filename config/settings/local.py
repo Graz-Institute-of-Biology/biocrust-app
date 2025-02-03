@@ -27,7 +27,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://cc-explorer.com",
     "https://api.cc-explorer.com",
     "https://ml.cc-explorer.com",
-    "https://it245151.uni-graz.at"
+    "https://it245151.uni-graz.at:8000"
     ]
 # CORS_ALLOW_ALL_ORIGINS = True
 # CACHES
