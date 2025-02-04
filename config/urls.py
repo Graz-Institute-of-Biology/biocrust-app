@@ -7,17 +7,17 @@ from django.views.generic import TemplateView
 from django.views.static import serve
 
 urlpatterns = [
-    path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
-    path("about/", TemplateView.as_view(template_name="pages/about.html"), name="about"),
+    path("/django", TemplateView.as_view(template_name="pages/home.html"), name="home"),
+    path("/django/about/", TemplateView.as_view(template_name="pages/about.html"), name="about"),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
-    path("users/", include("biocrust_app.users.urls", namespace="users")),
-    path("accounts/", include("allauth.urls")),
+    path("/django/users/", include("biocrust_app.users.urls", namespace="users")),
+    path("/django/accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
-    path("api/v1/", include("djoser.urls")),
-    path("api/v1/", include("djoser.urls.authtoken")),
-    path("api/v1/", include("biocrust_app.datasets.urls")),
+    path("/django/api/v1/", include("djoser.urls")),
+    path("/django/api/v1/", include("djoser.urls.authtoken")),
+    path("/django/api/v1/", include("biocrust_app.datasets.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
