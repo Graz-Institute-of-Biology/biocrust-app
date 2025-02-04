@@ -60,6 +60,7 @@ services:
       - .:/app:z
     networks:
       - proxy
+      - default
     env_file:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
@@ -118,3 +119,5 @@ services:
 networks:
   proxy:
     external: true
+  default:
+    driver: bridge
