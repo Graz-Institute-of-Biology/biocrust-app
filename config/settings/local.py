@@ -65,8 +65,9 @@ EMAIL_HOST_USER=config("EMAIL_HOST_USER")
 
 # ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 
-DOMAIN = "localhost:8080"
+# DOMAIN = "localhost:8080"
 # DOMAIN = "cc-explorer.com"
+DOMAIN = "it245151.uni-graz.at/django"
 
 
 DJOSER = {
