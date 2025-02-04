@@ -53,6 +53,8 @@ services:
       - "traefik.http.routers.django.tls=true"
       - "traefik.http.routers.django.tls.domains[0].main=it245151.uni-graz.at"
       - "traefik.http.services.django.loadbalancer.server.port=8000"
+      - "traefik.http.middlewares.strip-django-prefix.stripprefix.prefixes=/django"
+      - "traefik.http.routers.django.middlewares=cors@docker,strip-django-prefix@docker"
 
     depends_on:
       - postgres
