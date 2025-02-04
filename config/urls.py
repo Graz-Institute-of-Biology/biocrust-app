@@ -6,21 +6,25 @@ from django.views import defaults as default_views
 from django.views.generic import TemplateView
 from django.views.static import serve
 
+prefix = "django/"
+
 urlpatterns = [
-    path("django/", TemplateView.as_view(template_name="pages/home.html"), name="home"),
-    path("django/about/", TemplateView.as_view(template_name="pages/about.html"), name="about"),
+    path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
+    path("about/", TemplateView.as_view(template_name="pages/about.html"), name="about"),
     # Django Admin, use {% url 'admin:index' %}
-    path("django/" + settings.ADMIN_URL, admin.site.urls),
+    path(settings.ADMIN_URL, admin.site.urls),
     # User management
-    path("django/users/", include("biocrust_app.users.urls", namespace="users")),
-    path("django/accounts/", include("allauth.urls")),
+    path("users/", include("biocrust_app.users.urls", namespace="users")),
+    path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
-    path("django/api/v1/", include("djoser.urls")),
-    path("django/api/v1/", include("djoser.urls.authtoken")),
-    path("django/api/v1/", include("biocrust_app.datasets.urls")),
-] + static("django/" + settings.MEDIA_URL, document_root="django/" + settings.MEDIA_ROOT)
+    path("api/v1/", include("djoser.urls")),
+    path("api/v1/", include("djoser.urls.authtoken")),
+    path("api/v1/", include("biocrust_app.datasets.urls")),
+] + static(settings.MEDIA_URL, document_root= settings.MEDIA_ROOT)
 
-
+urlpatterns = [
+    path(prefix, include(urlpatterns))
+]
 if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit
     # these url in browser to see how these error pages look like.
