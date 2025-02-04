@@ -18,7 +18,7 @@ urlpatterns = [
     path("django/api/v1/", include("djoser.urls")),
     path("django/api/v1/", include("djoser.urls.authtoken")),
     path("django/api/v1/", include("biocrust_app.datasets.urls")),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static("django/" + settings.MEDIA_URL, document_root="django/" + settings.MEDIA_ROOT)
 
 
 if settings.DEBUG:
