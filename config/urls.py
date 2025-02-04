@@ -10,7 +10,7 @@ urlpatterns = [
     path("django/", TemplateView.as_view(template_name="pages/home.html"), name="home"),
     path("django/about/", TemplateView.as_view(template_name="pages/about.html"), name="about"),
     # Django Admin, use {% url 'admin:index' %}
-    path("django/", settings.ADMIN_URL, admin.site.urls),
+    path("django/" + settings.ADMIN_URL, admin.site.urls),
     # User management
     path("django/users/", include("biocrust_app.users.urls", namespace="users")),
     path("django/accounts/", include("allauth.urls")),
