@@ -36,7 +36,7 @@ CSRF_TRUSTED_ORIGINS = ['https://it245151.uni-graz.at']
 # Important for running behind a proxy
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-FORCE_SCRIPT_NAME = '/django'
+# FORCE_SCRIPT_NAME = '/django'
 
 # CACHES
 # ------------------------------------------------------------------------------
