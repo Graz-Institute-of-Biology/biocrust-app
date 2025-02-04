@@ -22,7 +22,6 @@ services:
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.routers.frontend.tls.domains[0].main=it245151.uni-graz.at"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
-      - "traefik.http.routers.frontend.priority=1"  # Lower priority
 
   ml-api:
     build:
@@ -49,14 +48,12 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.django.rule=Host(`it245151.uni-graz.at`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.django.rule=Host(`it245151.uni-graz.at`) && PathPrefix(`/django`)"
       - "traefik.http.routers.django.entrypoints=https"
       - "traefik.http.routers.django.tls=true"
       - "traefik.http.routers.django.tls.domains[0].main=it245151.uni-graz.at"
       - "traefik.http.services.django.loadbalancer.server.port=8000"
-      - "traefik.http.middlewares.strip-api-prefix.stripprefix.prefixes=/api"
-      - "traefik.http.routers.django.middlewares=cors@docker,strip-api-prefix@docker"
-      - "traefik.http.routers.django.priority=2"  # Higher priority for API routes
+
     depends_on:
       - postgres
     volumes:

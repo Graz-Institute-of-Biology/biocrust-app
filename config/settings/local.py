@@ -29,7 +29,15 @@ CORS_ALLOWED_ORIGINS = [
     "https://ml.cc-explorer.com",
     "https://it245151.uni-graz.at"
     ]
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
+
+CSRF_TRUSTED_ORIGINS = ['https://it245151.uni-graz.at']
+
+# Important for running behind a proxy
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+FORCE_SCRIPT_NAME = '/django'
+
 # CACHES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#caches
