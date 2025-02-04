@@ -51,14 +51,19 @@ CACHES = {
 # EMAIL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
-EMAIL_BACKEND = env("DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
-
+# EMAIL_BACKEND = env("DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_SSL_CERTFILE = None
+EMAIL_SSL_KEYFILE = None
+EMAIL_CONNECTION_TIMEOUT = 60
+EMAIL_READ_TIMEOUT = 60
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = "CC-Explorer ccexplorerdemo@gmail.com"
 EMAIL_HOST_PASSWORD=config("EMAIL_HOST_PASSWORD")
 EMAIL_HOST_USER=config("EMAIL_HOST_USER")
+
 # ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 
 DOMAIN = "localhost:8080"
