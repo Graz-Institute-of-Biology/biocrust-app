@@ -119,3 +119,5 @@ services:
 networks:
   proxy:
     external: true
+  biocrust-app_default:
+    external: true
