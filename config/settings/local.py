@@ -66,7 +66,7 @@ EMAIL_HOST_USER=config("EMAIL_HOST_USER")
 
 # DOMAIN = "localhost:8080"
 # DOMAIN = "cc-explorer.com"
-DOMAIN = "it245151.uni-graz.at/django"
+DOMAIN = "it245151.uni-graz.at"
 
 
 DJOSER = {
