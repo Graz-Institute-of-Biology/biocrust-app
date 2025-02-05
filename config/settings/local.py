@@ -57,10 +57,14 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
-EMAIL_TIMEOUT = 30
+EMAIL_TIMEOUT = 60
 DEFAULT_FROM_EMAIL = "CC-Explorer ccexplorerdemo@gmail.com"
 EMAIL_HOST_PASSWORD=config("EMAIL_HOST_PASSWORD")
 EMAIL_HOST_USER=config("EMAIL_HOST_USER")
+
+# Add these settings
+import ssl
+EMAIL_SSL_VERSION = ssl.PROTOCOL_TLSv1_2
 
 import logging
 logging.getLogger('django.mail').setLevel(logging.DEBUG)
