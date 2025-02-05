@@ -54,20 +54,13 @@ CACHES = {
 # EMAIL_BACKEND = env("DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
-EMAIL_TIMEOUT = 60
+# EMAIL_PORT = 587
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
 DEFAULT_FROM_EMAIL = "CC-Explorer ccexplorerdemo@gmail.com"
 EMAIL_HOST_PASSWORD=config("EMAIL_HOST_PASSWORD")
 EMAIL_HOST_USER=config("EMAIL_HOST_USER")
-
-# Add these settings
-import ssl
-EMAIL_SSL_VERSION = ssl.PROTOCOL_TLSv1_2
-
-import logging
-logging.getLogger('django.mail').setLevel(logging.DEBUG)
 
 # ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 
