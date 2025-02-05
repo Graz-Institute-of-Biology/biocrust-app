@@ -17,11 +17,14 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`it245151.uni-graz.at`) && PathPrefix(`/`)"
+      - "traefik.http.routers.frontend.rule=Host(`it245151.uni-graz.at`)"
       - "traefik.http.routers.frontend.entrypoints=https"
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.routers.frontend.tls.domains[0].main=it245151.uni-graz.at"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
+      - "traefik.http.middlewares.spa.replacepathregex.regex=^/((?:activate|login|register|.*))$$"
+      - "traefik.http.middlewares.spa.replacepathregex.replacement=/$$1"
+      - "traefik.http.routers.frontend.middlewares=spa@docker"
       - "traefik.http.routers.frontend.priority=1"
 
   ml-api:
