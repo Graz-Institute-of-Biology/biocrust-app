@@ -60,7 +60,7 @@ services:
       - .:/app:z
     networks:
       - proxy
-      - default
+      - biocrust-app_default
     env_file:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
@@ -119,5 +119,3 @@ services:
 networks:
   proxy:
     external: true
-  default:
-    driver: bridge
