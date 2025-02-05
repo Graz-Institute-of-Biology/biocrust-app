@@ -18,15 +18,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`it245151.uni-graz.at`)"
-      # Remove the PathPrefix as it might interfere
       - "traefik.http.routers.frontend.entrypoints=https"
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.routers.frontend.tls.domains[0].main=it245151.uni-graz.at"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
-      # Add specific middleware for SPA
-      - "traefik.http.middlewares.frontend-spa.replacepath.regex=^/[^?]*$$"
-      - "traefik.http.middlewares.frontend-spa.replacepath.replacement=/"
-      - "traefik.http.routers.frontend.middlewares=frontend-spa"
+      - "traefik.http.routers.frontend.priority=1"
 
   ml-api:
     build:
