@@ -4,7 +4,7 @@
             <div class="column is-4 is-offset-4">
                 <h1 class="title">Sign Up</h1>
 
-                <form @submit.prevent="submitForm">
+                <form @submit.prevent="showInfoSubmitForm">
                     <div class="field">
                         <label class="label">Account name</label>
                         <div class="control">
@@ -74,13 +74,26 @@
                             <button class="button is-success">Sign up</button>
                         </div>
                     </div>
+                    <!-- <div>
+                        <button class="button is-success" @click="setEmailInfo">Set emailInfo</button>
+                    </div> -->
+                    <div class="modal is-active modal-background" v-if="emailInfo">
+                        <div class="modal-background"></div>
+                        <div class="modal-card">
+                            <header class="modal-card-head">
+                            <p class="modal-card-title">Info</p>
+                            </header>
+                            <section class="modal-card-body">
+                                <p>We have sent an activation link to:</p>
+                                <p> {{ this.email }}</p>
+                                <p>Please check your email and activate your account</p>
+                            </section>
+                            <footer class="modal-card-foot">
+                                <button class="button is-success" @click="redirectHome">Ok</button>
+                            </footer>
+                        </div>
+                    </div>
                 </form>
-                <!-- <VueRecaptcha
-                    :sitekey="siteKey"
-                    :load-recaptcha-script="true"
-                    @verify="captchaSuccess"
-                    @error="captchaError"
-                ></VueRecaptcha> -->
             </div>
         </div>
 
@@ -89,19 +102,10 @@
 
 <script>
 import axios from 'axios'
-// import { computed } from 'vue';
-// import { VueRecaptcha } from 'vue-recaptcha';
 
 export default {
     name: 'SignUp',
-    // components: {
-    //     VueRecaptcha
-    // },
-    // created() {
-    //     this.siteKey = computed(() => {
-    //     return 'yourSiteAPIKey';
-    //     })
-    // },
+
     data () {
         return {
             username: '',
@@ -111,7 +115,8 @@ export default {
             siteKey: '',
             errors: [],
             acceptedTerms: false,
-            acceptedPrivacy: false
+            acceptedPrivacy: false,
+            emailInfo: false
         }
     },
 
@@ -122,7 +127,21 @@ export default {
         clearErrors() {
             this.errors = [];
             },
-        submitForm () {
+        async setEmailInfo() {
+            if (this.emailInfo) {
+                this.emailInfo = false
+            } else {
+                this.emailInfo = true
+            }
+        },
+        redirectHome() {
+            this.$router.push('/')
+        },
+        showInfoSubmitForm() {
+            this.submitForm()
+            this.setEmailInfo()
+        },
+        async submitForm () {
             const formData = {
                 username: this.username,
                 email: this.email,
@@ -137,9 +156,9 @@ export default {
                 config.headers.Authorization =  token ? `Token ${token}` : null
                 return config;
             });
+            // this.setEmailInfo()
             axios.post('api/v1/users/', formData)
             .then(response => {
-                this.$router.push('/login')
                 console.log(response)
             })
             .catch(error => {
