@@ -10,7 +10,7 @@ console.log('Current NODE_ENV:', process.env.NODE_ENV)
 const isDevelopment = process.env.NODE_ENV
 
 if (isDevelopment === 'development') {
-  axios.defaults.baseURL = 'http://localhost:8000'
+  axios.defaults.baseURL = 'http://localhost:8000/django'
 } else {
   axios.defaults.baseURL = 'https://it245151.uni-graz.at/django'
 }
