@@ -501,10 +501,10 @@ export default defineComponent({
 
         getMaskUrl(item) {
             for (let mask_item of this.mask_items) {
-                if (mask_item.parent_image_url.includes('django'))
-                    item = item.replace('127.0.0.1', 'django')
+                // if (mask_item.parent_image_url.includes('django'))
+                //     item = item.replace('127.0.0.1', 'django')
                 if (mask_item.parent_image === item.id) {
-                    return mask_item.mask.replace('https', 'http'); // only for local development
+                    return mask_item.mask //.replace('https', 'http'); // only for local development
                 }
             }
         },
@@ -539,7 +539,7 @@ export default defineComponent({
                     this.Images = response.data.filter(image => image.dataset == this.$route.params.id)
                     let img_items = response.data.filter(image => image.dataset == this.$route.params.id)
                     for (let i = 0; i < img_items.length; i++) {
-                        this.items.push(img_items[i].img.replace('http', 'https'))
+                        this.items.push(img_items[i].img) //.replace('http', 'https'))
                         // this.items.push(img_items[i].img)
                     }
                 })
@@ -555,8 +555,8 @@ export default defineComponent({
                 // this.Masks = response.data.filter(mask => mask.dataset == this.$route.params.id)
                 let mask_items = response.data.filter(mask => mask.dataset == this.$route.params.id)
                 for (let i = 0; i < mask_items.length; i++) {
-                    mask_items[i].parent_image_url = mask_items[i].parent_image_url.replace('http', 'https')
-                    mask_items[i].mask = mask_items[i].mask.replace('http', 'https')
+                    // mask_items[i].parent_image_url = mask_items[i].parent_image_url.replace('http', 'https')
+                    // mask_items[i].mask = mask_items[i].mask.replace('http', 'https')
                     this.mask_items.push(mask_items[i])
                 }
             })
