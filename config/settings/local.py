@@ -5,7 +5,7 @@ from decouple import config
 # GENERAL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
-DEBUG = True
+# DEBUG = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = env(
     "DJANGO_SECRET_KEY",
@@ -36,7 +36,6 @@ CSRF_TRUSTED_ORIGINS = ['https://it245151.uni-graz.at']
 # Important for running behind a proxy
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-# FORCE_SCRIPT_NAME = '/django'
 
 # CACHES
 # ------------------------------------------------------------------------------
@@ -61,12 +60,15 @@ EMAIL_USE_SSL = True
 DEFAULT_FROM_EMAIL = "CC-Explorer ccexplorerdemo@gmail.com"
 EMAIL_HOST_PASSWORD=config("EMAIL_HOST_PASSWORD")
 EMAIL_HOST_USER=config("EMAIL_HOST_USER")
+DOMAIN=config("DOMAIN")
+
+print("DOMAIN: ", DOMAIN)
 
 # ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 
 # DOMAIN = "localhost:8080"
 # DOMAIN = "cc-explorer.com"
-DOMAIN = "it245151.uni-graz.at"
+# DOMAIN = "it245151.uni-graz.at"
 
 
 DJOSER = {
@@ -96,6 +98,7 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 # https://django-debug-toolbar.readthedocs.io/en/latest/installation.html#internal-ips
 INTERNAL_IPS = ["127.0.0.1", "10.0.2.2"]
+
 if not DEBUG and env("USE_DOCKER") == "yes":
     import socket
 
