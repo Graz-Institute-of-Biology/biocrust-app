@@ -5,6 +5,9 @@ from pathlib import Path
 
 import environ
 
+# set debug in .env file
+# DEBUG = True
+
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 # biocrust_app/
 APPS_DIR = BASE_DIR / "biocrust_app"
@@ -47,18 +50,9 @@ LOCALE_PATHS = [str(BASE_DIR / "locale")]
 # DATABASES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
-if not DEBUG:
-    DATABASES = {"default": env.db("DATABASE_URL")}
-else:
-    DATABASES = {"default":
-                 {
-                    'ENGINE': 'django.db.backends.sqlite3',
-                    'NAME': BASE_DIR / 'db.sqlite3',
-                    'OPTIONS': {
-                                    'timeout': 20,  # in seconds
-                                }
-        }
-    }
+# always use postres (in docker container)
+DATABASES = {"default": env.db("DATABASE_URL")}
+
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 # https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-DEFAULT_AUTO_FIELD
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -299,7 +293,6 @@ SOCIALACCOUNT_ADAPTER = "biocrust_app.users.adapters.SocialAccountAdapter"
 #     # Authorization:Token xxx
 #     'JWT_AUTH_HEADER_PREFIX': 'Token',
 # }
-
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
