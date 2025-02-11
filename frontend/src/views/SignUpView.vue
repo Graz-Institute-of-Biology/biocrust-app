@@ -4,7 +4,7 @@
             <div class="column is-4 is-offset-4">
                 <h1 class="title">Sign Up</h1>
 
-                <form @submit.prevent="showInfoSubmitForm">
+                <form @submit.prevent="submitForm">
                     <div class="field">
                         <label class="label">Account name</label>
                         <div class="control">
@@ -71,7 +71,12 @@
 
                     <div class="field">
                         <div class="control">
-                            <button class="button is-success">Sign up</button>
+                            <button 
+                                :class="['button', 'is-success', { 'is-loading': isLoading }]" 
+                                :disabled="isLoading"
+                                >
+                                Sign up
+                            </button>
                         </div>
                     </div>
                     <!-- <div>
@@ -111,19 +116,20 @@ export default {
             username: '',
             email: '',
             password: '',
-            captchaDone: false,
             siteKey: '',
             errors: [],
             acceptedTerms: false,
             acceptedPrivacy: false,
-            emailInfo: false
+            emailInfo: false,
+            loading: false
         }
     },
-
+    computed: {
+        isLoading() {
+            return this.loading
+        }
+    },
     methods: {
-        captchaSuccess () {
-            this.captchaDone = true
-        },
         clearErrors() {
             this.errors = [];
             },
@@ -137,31 +143,33 @@ export default {
         redirectHome() {
             this.$router.push('/')
         },
-        showInfoSubmitForm() {
-            this.submitForm()
-            this.setEmailInfo()
-        },
-        async submitForm () {
+        async submitForm() {
+            this.loading = true
             const formData = {
                 username: this.username,
                 email: this.email,
                 password: this.password
             }
+            
             if (!this.acceptedTerms || !this.acceptedPrivacy) {
                 this.errors.push('You must accept the terms and privacy policy')
+                this.loading = false  // Don't forget to reset loading if validation fails
                 return
             }
+
             axios.interceptors.request.use(function (config) {
                 const token = localStorage.getItem("token")
-                config.headers.Authorization =  token ? `Token ${token}` : null
+                config.headers.Authorization = token ? `Token ${token}` : null
                 return config;
             });
-            // this.setEmailInfo()
-            axios.post('api/v1/users/', formData)
-            .then(response => {
+
+            try {
+                const response = await axios.post('api/v1/users/', formData)
                 console.log(response)
-            })
-            .catch(error => {
+                if (response.status === 201) {
+                    this.setEmailInfo()
+                }
+            } catch (error) {
                 if (error.response) {
                     for (let key in error.response.data) {
                         this.errors.push(`${key}: ${error.response.data[key]}`)
@@ -172,7 +180,9 @@ export default {
                 } else {
                     console.log(JSON.stringify(error))
                 }
-            })
+            } finally {
+                this.loading = false  // Reset loading state after everything is done
+            }
         }
     }
     ,
