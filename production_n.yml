@@ -29,10 +29,20 @@ services:
       context: .
       dockerfile: ./compose/local/ml-api/Dockerfile
     environment:
-      - ML_ENV=staging
+      - ML_ENV=production
     image: biocrust_app_local_ml-api
     container_name: biocrust_app_local_ml-api
     restart: unless-stopped
+    labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.ml.rule=Host(`it245151.uni-graz.at`) && PathPrefix(`/ml`)"
+        - "traefik.http.routers.ml.entrypoints=https"
+        - "traefik.http.routers.ml.tls=true" 
+        - "traefik.http.routers.ml.tls.domains[0].main=it245151.uni-graz.at"
+        - "traefik.http.services.ml.loadbalancer.server.port=8082"
+        - "traefik.http.middlewares.ml-stripprefix.stripprefix.prefixes=/ml"
+        - "traefik.http.routers.ml.middlewares=ml-stripprefix"
+        - "traefik.http.routers.ml.priority=3"
     depends_on:
       - django
     networks:
