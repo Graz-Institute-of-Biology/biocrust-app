@@ -557,7 +557,6 @@ export default defineComponent({
             
             this.collectAllImageData()
                 .then(allData => {
-                    // Generate and download the CSV
                     const datasetName = this.dataset.dataset_name;
                     const fileName = `${datasetName}_all_images_data.csv`;
                     const csvContent = this.generateAllImagesCSVContent(allData);
@@ -571,26 +570,33 @@ export default defineComponent({
                     this.$store.commit('setLoading', false);
                 })
                 .catch(error => {
-                    console.error("Error generating CSV of all images:", error);
+                    console.error("Error generating all images CSV:", error);
                     this.$store.commit('setLoading', false);
                 });
         },
         
         async collectAllImageData() {
             const allImageData = [];
+            const uniqueClasses = new Map();
             
             for (const image of this.Images) {
                 try {
                     const classDistribution = await this.fetchClassDistribution(image);
                     if (classDistribution) {
-                        const imageName = this.getImageName(image.img);
-                        const labels = Object.keys(classDistribution.class_distributions);
-                        const data = Object.values(classDistribution.class_distributions);
+                        const labelIndices = Object.keys(classDistribution.class_distributions);
+                        
+                        labelIndices.forEach((label, index) => {
+                            const indexNumber = parseInt(label, 10) || index;
+                            uniqueClasses.set(label, {
+                                name: label,
+                                index: indexNumber,
+                                label: `${indexNumber} ${label}`
+                            });
+                        });
                         
                         allImageData.push({
-                            imageName,
-                            labels,
-                            data
+                            imageName: this.getImageName(image.img),
+                            distribution: classDistribution.class_distributions
                         });
                     }
                 } catch (error) {
@@ -598,18 +604,31 @@ export default defineComponent({
                 }
             }
             
-            return allImageData;
+            const sortedClasses = Array.from(uniqueClasses.values())
+                .sort((a, b) => a.index - b.index);
+            
+            return {
+                imageData: allImageData,
+                classColumns: sortedClasses
+            };
         },
         
-        generateAllImagesCSVContent(allImageData) {
-            let csvContent = "Image,Index,Data,Label\n";
+        generateAllImagesCSVContent({ imageData, classColumns }) {
+            let csvContent = "Image";
+            classColumns.forEach(classInfo => {
+                csvContent += `,${classInfo.label}`;
+            });
+            csvContent += "\n";
             
-            allImageData.forEach(imageData => {
-                const { imageName, labels, data } = imageData;
+            imageData.forEach(image => {
+                csvContent += `${image.imageName}`;
                 
-                data.forEach((value, index) => {
-                    csvContent += `${imageName},${index},${value},${labels[index]}\n`;
+                classColumns.forEach(classInfo => {
+                    const value = image.distribution[classInfo.name] || 0;
+                    csvContent += `,${value}`;
                 });
+                
+                csvContent += "\n";
             });
             
             return csvContent;
