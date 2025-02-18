@@ -62,22 +62,22 @@
                 </div>
                 <div v-if="this.showChart" class="chart-table">
                     <button class="button is-primary" @click="downloadAllImagesCSV" style="margin-bottom: 10px;">Download CSV </button>
-                        <table class="table is-bordered is-striped is-narrow is-hoverable">
-                            <thead>
-                                <tr>
-                                    <th class="is-primary">Class Index</th>
-                                    <th class="is-primary">Coverage</th>
-                                    <th class="is-primary">Class</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(data, label) in chartData.datasets[0].data" :key="label">
-                                    <td>{{ label }}</td>
-                                    <td>{{ data }}</td>
-                                    <td>{{ chartData.labels[label] }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <table class="table is-bordered is-striped is-narrow is-hoverable">
+                        <thead>
+                            <tr>
+                                <th class="is-primary">Class Index</th>
+                                <th class="is-primary">Coverage</th>
+                                <th class="is-primary">Class</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(data, label) in chartData.datasets[0].data" :key="label">
+                                <td>{{ label }}</td>
+                                <td>{{ data }}</td>
+                                <td>{{ chartData.labels[label] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -239,25 +239,6 @@ export default defineComponent({
             .catch(error => {
                 console.log(error)
             })
-        },
-        downloadCSV() {
-            const datasetName = this.dataset.dataset_name;
-            const imageName = this.clickedImage ? this.clickedImage.name : 'data';
-            const fileName = `${datasetName}_${imageName}_data.csv`;
-            const csvContent = this.generateCSVContent();
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement('a');
-            link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodedUri);
-            link.setAttribute('download', fileName);
-            document.body.appendChild(link);
-            link.click();
-        },
-        generateCSVContent() {
-            let csvContent = "Index,Data,Label\n";
-            this.chartData.datasets[0].data.forEach((data, index) => {
-                csvContent += `${index},${data},${this.chartData.labels[index]}\n`;
-            });
-            return csvContent;
         },
         setSelectedMlModel() {
              this.selectedMlModel = this.Models.filter(model => model.model_name == this.selectedMlModel)[0]
