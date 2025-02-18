@@ -61,7 +61,7 @@
                     <Doughnut :data="chartData" :options="chartOptions" />
                 </div>
                 <div v-if="this.showChart" class="chart-table">
-                    <button class="button is-primary" @click="downloadCSV" style="margin-bottom: 10px;">Download CSV </button>
+                    <button class="button is-primary" @click="downloadAllImagesCSV" style="margin-bottom: 10px;">Download CSV </button>
                         <table class="table is-bordered is-striped is-narrow is-hoverable">
                             <thead>
                                 <tr>
@@ -569,13 +569,75 @@ export default defineComponent({
         getUrl(image) {
             const url = `${axios.defaults.baseURL}${image.img}`
             return url
-        }
+        },
+
+        downloadAllImagesCSV() {
+            this.$store.commit('setLoading', true);
+            
+            this.collectAllImageData()
+                .then(allData => {
+                    // Generate and download the CSV
+                    const datasetName = this.dataset.dataset_name;
+                    const fileName = `${datasetName}_all_images_data.csv`;
+                    const csvContent = this.generateAllImagesCSVContent(allData);
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement('a');
+                    link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodedUri);
+                    link.setAttribute('download', fileName);
+                    document.body.appendChild(link);
+                    link.click();
+                    
+                    this.$store.commit('setLoading', false);
+                })
+                .catch(error => {
+                    console.error("Error generating CSV of all images:", error);
+                    this.$store.commit('setLoading', false);
+                });
+        },
+        
+        async collectAllImageData() {
+            const allImageData = [];
+            
+            for (const image of this.Images) {
+                try {
+                    const classDistribution = await this.fetchClassDistribution(image);
+                    if (classDistribution) {
+                        const imageName = this.getImageName(image.img);
+                        const labels = Object.keys(classDistribution.class_distributions);
+                        const data = Object.values(classDistribution.class_distributions);
+                        
+                        allImageData.push({
+                            imageName,
+                            labels,
+                            data
+                        });
+                    }
+                } catch (error) {
+                    console.error(`Error processing image ${image.img}:`, error);
+                }
+            }
+            
+            return allImageData;
+        },
+        
+        generateAllImagesCSVContent(allImageData) {
+            let csvContent = "Image,Index,Data,Label\n";
+            
+            allImageData.forEach(imageData => {
+                const { imageName, labels, data } = imageData;
+                
+                data.forEach((value, index) => {
+                    csvContent += `${imageName},${index},${value},${labels[index]}\n`;
+                });
+            });
+            
+            return csvContent;
+        },
     }
 })
 </script>
 
 <style scoped>
-
 .blinking {
     animation: blink 0.2s infinite;
 }
