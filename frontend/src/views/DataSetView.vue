@@ -55,30 +55,30 @@
             <!-- Chart Column -->
             <div class="column">
                 <h1 class="title is-3">Class Distribution</h1>
-                <input v-if="this.showChart" type="checkbox" id="checkbox" v-model="checkExcludeBackground" @change="excludeBackground" />
-                <label v-if="this.showChart" for="checkbox">Exclude Background</label>
+                <div v-if="this.showChart" class="chart-table">
+                    <button class="button is-primary" @click="downloadAllImagesCSV" style="margin-bottom: 10px;">Download CSV </button>
+                </div>
                 <div class="chart-container">
                     <Doughnut :data="chartData" :options="chartOptions" />
                 </div>
-                <div v-if="this.showChart" class="chart-table">
-                    <button class="button is-primary" @click="downloadAllImagesCSV" style="margin-bottom: 10px;">Download CSV </button>
-                    <table class="table is-bordered is-striped is-narrow is-hoverable">
-                        <thead>
-                            <tr>
-                                <th class="is-primary">Class Index</th>
-                                <th class="is-primary">Coverage</th>
-                                <th class="is-primary">Class</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(data, label) in chartData.datasets[0].data" :key="label">
-                                <td>{{ label }}</td>
-                                <td>{{ data }}</td>
-                                <td>{{ chartData.labels[label] }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <input v-if="this.showChart" type="checkbox" id="checkbox" v-model="checkExcludeBackground" @change="excludeBackground" />
+                <label v-if="this.showChart" for="checkbox">Exclude Background</label>
+                <table class="table is-bordered is-striped is-narrow is-hoverable">
+                    <thead>
+                        <tr>
+                            <th class="is-primary">Class Index</th>
+                            <th class="is-primary">Coverage</th>
+                            <th class="is-primary">Class</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(data, label) in chartData.datasets[0].data" :key="label">
+                            <td>{{ label }}</td>
+                            <td>{{ data }}</td>
+                            <td>{{ chartData.labels[label] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
         <div class="modal is-active modal-background" v-if="deleteAlert">
