@@ -63,22 +63,24 @@
                 </div>
                 <input v-if="this.showChart" type="checkbox" id="checkbox" v-model="checkExcludeBackground" @change="excludeBackground" />
                 <label v-if="this.showChart" for="checkbox">Exclude Background</label>
-                <table class="table is-bordered is-striped is-narrow is-hoverable">
-                    <thead>
-                        <tr>
-                            <th class="is-primary">Class Index</th>
-                            <th class="is-primary">Coverage</th>
-                            <th class="is-primary">Class</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(data, label) in chartData.datasets[0].data" :key="label">
-                            <td>{{ label }}</td>
-                            <td>{{ data }}</td>
-                            <td>{{ chartData.labels[label] }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div v-if="this.showChart" class="chart-table">
+                    <table class="table is-bordered is-striped is-narrow is-hoverable">
+                        <thead>
+                            <tr>
+                                <th class="is-primary">Class Index</th>
+                                <th class="is-primary">Coverage</th>
+                                <th class="is-primary">Class</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(data, label) in chartData.datasets[0].data" :key="label">
+                                <td>{{ label }}</td>
+                                <td>{{ data }}</td>
+                                <td>{{ chartData.labels[label] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         <div class="modal is-active modal-background" v-if="deleteAlert">
