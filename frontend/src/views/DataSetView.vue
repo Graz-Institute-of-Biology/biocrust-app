@@ -5,20 +5,22 @@
                 <h1 class="title is-1">{{ dataset.dataset_name }}</h1>
                 <div class="columns is-mobile">
                     <div class="column is-half">
-                        <RouterLink :to="{ name: 'AddImageView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading && this.allowActions">Add images</RouterLink>
-                        <RouterLink :to="{ name: 'AddMaskView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading && this.allowActions">Add masks</RouterLink>
-                        <RouterLink :to="{ name: 'AddModel', params: { id: dataset.id }}" class="button is-link" v-if="this.allowActions">Add Model</RouterLink>
+                        <RouterLink :to="{ name: 'AddImageView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading && isSuperUser || allowActions">Add images</RouterLink>
+                        <RouterLink :to="{ name: 'AddMaskView', params: { id: dataset.id }}" class="button is-link" v-if="!this.$store.loading && isSuperUser">Add masks</RouterLink>
+                        <RouterLink :to="{ name: 'AddModel', params: { id: dataset.id }}" class="button is-link" v-if="isSuperUser">Add Model</RouterLink>
                     </div>
-                    <div class="column is-half">
-                        <div class="select is-success" :class="{ 'blinking': selectModelWarning }" v-if="this.allowActions">
-                            <select class="is-focused" v-model="selectedMlModel" >
-                                <option disabled value="">Select ML-Model</option>
-                                <option v-for="(item, index) in Models" :key="index">{{ item.model_name }}</option>
-                            </select>
-                        </div>
-                        <div class="button is-primary" @click="handleAnalyses" v-if="!this.$store.loading && this.allowActions">Analyze Images ({{ this.items.length }})</div>
-                        <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading && this.mask_items.length > 0">Show Overlay</div>
-                        <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading && this.allowActions">Delete dataset</div>
+                    <div class="column is-half right">
+                        <div class="button is-primary" @click="handleAnalyses" v-if="!this.$store.loading && isSuperUser || this.allowActions">Analyze Images ({{ this.items.length }})</div>
+                        <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading && isSuperUser || this.mask_items.length > 0">Show Overlay</div>
+                        <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading && isSuperUser">Delete dataset</div>
+                    </div>
+                </div>
+                <div class="columns is-mobile">
+                    <div class="select is-success" :class="{ 'blinking': selectModelWarning }" v-if="isSuperUser || this.allowActions">
+                        <select class="is-focused" v-model="selectedMlModel" >
+                            <option disabled value="">Select ML-Model</option>
+                            <option v-for="(item, index) in Models" :key="index">{{ item.model_name }}</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -53,29 +55,31 @@
             <!-- Chart Column -->
             <div class="column">
                 <h1 class="title is-3">Class Distribution</h1>
-                <input v-if="this.showChart" type="checkbox" id="checkbox" v-model="checkExcludeBackground" @change="excludeBackground" />
-                <label v-if="this.showChart" for="checkbox">Exclude Background</label>
+                <div v-if="this.showChart" class="chart-table">
+                    <button class="button is-primary" @click="downloadAllImagesCSV" style="margin-bottom: 10px;">Download CSV </button>
+                </div>
                 <div class="chart-container">
                     <Doughnut :data="chartData" :options="chartOptions" />
                 </div>
+                <input v-if="this.showChart" type="checkbox" id="checkbox" v-model="checkExcludeBackground" @change="excludeBackground" />
+                <label v-if="this.showChart" for="checkbox">Exclude Background</label>
                 <div v-if="this.showChart" class="chart-table">
-                    <button class="button is-primary" @click="downloadCSV" style="margin-bottom: 10px;">Download CSV </button>
-                        <table class="table is-bordered is-striped is-narrow is-hoverable">
-                            <thead>
-                                <tr>
-                                    <th class="is-primary">Index</th>
-                                    <th class="is-primary">Data</th>
-                                    <th class="is-primary">Label</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(data, label) in chartData.datasets[0].data" :key="label">
-                                    <td>{{ label }}</td>
-                                    <td>{{ data }}</td>
-                                    <td>{{ chartData.labels[label] }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <table class="table is-bordered is-striped is-narrow is-hoverable">
+                        <thead>
+                            <tr>
+                                <th class="is-primary">Class Index</th>
+                                <th class="is-primary">Coverage</th>
+                                <th class="is-primary">Class</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(data, label) in chartData.datasets[0].data" :key="label">
+                                <td>{{ label }}</td>
+                                <td>{{ data }}</td>
+                                <td>{{ chartData.labels[label] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -104,7 +108,7 @@ import { directive as viewer } from "v-viewer"
 import { Doughnut } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, DoughnutController, CategoryScale, ArcElement } from 'chart.js'
 import InfoWindow from './InfoWindow.vue'; // Import the InfoWindow component
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 ChartJS.register(Title, Tooltip, Legend, DoughnutController, CategoryScale, ArcElement)
 
@@ -205,52 +209,38 @@ export default defineComponent({
     created () {
         this.$store.commit('setLoading', true)
         this.$store.commit('setShowProcessingQueue', false)
+        this.initializeStatus()
         this.getImages()
         this.getDataset()
         this.getMasks()
         this.getModels()
-        //this.getAnalyses()
+        this.getAnalyses()
     },
     computed: {
-        ...mapGetters(['getShowProcessingQueue'])
+        ...mapGetters(['getShowProcessingQueue', 'isSuperUser'])
     },
     methods: {
         show () {
         const viewer = this.$el.querySelector('.images').$viewer
         viewer.show()
         },
+        ...mapActions(['initializeStatus']),
         async getDataset() {
+            console.log("SU")
+            console.log(this.isSuperUser)
             await axios.get(`api/v1/datasets/${this.$route.params.id}/`)
             .then(response => {
                 this.dataset = response.data
-                if (localStorage.getItem('username').includes('Guest') && this.dataset.owner == localStorage.getItem('username')) {
+
+                if (this.dataset.owner == localStorage.getItem('username')) {
                     this.allowActions = true
-                } else if (localStorage.getItem('username').includes('Admin')) {
-                    this.allowActions = true
+                } else {
+                    this.allowActions = false
                 }
             })
             .catch(error => {
                 console.log(error)
             })
-        },
-        downloadCSV() {
-            const datasetName = this.dataset.dataset_name;
-            const imageName = this.clickedImage ? this.clickedImage.name : 'data';
-            const fileName = `${datasetName}_${imageName}_data.csv`;
-            const csvContent = this.generateCSVContent();
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement('a');
-            link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodedUri);
-            link.setAttribute('download', fileName);
-            document.body.appendChild(link);
-            link.click();
-        },
-        generateCSVContent() {
-            let csvContent = "Index,Data,Label\n";
-            this.chartData.datasets[0].data.forEach((data, index) => {
-                csvContent += `${index},${data},${this.chartData.labels[index]}\n`;
-            });
-            return csvContent;
         },
         setSelectedMlModel() {
              this.selectedMlModel = this.Models.filter(model => model.model_name == this.selectedMlModel)[0]
@@ -262,6 +252,7 @@ export default defineComponent({
             await axios.get('api/v1/analyses/')
             .then(response => {
                 this.Analyses = response.data.filter(analysis => analysis.dataset == this.$route.params.id)
+                console.log(this.Analyses)
             })
             .catch(error => {
                 console.log(error)
@@ -327,7 +318,7 @@ export default defineComponent({
             if (this.selectedMlModel == '') {
                 this.selectModelWarning = true
                 setTimeout(() => {
-                    this.selectModelWarning = false; // Remove the blinking effect after the specified duration
+                    this.selectModelWarning = false; 
                 }, this.blinkDuration);
                 return
             } else {
@@ -493,10 +484,10 @@ export default defineComponent({
 
         getMaskUrl(item) {
             for (let mask_item of this.mask_items) {
-                if (mask_item.parent_image_url.includes('django'))
-                    item = item.replace('127.0.0.1', 'django')
+                // if (mask_item.parent_image_url.includes('django'))
+                //     item = item.replace('127.0.0.1', 'django')
                 if (mask_item.parent_image === item.id) {
-                    return mask_item.mask.replace('https', 'http'); // only for local development
+                    return mask_item.mask //.replace('https', 'http'); // only for local development
                 }
             }
         },
@@ -531,7 +522,8 @@ export default defineComponent({
                     this.Images = response.data.filter(image => image.dataset == this.$route.params.id)
                     let img_items = response.data.filter(image => image.dataset == this.$route.params.id)
                     for (let i = 0; i < img_items.length; i++) {
-                        this.items.push(img_items[i].img.replace('http', 'https'))
+                        this.items.push(img_items[i].img) //.replace('http', 'https'))
+                        // this.items.push(img_items[i].img)
                     }
                 })
                 .catch(error => {
@@ -546,8 +538,8 @@ export default defineComponent({
                 // this.Masks = response.data.filter(mask => mask.dataset == this.$route.params.id)
                 let mask_items = response.data.filter(mask => mask.dataset == this.$route.params.id)
                 for (let i = 0; i < mask_items.length; i++) {
-                    mask_items[i].parent_image_url = mask_items[i].parent_image_url.replace('http', 'https')
-                    mask_items[i].mask = mask_items[i].mask.replace('http', 'https')
+                    // mask_items[i].parent_image_url = mask_items[i].parent_image_url.replace('http', 'https')
+                    // mask_items[i].mask = mask_items[i].mask.replace('http', 'https')
                     this.mask_items.push(mask_items[i])
                 }
             })
@@ -560,129 +552,263 @@ export default defineComponent({
         getUrl(image) {
             const url = `${axios.defaults.baseURL}${image.img}`
             return url
-        }
+        },
+
+        downloadAllImagesCSV() {
+            this.$store.commit('setLoading', true);
+            
+            this.collectAllImageData()
+                .then(allData => {
+                    const datasetName = this.dataset.dataset_name;
+                    const fileName = `${datasetName}_all_images_data.csv`;
+                    const csvContent = this.generateAllImagesCSVContent(allData);
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement('a');
+                    link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodedUri);
+                    link.setAttribute('download', fileName);
+                    document.body.appendChild(link);
+                    link.click();
+                    
+                    this.$store.commit('setLoading', false);
+                })
+                .catch(error => {
+                    console.error("Error generating all images CSV:", error);
+                    this.$store.commit('setLoading', false);
+                });
+        },
+        
+        async collectAllImageData() {
+            const allImageData = [];
+            const uniqueClasses = new Map();
+            
+            for (const image of this.Images) {
+                try {
+                    const classDistribution = await this.fetchClassDistribution(image);
+                    if (classDistribution) {
+                        const labelIndices = Object.keys(classDistribution.class_distributions);
+                        
+                        labelIndices.forEach((label, index) => {
+                            const indexNumber = parseInt(label, 10) || index;
+                            uniqueClasses.set(label, {
+                                name: label,
+                                index: indexNumber,
+                                label: `${indexNumber} ${label}`
+                            });
+                        });
+                        
+                        allImageData.push({
+                            imageName: this.getImageName(image.img),
+                            distribution: classDistribution.class_distributions
+                        });
+                    }
+                } catch (error) {
+                    console.error(`Error processing image ${image.img}:`, error);
+                }
+            }
+            
+            const sortedClasses = Array.from(uniqueClasses.values())
+                .sort((a, b) => a.index - b.index);
+            
+            return {
+                imageData: allImageData,
+                classColumns: sortedClasses
+            };
+        },
+        
+        generateAllImagesCSVContent({ imageData, classColumns }) {
+            let csvContent = "Image";
+            classColumns.forEach(classInfo => {
+                csvContent += `,${classInfo.label}`;
+            });
+            csvContent += "\n";
+            
+            imageData.forEach(image => {
+                csvContent += `${image.imageName}`;
+                
+                classColumns.forEach(classInfo => {
+                    const value = image.distribution[classInfo.name] || 0;
+                    csvContent += `,${value}`;
+                });
+                
+                csvContent += "\n";
+            });
+            
+            return csvContent;
+        },
     }
 })
 </script>
 
 <style scoped>
-
-.chart-container {
-    width: 100%; /* Set width to any desired value */
-    height: 0;
-    padding-top: 100%; /* This ensures 1:1 aspect ratio */
-    padding-bottom: 20px; /* Optional: Add padding to create some space */
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    background-color: #ffffff;
-    margin-bottom: 20px; 
-    position: relative;
-    overflow: hidden; /* Hide overflow to prevent scrollbars */
-}
-
-.chart-container canvas {
-    width: 100% !important;
-    height: 100% !important;
-    position: absolute;
-    top: 0;
-    left: 0;
-}
-
-.page-dataset {
-    margin-bottom: 10%;
-}
-
-@media (max-width: 768px) {
-    .column {
-        width: 100%;
-    }
-}
-
-.image-grid-container { 
-    overflow-y: auto;
-    padding-bottom: 5%; 
-    padding-left: 5%;
-    padding-right: 5%;
-    padding-top: 5%;
-    scrollbar-width: none;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-}
-
-.chart {
-  margin-left: auto;
-  margin-right: auto;
-  padding-top: 5%;
-  padding-bottom: 5%;
-} 
-
-canvas {
-    /* width: 100% !important; */
-    height: 100% !important;
-    margin: 0 auto;
-}
-.page-dataset {
-    margin-bottom: 10%;
-}
-
-.image-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
-    grid-gap: 10px;
-}
-
-.image-container {
-    position: relative;
-}
-
-.image-wrapper {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-.image-small,
-.image-large {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 10px;
-}
-
-@keyframes blink {
-  0% { opacity: 1; }
-  50% { opacity: 0; }
-  100% { opacity: 1; }
-}
-
 .blinking {
-  animation: blink 0.2s infinite;
-}
-
-.overlay-mask,
-.overlay-mask-large {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0.6;
-    border-radius: 10px;
+    animation: blink 0.2s infinite;
 }
 
 .button {
+    margin-bottom: 2%;
+    /* margin-left: 10px; */
     margin-right: 10px;
+    width: 140px;
 }
 
-.select {
-    margin-right: 10px;
+.canvas {
+    height: 100% !important;
+    margin: 0 auto;
+}
+
+.chart {
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 5%;
+    padding-top: 5%;
+}
+
+.chart-container {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    height: 0;
+    margin-bottom: 20px;
+    overflow: hidden;
+    padding-bottom: 20px;
+    padding-top: 100%;
+    position: relative;
+    width: 100%;
+}
+
+.chart-container canvas {
+    height: 100% !important;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100% !important;
 }
 
 .column-header {
     text-align: center;
 }
 
-.delete-button {
-    float: right;
+.column.is-half {
+    align-items: center;
+    display: flex;
+    padding-left: 0px;
+    padding-right: 0px;
 }
+
+.columns.is-mobile {
+    display: flex;
+    justify-content: space-between;
+}
+
+.image-container {
+    position: relative;
+}
+
+.image-grid {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+}
+
+.image-grid-container {
+    border-radius: 10px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    height: 100vh;
+    margin: 0 auto;
+    max-height: 100%;
+    max-width: 100%;
+    overflow-y: auto;
+    padding-bottom: 5%;
+    padding-left: 5%;
+    padding-right: 5%;
+    padding-top: 5%;
+    scrollbar-width: none;
+    width: 100vw;
+}
+
+.image-large,
+.image-small {
+    border-radius: 10px;
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+}
+
+.image-wrapper {
+    height: 100%;
+    position: relative;
+    width: 100%;
+}
+
+.overlay-mask,
+.overlay-mask-large {
+    border-radius: 10px;
+    height: 100%;
+    left: 0;
+    opacity: 0.6;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+.page-dataset {
+    margin-bottom: 10%;
+}
+
+.right {
+    justify-content: flex-end;
+}
+
+.right .button {
+    margin-right: 0px;
+    margin-left: 10px;
+}
+
+.select {
+    margin-left: 0;
+    margin-right: 10px;
+}
+
+.title {
+    margin-bottom: 1rem;
+    margin-left: 1rem;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .button {
+        width: 85%;
+        /* margin-left: 5px; */
+    }
+    .canvas {
+        height: 70% !important;
+    }
+    .column {
+        flex-direction: column;
+        width: 100%;
+    }
+    .column.is-half {
+        align-items: flex-start;
+    }
+    .column.is-half.right{
+        padding-right: 0;
+        padding-left: 10px;
+        align-items: flex-end;
+    }
+    .image-wrapper {
+        width: 30%;
+    }
+    .image-grid-container {
+        height: 50vh;
+    }
+    .right .button{
+        margin-right: 0;
+    }
+}
+
 </style>
