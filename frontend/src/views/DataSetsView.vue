@@ -34,45 +34,43 @@
             
             <!-- Chart Column -->
             <div class="column" v-if="selectedDataset">
+                <h3 class="title is-3">Class Distribution</h3>
+                <button class="button is-small is-primary" @click="downloadDatasetCSV" :disabled="!chartDataReady">
+                        Download CSV
+                    </button>
+                <div v-if="loadingChart" class="has-text-centered">
+                    <p class="is-size-5">Loading chart data...</p>
+                </div>
+                <div v-else-if="noDataAvailable" class="has-text-centered">
+                    <p class="is-size-5">No class distribution data available for this dataset</p>
+                </div>
+                <div v-else class="chart-container">
+                    <Doughnut 
+                        :data="chartData" 
+                        :options="chartOptions" 
+                    />
+                </div>
+                <input type="checkbox" id="exclude-background" v-model="excludeBackground" @change="updateChartWithFilter">
+                <label for="exclude-background">Exclude Background</label>
                 
-                    <h3 class="is-size-4 has-text-centered">{{ selectedDataset.dataset_name }} Class Distribution</h3>
-                    <button class="button is-small is-primary" @click="downloadDatasetCSV" :disabled="!chartDataReady">
-                            Download CSV
-                        </button>
-                    <div v-if="loadingChart" class="has-text-centered">
-                        <p class="is-size-5">Loading chart data...</p>
-                    </div>
-                    <div v-else-if="noDataAvailable" class="has-text-centered">
-                        <p class="is-size-5">No class distribution data available for this dataset</p>
-                    </div>
-                    <div v-else class="chart-container">
-                        <Doughnut 
-                            :data="chartData" 
-                            :options="chartOptions" 
-                        />
-                    </div>
-                        <input type="checkbox" id="exclude-background" v-model="excludeBackground" @change="updateChartWithFilter">
-                        <label for="exclude-background">Exclude Background</label>
-                        
-                        <div class="table-container" v-if="chartDataReady">
-                            <table class="table is-bordered is-striped is-narrow is-hoverable">
-                                <thead>
-                                    <tr>
-                                        <th class="is-primary">Class Index</th>
-                                        <th class="is-primary">Coverage</th>
-                                        <th class="is-primary">Class</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(data, index) in chartData.datasets[0].data" :key="index">
-                                        <td>{{ index }}</td>
-                                        <td>{{ data.toFixed(2) }}%</td>
-                                        <td>{{ chartData.labels[index] }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                
+                <div class="table-container" v-if="chartDataReady">
+                    <table class="table is-bordered is-striped is-narrow is-hoverable">
+                        <thead>
+                            <tr>
+                                <th class="is-primary">Class Index</th>
+                                <th class="is-primary">Coverage</th>
+                                <th class="is-primary">Class</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(data, index) in chartData.datasets[0].data" :key="index">
+                                <td>{{ index }}</td>
+                                <td>{{ data.toFixed(2) }}%</td>
+                                <td>{{ chartData.labels[index] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -112,6 +110,10 @@ export default {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
+                    title: {
+                        display: true,
+                        text: "Class Distribution",
+                    },
                     legend: {
                         display: true,
                         position: "bottom",
@@ -286,6 +288,10 @@ export default {
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
+                    title: {
+                            display: true,
+                            text: this.selectedDataset.dataset_name
+                    },
                     legend: {
                         display: true,
                         position: "bottom"
