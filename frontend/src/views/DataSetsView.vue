@@ -33,8 +33,8 @@
             </div>
             
             <!-- Chart Column -->
-            <div class="column is-4" v-if="selectedDataset">
-                <div class="chart-container">
+            <div class="column" v-if="selectedDataset">
+                
                     <h3 class="is-size-4 has-text-centered">{{ selectedDataset.dataset_name }} Class Distribution</h3>
                     <div v-if="loadingChart" class="has-text-centered">
                         <p class="is-size-5">Loading chart data...</p>
@@ -47,15 +47,14 @@
                             :data="chartData" 
                             :options="chartOptions" 
                         />
-                        <div class="chart-controls">
-                            <div class="field">
-                                <input type="checkbox" id="exclude-background" v-model="excludeBackground" @change="updateChartWithFilter">
-                                <label for="exclude-background">Exclude Background</label>
-                            </div>
-                            <button class="button is-small is-primary" @click="downloadDatasetCSV" :disabled="!chartDataReady">
-                                Download CSV
-                            </button>
-                        </div>
+                    </div>
+                        <input type="checkbox" id="exclude-background" v-model="excludeBackground" @change="updateChartWithFilter">
+                        <label for="exclude-background">Exclude Background</label>
+                
+                        <button class="button is-small is-primary" @click="downloadDatasetCSV" :disabled="!chartDataReady">
+                            Download CSV
+                        </button>
+                        
                         <div class="table-container" v-if="chartDataReady">
                             <table class="table is-bordered is-striped is-narrow is-hoverable">
                                 <thead>
@@ -74,8 +73,7 @@
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-                </div>
+                
             </div>
         </div>
     </div>
@@ -287,7 +285,7 @@ export default {
             
             this.chartOptions = {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: true,
                 plugins: {
                     legend: {
                         display: true,
@@ -393,11 +391,37 @@ export default {
     justify-content: space-between;
 }
 
+.canvas {
+    height: 100% !important;
+    margin: 0 auto;
+}
+
+.chart {
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 5%;
+    padding-top: 5%;
+}
+
 .chart-container {
-    height: 600px;
-    display: flex;
-    flex-direction: column;
-    padding: 1.5rem;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    height: 0;
+    margin-bottom: 20px;
+    overflow: hidden;
+    padding-bottom: 20px;
+    padding-top: 100%;
+    position: relative;
+    width: 100%;
+}
+
+.chart-container canvas {
+    height: 100% !important;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100% !important;
 }
 
 .chart-wrapper {
@@ -420,8 +444,13 @@ export default {
     max-height: 200px;
 }
 
-.is-fullheight {
-    min-height: 100vh;
-    padding: 1rem;
+@media (max-width: 768px) {
+    .canvas {
+        height: 70% !important;
+    }
+    .column {
+        flex-direction: column;
+        width: 100%;
+    }
 }
 </style>
