@@ -36,6 +36,9 @@
             <div class="column" v-if="selectedDataset">
                 
                     <h3 class="is-size-4 has-text-centered">{{ selectedDataset.dataset_name }} Class Distribution</h3>
+                    <button class="button is-small is-primary" @click="downloadDatasetCSV" :disabled="!chartDataReady">
+                            Download CSV
+                        </button>
                     <div v-if="loadingChart" class="has-text-centered">
                         <p class="is-size-5">Loading chart data...</p>
                     </div>
@@ -50,10 +53,6 @@
                     </div>
                         <input type="checkbox" id="exclude-background" v-model="excludeBackground" @change="updateChartWithFilter">
                         <label for="exclude-background">Exclude Background</label>
-                
-                        <button class="button is-small is-primary" @click="downloadDatasetCSV" :disabled="!chartDataReady">
-                            Download CSV
-                        </button>
                         
                         <div class="table-container" v-if="chartDataReady">
                             <table class="table is-bordered is-striped is-narrow is-hoverable">
