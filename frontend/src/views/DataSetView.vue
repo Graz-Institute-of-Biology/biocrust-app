@@ -739,7 +739,7 @@ export default defineComponent({
                     
                     csvContent += "Image";
                     classColumns.forEach(classInfo => {
-                        csvContent += `${classInfo.label}`;
+                        csvContent += `,${classInfo.label}`;
                     });
                     csvContent += "\n";
                     
