@@ -61,7 +61,7 @@
                 <div class="chart-container">
                     <Doughnut :data="chartData" :options="chartOptions" />
                 </div>
-                <input v-if="this.showChart" type="checkbox" id="checkbox" v-model="checkExcludeBackground" @change="excludeBackground" />
+                <input v-if="this.showChart" type="checkbox" class="checkbox" id="checkbox" v-model="checkExcludeBackground" @change="excludeBackground" />
                 <label v-if="this.showChart" for="checkbox">Exclude Background</label>
                 <div v-if="this.showChart" class="table-container">
                     <table class="table is-bordered is-striped is-narrow is-hoverable">
@@ -99,7 +99,6 @@
     </div>
 </template>
 
-
 <script>
 import axios from 'axios'
 import { defineComponent } from 'vue'
@@ -123,6 +122,7 @@ export default defineComponent({
         debug: true
       })
     },
+
     data () {
         return {
             Analyses: [],
@@ -172,7 +172,7 @@ export default defineComponent({
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Click on image to see class distribution.'
+                        text: 'Select image to see class distribution.'
                     },
                     legend: {
                         display: true,
@@ -242,12 +242,15 @@ export default defineComponent({
                 console.log(error)
             })
         },
+        
         setSelectedMlModel() {
              this.selectedMlModel = this.Models.filter(model => model.model_name == this.selectedMlModel)[0]
         },
+
         setModelWarningFalse() {
             this.selectModelWarning = false
         },
+
         async getAnalyses() {
             await axios.get('api/v1/analyses/')
             .then(response => {
@@ -262,6 +265,7 @@ export default defineComponent({
                 this.$store.commit('setShowProcessingQueue', true)
             }
         },
+
         async getModels() {
             await axios.get('api/v1/models/')
             .then(response => {
@@ -271,6 +275,7 @@ export default defineComponent({
                 console.log(error)
             })
         },
+
         async fetchClassDistribution(image) {
             const imageUrl = image; 
             const maskUrl = this.getMaskUrl(imageUrl); 
@@ -284,7 +289,6 @@ export default defineComponent({
                     if (this.checkExcludeBackground) {
                         const classDistributions = JSON.parse(matchingMask.class_distributions);
                         const class_names = Object.keys(classDistributions.class_distributions)
-                        // const backgroundIndexDist = 0;
                         for (let i = 0; i < class_names.length; i++) {
                             if (class_names[i].includes('background')) {
                                 delete classDistributions.class_distributions[class_names[i]];
@@ -293,9 +297,6 @@ export default defineComponent({
                                 delete classDistributions.class_colors[i];
                             }
                         }
-                        // const backgroundIndexColor = null;
-
-                        // delete classDistributions.class_colors[backgroundIndexColor]
                         console.log(classDistributions.class_distributions)
                         return classDistributions;
                     } else {
@@ -314,6 +315,7 @@ export default defineComponent({
             const filename = parts[parts.length - 1];
             return filename;
         },
+
         async handleAnalyses() {
             if (this.selectedMlModel == '') {
                 this.selectModelWarning = true
@@ -330,6 +332,7 @@ export default defineComponent({
                 this.imageProcessingList.push(this.Images[i].name)
             }
         },
+
         async analyzeImage(image) {
 
             await this.sendAnalysisRequest(image)
@@ -338,7 +341,7 @@ export default defineComponent({
                     console.log(response)
                 })
                 .catch(error => {
-                    this.message = 'Analysis request Error!'
+                    this.message = 'Error sending analysis request!'
                     console.log(error)
                 });
             },
@@ -361,6 +364,7 @@ export default defineComponent({
                 },
             })
         },
+
         excludeBackground() {
             if (this.checkExcludeBackground) {
                 this.handleImageClick(this.clickedImage)
@@ -377,9 +381,6 @@ export default defineComponent({
                 const labels = Object.keys(classDistribution.class_distributions);
                 const data = Object.values(classDistribution.class_distributions);
                 const colors = Object.values(classDistribution.class_colors).map(color => color.color);
-                // const colors = Object.values(classDistribution.class_colors).map(colorStr => {
-                //     return colorStr.replace(/\[|\]/g, '').split(',').map(Number);
-                // });
                 
                 this.chartData = {
                     labels: labels,
@@ -442,7 +443,7 @@ export default defineComponent({
                     plugins: {
                         title: {
                             display: true,
-                            text: 'Click on image to see class distribution.'
+                            text: 'Select image to see class distribution.'
                         },
                         legend: {
                             display: true,
@@ -819,10 +820,6 @@ export default defineComponent({
     width: 100% !important;
 }
 
-.f {
-    text-align: center;
-}
-
 .column.is-half {
     align-items: center;
     display: flex;
@@ -833,6 +830,10 @@ export default defineComponent({
 .columns.is-mobile {
     display: flex;
     justify-content: space-between;
+}
+
+.checkbox {
+    margin-right: 10px;
 }
 
 .image-container {
@@ -912,7 +913,6 @@ export default defineComponent({
 
 .title {
     margin-bottom: 1rem;
-    margin-left: 1rem;
 }
 
 @keyframes blink {
