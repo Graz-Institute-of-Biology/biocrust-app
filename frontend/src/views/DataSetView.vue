@@ -53,7 +53,7 @@
             </div>
             
             <!-- Chart Column -->
-            <div class="column">
+            <div v-if="this.clickedImage" class="column">
                 <h1 class="title is-3">Class Distribution</h1>
                 <div v-if="this.showChart" class="chart-table">
                     <button class="button is-primary" @click="downloadAllImagesCSV" style="margin-bottom: 10px;">Download CSV </button>
@@ -80,6 +80,11 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+            <div v-else>
+                <div class="column has-text-centered">
+                    <h1 class="title is-4">Select image to see analysis results</h1>
                 </div>
             </div>
         </div>
@@ -151,20 +156,11 @@ export default defineComponent({
             checkExcludeBackground: false,
             clickedImage: null,
             chartData: {
-                labels: [ ' ', ' ', ' ' ],
+                labels: [],
                 datasets: [{
-                    backgroundColor: 'white',
-                    label: " ",
-                    data: [null, null, null]
-                    }, {
-                    backgroundColor: 'white',
-                    label: " ",
-                    data: [null, null, null]
-                    }, {
-                    backgroundColor: 'white',
-                    label: " ",
-                    data: [null, null, null]
-                    }]
+                    backgroundColor: [],
+                    data: []
+                }]
             },
             chartOptions: {
                 responsive: false,
@@ -172,7 +168,7 @@ export default defineComponent({
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Select image to see class distribution.'
+                        text: 'Class Distribution.'
                     },
                     legend: {
                         display: true,
