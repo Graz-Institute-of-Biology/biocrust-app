@@ -707,14 +707,14 @@ export default defineComponent({
             let csvContent = "";
             
             try {
-                csvContent += "# DATASET METADATA\n";
+                csvContent += "DATASET METADATA\n";
                 Object.entries(metadata || {}).forEach(([key, value]) => {
-                    csvContent += `# ${key},${value}\n`;
+                    csvContent += `${key},${value}\n`;
                 });
-                csvContent += "#\n";
+                csvContent += "\n";
                 
                 if (imageData.length > 0 && classColumns.length > 0) {
-                    csvContent += "# CLASS SUMMARY\n";
+                    csvContent += "CLASS SUMMARY\n";
                     classColumns.forEach(classInfo => {
                         let totalCoverage = 0;
                         let imagesWithClass = 0;
@@ -731,14 +731,15 @@ export default defineComponent({
                         
                         const avgCoverage = imagesWithClass > 0 ? totalCoverage / imagesWithClass : 0;
                         const percentImagesWithClass = (imagesWithClass / imageData.length) * 100;
-                        
-                        csvContent += `# ${classInfo.label},Avg Coverage: ${avgCoverage.toFixed(2)}%,Present in: ${percentImagesWithClass.toFixed(2)}% of images\n`;
+                        console.log('Class info:');
+                        console.log({classInfo});
+                        csvContent += `${classInfo.index},${classInfo.name},Avg Coverage: ${avgCoverage.toFixed(2)}%,Present in: ${percentImagesWithClass.toFixed(2)}% of images\n`;
                     });
-                    csvContent += "#\n";
+                    csvContent += "\n";
                     
                     csvContent += "Image";
                     classColumns.forEach(classInfo => {
-                        csvContent += `,${classInfo.label}`;
+                        csvContent += `${classInfo.label}`;
                     });
                     csvContent += "\n";
                     
