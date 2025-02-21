@@ -63,7 +63,7 @@
                 </div>
                 <input v-if="this.showChart" type="checkbox" id="checkbox" v-model="checkExcludeBackground" @change="excludeBackground" />
                 <label v-if="this.showChart" for="checkbox">Exclude Background</label>
-                <div v-if="this.showChart" class="chart-table">
+                <div v-if="this.showChart" class="table-container">
                     <table class="table is-bordered is-striped is-narrow is-hoverable">
                         <thead>
                             <tr>
@@ -819,7 +819,7 @@ export default defineComponent({
     width: 100% !important;
 }
 
-.column-header {
+.f {
     text-align: center;
 }
 
@@ -902,6 +902,12 @@ export default defineComponent({
 .select {
     margin-left: 0;
     margin-right: 10px;
+}
+
+.table-container {
+    margin-top: 1rem;
+    overflow-y: auto;
+    max-height: 400px;
 }
 
 .title {
