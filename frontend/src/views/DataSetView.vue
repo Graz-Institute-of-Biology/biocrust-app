@@ -29,29 +29,53 @@
             <!-- Image Grid Column -->
             <div class="column is-two-thirds">
                 <div class="image-grid-container">
-                    <div class="image-grid" v-if="!this.$store.loading">
-                        <div v-for="(item, index) in Images" :key="index" class="image-container" >
-                            <div class="image-wrapper" 
-                                    @click="() => { toggleEnlarge(index); handleImageClick(item); }"
-                                    @wheel="handleMouseWheel(index, $event)"
-                                    :style="{ zIndex: isEnlarged(index) ? 1 : 0 }">
-                                <img :src="item.img" class="image-small" v-if="!isEnlarged(index)">
-                                <img :src="item.img" class="image-large" :style="{ transform: `scale(${getScale(index)})` }" v-if="isEnlarged(index)">
-                                <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
-                                <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${getScale(index)})` }" @error="handleMaskImageError" v-if="setOverlay && isEnlarged(index)">
-                            </div>
+                    <!-- Popup Modal -->
+                    <div v-if="this.zoomedImage" class="modal-overlay" 
+                        @dblclick="closeModal"
+                        @wheel="handleModalMouseWheel($event)">
+                        <div class="modal-content" 
+                            @mousedown="startDrag($event)"
+                            @mousemove="handleDrag($event)"
+                            @mouseup="stopDrag"
+                            @mouseleave="stopDrag">
+                            <img :src="this.zoomedImage.img" class="image-large" 
+                                :style="{ transform: `scale(${getModalScale()}) translate(${modalPosition.x}px, ${modalPosition.y}px)` }">
+                            <img :src="getMaskUrl(this.zoomedImage)" class="overlay-mask-large" 
+                                :style="{ transform: `scale(${getModalScale()}) translate(${modalPosition.x}px, ${modalPosition.y}px)` }" 
+                                @error="handleMaskImageError" v-if="setOverlay">
                         </div>
                     </div>
                     <div v-else>
-                        <div class="columns is-multiline">
-                            <div class="column is-12">
-                                <h1 class="title is-1">Loading...</h1>
+                        <div class="image-grid" v-if="!this.$store.loading">
+                            <div v-for="(item, index) in Images" :key="index" class="image-container" >
+                                <!-- <div class="image-wrapper" 
+                                        @click="() => { toggleEnlarge(index); handleImageClick(item); openModal(item) }"
+                                        @wheel="handleMouseWheel(index, $event)"
+                                        :style="{ zIndex: isEnlarged(index) ? 1 : 0 }">
+                                    <img :src="item.img" class="image-small" v-if="!isEnlarged(index)">
+                                    <img :src="item.img" class="image-large" :style="{ transform: `scale(${getScale(index)})` }" v-if="isEnlarged(index)">
+                                    <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
+                                    <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${getScale(index)})` }" @error="handleMaskImageError" v-if="setOverlay && isEnlarged(index)">
+                                </div> -->
+                                <div class="image-wrapper" 
+                                        @dblclick="() => { openModal(item) }"
+                                        @click="() => { handleImageClick(item) }">
+                                    <img :src="item.img" class="image-small" v-if="!isEnlarged(index)">
+                                    <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else>
+                            <div class="columns is-multiline">
+                                <div class="column is-12">
+                                    <h1 class="title is-1">Loading...</h1>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Chart Column -->
             <div v-if="this.clickedImage" class="column">
                 <h1 class="title is-3">Class Distribution</h1>
@@ -155,6 +179,10 @@ export default defineComponent({
             showChart: false,
             checkExcludeBackground: false,
             clickedImage: null,
+            zoomedImage: null,
+            modalPosition: { x: 0, y: 0 },
+            isDragging: false,
+            startDragPosition: { x: 0, y: 0 },
             chartData: {
                 labels: [],
                 datasets: [{
@@ -221,6 +249,14 @@ export default defineComponent({
         viewer.show()
         },
         ...mapActions(['initializeStatus']),
+        openModal(imageSrc) {
+        this.zoomedImage = imageSrc;
+        this.scale = 1;
+        this.modalPosition = { x: 0, y: 0 };
+        },
+        closeModal() {
+        this.zoomedImage = null;
+        },
         async getDataset() {
             console.log("SU")
             console.log(this.isSuperUser)
@@ -464,6 +500,10 @@ export default defineComponent({
             return this.enlargedIndexes.includes(index);
         },
 
+        getScale(index) {
+            return this.scales[index] || 1; 
+        },
+
         handleMouseWheel(index, event) {
             if (this.isEnlarged(index)) {
                 this.scales[index] = this.scales[index] || 1; 
@@ -475,9 +515,46 @@ export default defineComponent({
             }
         },
 
-        getScale(index) {
-            return this.scales[index] || 1; 
+        getModalScale() {
+            return this.scale || 1; 
         },
+
+        handleModalMouseWheel(event) {
+            
+            this.scale = this.scale || 1; 
+            this.scale += event.deltaY > 0 ? -0.1 : 0.1;
+
+            this.scale = Math.min(Math.max(this.scale, 0.5), 3);
+
+            event.preventDefault();
+            
+        },
+
+        startDrag(event) {
+            if (this.scale > 1) {
+                this.isDragging = true;
+                this.startDragPosition = {
+                    x: event.clientX - this.modalPosition.x,
+                    y: event.clientY - this.modalPosition.y
+                };
+                event.preventDefault();
+            }
+        },
+        
+        handleDrag(event) {
+            if (this.isDragging && this.scale > 1) {
+                this.modalPosition = {
+                    x: event.clientX - this.startDragPosition.x,
+                    y: event.clientY - this.startDragPosition.y
+                };
+                event.preventDefault();
+            }
+        },
+        
+        stopDrag() {
+            this.isDragging = false;
+        },
+        
 
         getMaskUrl(item) {
             for (let mask_item of this.mask_items) {
@@ -870,6 +947,40 @@ export default defineComponent({
     height: 100%;
     position: relative;
     width: 100%;
+}
+
+.image-wrapper:hover {
+    transform: scale(1.01);
+    z-index: 10;
+}
+
+.modal-overlay {
+    /* position: fixed; */
+    margin: auto;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgb(256, 256, 256);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    border-radius: 10px;
+}
+
+.modal-content {
+    background: rgb(256, 256, 256);
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 90%;
+    max-height: 90%;
+    overflow: visible;
+    cursor: move;
+}
+
+.modal-content.dragging {
+    cursor: grabbing;
 }
 
 .overlay-mask,
