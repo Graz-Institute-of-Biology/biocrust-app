@@ -38,11 +38,8 @@
                             @mousemove="handleDrag($event)"
                             @mouseup="stopDrag"
                             @mouseleave="stopDrag">
-                            <img :src="this.zoomedImage.img" class="image-large" 
-                                :style="{ transform: `scale(${getModalScale()}) translate(${modalPosition.x}px, ${modalPosition.y}px)` }">
-                            <img :src="getMaskUrl(this.zoomedImage)" class="overlay-mask-large" 
-                                :style="{ transform: `scale(${getModalScale()}) translate(${modalPosition.x}px, ${modalPosition.y}px)` }" 
-                                @error="handleMaskImageError" v-if="setOverlay">
+                            <img :src="this.zoomedImage.img" class="image-large" :style="{ transform: getTransformStyle() }">
+                            <img :src="getMaskUrl(this.zoomedImage)" class="overlay-mask-large" :style="{ transform: getTransformStyle() }" @error="handleMaskImageError" v-if="setOverlay">
                         </div>
                     </div>
                     <div v-else>
@@ -62,6 +59,10 @@
                                         @click="() => { handleImageClick(item) }">
                                     <img :src="item.img" class="image-small" v-if="!isEnlarged(index)">
                                     <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
+                                </div>
+                                <div class="info-container">
+                                    <span class="info-icon">ℹ️</span>
+                                    <div class="tooltip">Click: Select image <br> Double-click: Expand image</div>
                                 </div>
                             </div>
                         </div>
@@ -317,7 +318,11 @@ export default defineComponent({
         stopDrag() {
             this.isDragging = false;
         },
-        
+
+        getTransformStyle() {
+        return `scale(${this.getModalScale()}) translate(${this.modalPosition.x}px, ${this.modalPosition.y}px)`;
+        },
+                
         // Analysis section
 
         setSelectedMlModel() {
@@ -964,6 +969,23 @@ export default defineComponent({
     z-index: 10;
 }
 
+.info-container {
+  position: absolute;
+  display: inline-block;
+  z-index: 11;
+  left: 5px;
+  top: 5px;
+}
+
+.info-container:hover .tooltip {
+  visibility: visible;
+}
+
+.info-icon {
+  cursor: pointer;
+  font-size: 18px;
+}
+
 .modal-overlay {
     /* position: fixed; */
     margin: auto;
@@ -981,7 +1003,6 @@ export default defineComponent({
 
 .modal-content {
     background: rgb(256, 256, 256);
-    padding: 10px;
     border-radius: 10px;
     max-width: 90%;
     max-height: 90%;
@@ -993,8 +1014,7 @@ export default defineComponent({
     cursor: grabbing;
 }
 
-.overlay-mask,
-.overlay-mask-large {
+.overlay-mask {
     border-radius: 10px;
     height: 100%;
     left: 0;
@@ -1002,6 +1022,16 @@ export default defineComponent({
     position: absolute;
     top: 0;
     width: 100%;
+}
+
+.overlay-mask-large {
+    border-radius: 10px;
+    left: 0;
+    opacity: 0.6;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    object-fit: contain;
 }
 
 .page-dataset {
@@ -1030,6 +1060,20 @@ export default defineComponent({
 
 .title {
     margin-bottom: 1rem;
+}
+
+.tooltip {
+  visibility: hidden;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px;
+  border-radius: 5px;
+  position: absolute;
+  top: 20px;
+  left: 0;
+  z-index: 11;
+  white-space: nowrap;
 }
 
 @keyframes blink {
