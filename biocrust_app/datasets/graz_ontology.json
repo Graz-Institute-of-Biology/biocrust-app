@@ -1,0 +1,6 @@
+{   "0": {"name": "Background", "color": [0, 0, 0]},
+    "1": {"name": "Bryophytes", "color": [28, 230, 255]},
+    "2": {"name": "Lichen", "color": [255, 52, 255]},
+    "3": {"name": "BarkDominated", "color": [255, 74, 70]},
+    "4": {"name": "Other", "color": [146, 142, 0]}
+}
