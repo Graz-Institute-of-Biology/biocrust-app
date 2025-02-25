@@ -180,8 +180,8 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet, PublicDatasetFilterMixin):
         # model_url = model_url.replace("127.0.0.1", "django") # needed for docker
         
         payload = {
-            'file_path': parent_image_url, ## .replace("http", "https"),
-            'ml_model_path': model_url, ## .replace("http", "https"),
+            'file_path': parent_image_url,
+            'ml_model_path': model_url,
             'analysis_id': analysis_id,
             'parent_img_id': parent_img_id,
             'ml_model_id': ml_model_id,
@@ -192,7 +192,12 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet, PublicDatasetFilterMixin):
         headers = {}
         # Production:
         # ml_url = 'https://ml.cc-explorer.com/api/v1/predict'
-        ml_url = 'https://it245151.uni-graz.at/ml/api/v1/predict'
+        ml_url = 'https://it245151.uni-graz.at/ml/api/v1/predict' # always use production domain
+
+        if settings.DOMAIN == 'localhost:8080': # if running locally overwrite production domain
+                    print("Using LOCAL domain settings!")
+                    ml_url = 'http://ml-api:8082/api/v1/predict'
+
         requests.post(url=ml_url, headers=headers, json=payload) # USE THIS FOR PRODUCTION WITH POSTGRES!
 
 
