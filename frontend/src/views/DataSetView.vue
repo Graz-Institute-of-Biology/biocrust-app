@@ -249,14 +249,19 @@ export default defineComponent({
         viewer.show()
         },
         ...mapActions(['initializeStatus']),
+
+        // Modal section
+
         openModal(imageSrc) {
         this.zoomedImage = imageSrc;
         this.scale = 1;
         this.modalPosition = { x: 0, y: 0 };
         },
+
         closeModal() {
         this.zoomedImage = null;
         },
+
         async getDataset() {
             console.log("SU")
             console.log(this.isSuperUser)
@@ -274,7 +279,49 @@ export default defineComponent({
                 console.log(error)
             })
         },
+
+        getModalScale() {
+            return this.scale || 1; 
+        },
+
+        handleModalMouseWheel(event) {
+            
+            this.scale = this.scale || 1; 
+            this.scale += event.deltaY > 0 ? -0.1 : 0.1;
+
+            this.scale = Math.min(Math.max(this.scale, 0.5), 3);
+
+            event.preventDefault();
+            
+        },
+
+        startDrag(event) {
+            if (this.scale > 1) {
+                this.isDragging = true;
+                this.startDragPosition = {
+                    x: event.clientX - this.modalPosition.x,
+                    y: event.clientY - this.modalPosition.y
+                };
+                event.preventDefault();
+            }
+        },
         
+        handleDrag(event) {
+            if (this.isDragging && this.scale > 1) {
+                this.modalPosition = {
+                    x: event.clientX - this.startDragPosition.x,
+                    y: event.clientY - this.startDragPosition.y
+                };
+                event.preventDefault();
+            }
+        },
+        
+        stopDrag() {
+            this.isDragging = false;
+        },
+        
+        // Analysis section
+
         setSelectedMlModel() {
              this.selectedMlModel = this.Models.filter(model => model.model_name == this.selectedMlModel)[0]
         },
@@ -306,46 +353,6 @@ export default defineComponent({
             .catch(error => {
                 console.log(error)
             })
-        },
-
-        async fetchClassDistribution(image) {
-            const imageUrl = image; 
-            const maskUrl = this.getMaskUrl(imageUrl); 
-            try {
-                const response = await axios.get('api/v1/masks/');
-                const maskData = response.data;
-
-                const matchingMask = maskData.find(mask => mask.mask === maskUrl);
-
-                if (matchingMask && matchingMask.class_distributions) {
-                    if (this.checkExcludeBackground) {
-                        const classDistributions = JSON.parse(matchingMask.class_distributions);
-                        const class_names = Object.keys(classDistributions.class_distributions)
-                        for (let i = 0; i < class_names.length; i++) {
-                            if (class_names[i].includes('background')) {
-                                delete classDistributions.class_distributions[class_names[i]];
-                            }
-                            if (classDistributions.class_colors[i].name.includes('background')) {
-                                delete classDistributions.class_colors[i];
-                            }
-                        }
-                        console.log(classDistributions.class_distributions)
-                        return classDistributions;
-                    } else {
-                        console.log(JSON.parse(matchingMask.class_distributions))
-                        return JSON.parse(matchingMask.class_distributions);
-                    }
-                }
-            } catch (error) {
-                console.error("Error fetching class distribution:", error);
-            }
-            return null;
-        },
-
-        getImageName(imageUrl) {
-            const parts = imageUrl.split('/');
-            const filename = parts[parts.length - 1];
-            return filename;
         },
 
         async handleAnalyses() {
@@ -395,6 +402,42 @@ export default defineComponent({
                     'X-CSRFToken': '{{ csrftoken }}'
                 },
             })
+        },
+
+        // Results section & Visualization
+
+        async fetchClassDistribution(image) {
+            const imageUrl = image; 
+            const maskUrl = this.getMaskUrl(imageUrl); 
+            try {
+                const response = await axios.get('api/v1/masks/');
+                const maskData = response.data;
+
+                const matchingMask = maskData.find(mask => mask.mask === maskUrl);
+
+                if (matchingMask && matchingMask.class_distributions) {
+                    if (this.checkExcludeBackground) {
+                        const classDistributions = JSON.parse(matchingMask.class_distributions);
+                        const class_names = Object.keys(classDistributions.class_distributions)
+                        for (let i = 0; i < class_names.length; i++) {
+                            if (class_names[i].includes('background')) {
+                                delete classDistributions.class_distributions[class_names[i]];
+                            }
+                            if (classDistributions.class_colors[i].name.includes('background')) {
+                                delete classDistributions.class_colors[i];
+                            }
+                        }
+                        console.log(classDistributions.class_distributions)
+                        return classDistributions;
+                    } else {
+                        console.log(JSON.parse(matchingMask.class_distributions))
+                        return JSON.parse(matchingMask.class_distributions);
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching class distribution:", error);
+            }
+            return null;
         },
 
         excludeBackground() {
@@ -515,46 +558,17 @@ export default defineComponent({
             }
         },
 
-        getModalScale() {
-            return this.scale || 1; 
-        },
-
-        handleModalMouseWheel(event) {
-            
-            this.scale = this.scale || 1; 
-            this.scale += event.deltaY > 0 ? -0.1 : 0.1;
-
-            this.scale = Math.min(Math.max(this.scale, 0.5), 3);
-
-            event.preventDefault();
-            
-        },
-
-        startDrag(event) {
-            if (this.scale > 1) {
-                this.isDragging = true;
-                this.startDragPosition = {
-                    x: event.clientX - this.modalPosition.x,
-                    y: event.clientY - this.modalPosition.y
-                };
-                event.preventDefault();
-            }
+        showOverlay() {
+            this.setOverlay = !this.setOverlay
         },
         
-        handleDrag(event) {
-            if (this.isDragging && this.scale > 1) {
-                this.modalPosition = {
-                    x: event.clientX - this.startDragPosition.x,
-                    y: event.clientY - this.startDragPosition.y
-                };
-                event.preventDefault();
-            }
+        // Image and mask section
+
+        getImageName(imageUrl) {
+            const parts = imageUrl.split('/');
+            const filename = parts[parts.length - 1];
+            return filename;
         },
-        
-        stopDrag() {
-            this.isDragging = false;
-        },
-        
 
         getMaskUrl(item) {
             for (let mask_item of this.mask_items) {
@@ -568,10 +582,6 @@ export default defineComponent({
 
         handleMaskImageError(event) {
             event.target.style.display = 'none';
-        },
-
-        showOverlay() {
-            this.setOverlay = !this.setOverlay
         },
 
         setDeleteAlert() {
@@ -628,6 +638,7 @@ export default defineComponent({
             return url
         },
 
+        // Data download section
         downloadAllImagesCSV() {
             this.$store.commit('setLoading', true);
             
@@ -849,6 +860,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
+
 .blinking {
     animation: blink 0.2s infinite;
 }
