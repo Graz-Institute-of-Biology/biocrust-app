@@ -8,7 +8,6 @@
                 <RouterLink :to="{ name: 'AddDataset' }" class="button is-primary">Add Dataset</RouterLink>
             </div>
         </div>
-        
         <div class="columns">
             <!-- Datasets Grid Column -->
             <div class="column is-8">
@@ -20,7 +19,7 @@
                     >
                         <div class="box dataset-box" @click="selectDataset(dataset)">
                             <h3 class="is-size-4"> {{ dataset.dataset_name }} </h3>
-                            <p> {{ dataset.dataset_type }} </p>
+                            <p> {{ dataset.dataset_type }} </p>                            
                             <div class="buttons">
                                 <RouterLink :to="{ name: 'DataSetView', params: { id: dataset.id }}" class="button is-link">Show</RouterLink>
                                 <button class="button is-info" @click.stop="showDatasetDistribution(dataset.id)">
@@ -52,7 +51,6 @@
                 </div>
                 <input type="checkbox" id="exclude-background" v-model="excludeBackground" @change="updateChartWithFilter">
                 <label for="exclude-background">Exclude Background</label>
-                
                 <div class="table-container" v-if="chartDataReady">
                     <table class="table is-bordered is-striped is-narrow is-hoverable">
                         <thead>
@@ -127,6 +125,9 @@ export default {
         this.getDatasets()
     },
     methods: {
+
+        // Datasets section
+
         getDatasets() {
             axios.get('api/v1/datasets/')
             .then(response => {
@@ -141,6 +142,61 @@ export default {
             this.selectedDataset = dataset
         },
         
+        // CSV download section
+
+        downloadDatasetCSV() {
+            if (!this.rawDistributionData) return
+            
+            const { distributions } = this.rawDistributionData
+            const datasetName = this.selectedDataset.dataset_name || "dataset"
+            const filteredDistributions = { ...distributions }
+            
+            if (this.excludeBackground) {
+                for (const classKey in filteredDistributions) {
+                    if (classKey.toLowerCase().includes('background')) {
+                        delete filteredDistributions[classKey]
+                    }
+                }
+            }
+            
+            const filteredTotalPixels = Object.values(filteredDistributions).reduce((sum, count) => sum + count, 0)
+            
+            const sortedKeys = Object.keys(filteredDistributions).sort((a, b) => {
+                const numA = parseInt(a)
+                const numB = parseInt(b)
+                if (!isNaN(numA) && !isNaN(numB)) return numA - numB
+                return a.localeCompare(b)
+            })
+            
+            let csvContent = "DATASET CLASS DISTRIBUTION\n"
+            csvContent += `Dataset Name,${datasetName}\n`
+            csvContent += `Total Images,${this.datasetImages.length}\n`
+            csvContent += `Total Masks Analyzed,${this.allMasks.length}\n`
+            csvContent += `Export Date,${new Date().toISOString()}\n\n`
+            
+            csvContent += "Class Index,Class Name,Pixel Count,Coverage Percentage\n"
+            
+            for (const classKey of sortedKeys) {
+                const pixelCount = filteredDistributions[classKey]
+                const percentage = (pixelCount / filteredTotalPixels) * 100
+                
+                csvContent += `${classKey},${classKey},${pixelCount},${percentage.toFixed(2)}%\n`
+            }
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+            const link = document.createElement('a')
+            const url = URL.createObjectURL(blob)
+            
+            link.setAttribute('href', url)
+            link.setAttribute('download', `${datasetName}_class_distribution.csv`)
+            link.style.visibility = 'hidden'
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+        },
+
+        // Class distribution section
+
         async showDatasetDistribution(datasetId) {
             this.loadingChart = true
             this.noDataAvailable = false
@@ -310,90 +366,21 @@ export default {
             
             this.loadingChart = false
             this.chartDataReady = true
-        },
-        
-        downloadDatasetCSV() {
-            if (!this.rawDistributionData) return
-            
-            const { distributions } = this.rawDistributionData
-            const datasetName = this.selectedDataset.dataset_name || "dataset"
-            const filteredDistributions = { ...distributions }
-            
-            if (this.excludeBackground) {
-                for (const classKey in filteredDistributions) {
-                    if (classKey.toLowerCase().includes('background')) {
-                        delete filteredDistributions[classKey]
-                    }
-                }
-            }
-            
-            const filteredTotalPixels = Object.values(filteredDistributions).reduce((sum, count) => sum + count, 0)
-            
-            const sortedKeys = Object.keys(filteredDistributions).sort((a, b) => {
-                const numA = parseInt(a)
-                const numB = parseInt(b)
-                if (!isNaN(numA) && !isNaN(numB)) return numA - numB
-                return a.localeCompare(b)
-            })
-            
-            let csvContent = "DATASET CLASS DISTRIBUTION\n"
-            csvContent += `Dataset Name,${datasetName}\n`
-            csvContent += `Total Images,${this.datasetImages.length}\n`
-            csvContent += `Total Masks Analyzed,${this.allMasks.length}\n`
-            csvContent += `Export Date,${new Date().toISOString()}\n\n`
-            
-            csvContent += "Class Index,Class Name,Pixel Count,Coverage Percentage\n"
-            
-            for (const classKey of sortedKeys) {
-                const pixelCount = filteredDistributions[classKey]
-                const percentage = (pixelCount / filteredTotalPixels) * 100
-                
-                csvContent += `${classKey},${classKey},${pixelCount},${percentage.toFixed(2)}%\n`
-            }
-            
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-            const link = document.createElement('a')
-            const url = URL.createObjectURL(blob)
-            
-            link.setAttribute('href', url)
-            link.setAttribute('download', `${datasetName}_class_distribution.csv`)
-            link.style.visibility = 'hidden'
-            document.body.appendChild(link)
-            link.click()
-            document.body.removeChild(link)
         }
     }
 }
 </script>
 
 <style scoped>
-.header-col {
-    text-align: center;
-}
-
 .button-col {
-    text-align: right;
     margin-top: 10px;
-}
-
-.hero {
-    min-height: 50hv;
-}
-
-.dataset-box {
-    transition: all 0.3s ease;
-    height: 100%;
-}
-
-.dataset-box:hover {
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    transform: translateY(-2px);
+    text-align: right;
 }
 
 .buttons {
-    margin-top: 1rem;
     display: flex;
     justify-content: space-between;
+    margin-top: 1rem;
 }
 
 .canvas {
@@ -429,25 +416,44 @@ export default {
     width: 100% !important;
 }
 
-.chart-wrapper {
-    flex: 1;
+.chart-controls {
+    align-items: center;
     display: flex;
+    justify-content: space-between;
+    margin: 1rem 0;
+}
+
+.chart-wrapper {
+    display: flex;
+    flex: 1;
     flex-direction: column;
     position: relative;
 }
 
-.chart-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 1rem 0;
+.dataset-box {
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.dataset-box:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.header-col {
+    text-align: center;
+}
+
+.hero {
+    min-height: 50hv;
 }
 
 .table-container {
     margin-top: 1rem;
-    overflow-y: auto;
     max-height: 400px;
+    overflow-y: auto;
 }
+
 
 @media (max-width: 768px) {
     .canvas {
