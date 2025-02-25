@@ -296,21 +296,19 @@ export default defineComponent({
         },
 
         startDrag(event) {
-            if (this.scale > 1) {
-                this.isDragging = true;
-                this.startDragPosition = {
-                    x: event.clientX - this.modalPosition.x,
-                    y: event.clientY - this.modalPosition.y
-                };
-                event.preventDefault();
-            }
+            this.isDragging = true;
+            this.startDragPosition = {
+                x: event.clientX - this.modalPosition.x,
+                y: event.clientY - this.modalPosition.y
+            };
+            event.preventDefault();
         },
         
         handleDrag(event) {
-            if (this.isDragging && this.scale > 1) {
+            if (this.isDragging) {
                 this.modalPosition = {
-                    x: event.clientX - this.startDragPosition.x,
-                    y: event.clientY - this.startDragPosition.y
+                    x: 0.8 * event.clientX - 0.8 * this.startDragPosition.x,
+                    y: 0.8 * event.clientY - 0.8 * this.startDragPosition.y
                 };
                 event.preventDefault();
             }
