@@ -60,6 +60,10 @@
                                     <img :src="item.img" class="image-small" v-if="!isEnlarged(index)">
                                     <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
                                 </div>
+                                <div class="info-container">
+                                    <span class="info-icon">ℹ️</span>
+                                    <div class="tooltip">Click: Select image <br> Double-click: Expand image</div>
+                                </div>
                             </div>
                         </div>
                         <div v-else>
@@ -965,6 +969,23 @@ export default defineComponent({
     z-index: 10;
 }
 
+.info-container {
+  position: absolute;
+  display: inline-block;
+  z-index: 11;
+  left: 5px;
+  top: 5px;
+}
+
+.info-container:hover .tooltip {
+  visibility: visible;
+}
+
+.info-icon {
+  cursor: pointer;
+  font-size: 18px;
+}
+
 .modal-overlay {
     /* position: fixed; */
     margin: auto;
@@ -1039,6 +1060,20 @@ export default defineComponent({
 
 .title {
     margin-bottom: 1rem;
+}
+
+.tooltip {
+  visibility: hidden;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px;
+  border-radius: 5px;
+  position: absolute;
+  top: 20px;
+  left: 0;
+  z-index: 11;
+  white-space: nowrap;
 }
 
 @keyframes blink {
