@@ -38,11 +38,8 @@
                             @mousemove="handleDrag($event)"
                             @mouseup="stopDrag"
                             @mouseleave="stopDrag">
-                            <img :src="this.zoomedImage.img" class="image-large" 
-                                :style="{ transform: `scale(${getModalScale()}) translate(${modalPosition.x}px, ${modalPosition.y}px)` }">
-                            <img :src="getMaskUrl(this.zoomedImage)" class="overlay-mask-large" 
-                                :style="{ transform: `scale(${getModalScale()}) translate(${modalPosition.x}px, ${modalPosition.y}px)` }" 
-                                @error="handleMaskImageError" v-if="setOverlay">
+                            <img :src="this.zoomedImage.img" class="image-large" :style="{ transform: getTransformStyle() }">
+                            <img :src="getMaskUrl(this.zoomedImage)" class="overlay-mask-large" :style="{ transform: getTransformStyle() }" @error="handleMaskImageError" v-if="setOverlay">
                         </div>
                     </div>
                     <div v-else>
@@ -317,7 +314,11 @@ export default defineComponent({
         stopDrag() {
             this.isDragging = false;
         },
-        
+
+        getTransformStyle() {
+        return `scale(${this.getModalScale()}) translate(${this.modalPosition.x}px, ${this.modalPosition.y}px)`;
+        },
+                
         // Analysis section
 
         setSelectedMlModel() {
@@ -981,7 +982,6 @@ export default defineComponent({
 
 .modal-content {
     background: rgb(256, 256, 256);
-    padding: 10px;
     border-radius: 10px;
     max-width: 90%;
     max-height: 90%;
@@ -993,8 +993,7 @@ export default defineComponent({
     cursor: grabbing;
 }
 
-.overlay-mask,
-.overlay-mask-large {
+.overlay-mask {
     border-radius: 10px;
     height: 100%;
     left: 0;
@@ -1002,6 +1001,16 @@ export default defineComponent({
     position: absolute;
     top: 0;
     width: 100%;
+}
+
+.overlay-mask-large {
+    border-radius: 10px;
+    left: 0;
+    opacity: 0.6;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    object-fit: contain;
 }
 
 .page-dataset {
