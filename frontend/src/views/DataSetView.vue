@@ -25,61 +25,35 @@
                 </div>
             </div>
         </div>
-
-        <!-- Image Grid Column -->
         <div class="columns">
+            <!-- Image Grid Column -->
             <div class="column is-two-thirds">
                 <div class="image-grid-container">
-                    <!-- Popup Modal -->
-                    <div v-if="this.zoomedImage" class="modal-overlay" 
-                        @dblclick="closeModal"
-                        @wheel="handleModalMouseWheel($event)">
-                        <div class="modal-content" 
-                            @mousedown="startDrag($event)"
-                            @mousemove="handleDrag($event)"
-                            @mouseup="stopDrag"
-                            @mouseleave="stopDrag">
-                            <img :src="this.zoomedImage.img" class="image-large" :style="{ transform: getTransformStyle() }">
-                            <img :src="getMaskUrl(this.zoomedImage)" class="overlay-mask-large" :style="{ transform: getTransformStyle() }" @error="handleMaskImageError" v-if="setOverlay">
+                    <div class="image-grid" v-if="!this.$store.loading">
+                        <div v-for="(item, index) in Images" :key="index" class="image-container" >
+                            <div class="image-wrapper" 
+                                    @click="() => { toggleEnlarge(index); handleImageClick(item); }"
+                                    @wheel="handleMouseWheel(index, $event)"
+                                    :style="{ zIndex: isEnlarged(index) ? 1 : 0 }">
+                                <img :src="item.img" class="image-small" v-if="!isEnlarged(index)">
+                                <img :src="item.img" class="image-large" :style="{ transform: `scale(${getScale(index)})` }" v-if="isEnlarged(index)">
+                                <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
+                                <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${getScale(index)})` }" @error="handleMaskImageError" v-if="setOverlay && isEnlarged(index)">
+                            </div>
                         </div>
                     </div>
                     <div v-else>
-                        <div class="image-grid" v-if="!this.$store.loading">
-                            <div v-for="(item, index) in Images" :key="index" class="image-container" >
-                                <!-- <div class="image-wrapper" 
-                                        @click="() => { toggleEnlarge(index); handleImageClick(item); openModal(item) }"
-                                        @wheel="handleMouseWheel(index, $event)"
-                                        :style="{ zIndex: isEnlarged(index) ? 1 : 0 }">
-                                    <img :src="item.img" class="image-small" v-if="!isEnlarged(index)">
-                                    <img :src="item.img" class="image-large" :style="{ transform: `scale(${getScale(index)})` }" v-if="isEnlarged(index)">
-                                    <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
-                                    <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${getScale(index)})` }" @error="handleMaskImageError" v-if="setOverlay && isEnlarged(index)">
-                                </div> -->
-                                <div class="info-container" v-if="index == 0">
-                                    <span class="info-icon">ℹ️</span>
-                                    <div class="tooltip">Click: Select image <br> Double-click: Expand image</div>
-                                </div>
-                                <div class="image-wrapper" 
-                                        @dblclick="() => { openModal(item) }"
-                                        @click="() => { handleImageClick(item) }">
-                                    <img :src="item.img" class="image-small" v-if="!isEnlarged(index)">
-                                    <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
-                                </div>
-                            </div>
-                        </div>
-                        <div v-else>
-                            <div class="columns is-multiline">
-                                <div class="column is-12">
-                                    <h1 class="title is-1">Loading...</h1>
-                                </div>
+                        <div class="columns is-multiline">
+                            <div class="column is-12">
+                                <h1 class="title is-1">Loading...</h1>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
+            
             <!-- Chart Column -->
-            <div v-if="this.clickedImage" class="column">
+            <div class="column">
                 <h1 class="title is-3">Class Distribution</h1>
                 <div v-if="this.showChart" class="chart-table">
                     <button class="button is-primary" @click="downloadAllImagesCSV" style="margin-bottom: 10px;">Download CSV </button>
@@ -106,11 +80,6 @@
                             </tr>
                         </tbody>
                     </table>
-                </div>
-            </div>
-            <div v-else>
-                <div class="column has-text-centered">
-                    <h1 class="title is-4">Select image to see analysis results</h1>
                 </div>
             </div>
         </div>
@@ -181,16 +150,21 @@ export default defineComponent({
             showChart: false,
             checkExcludeBackground: false,
             clickedImage: null,
-            zoomedImage: null,
-            modalPosition: { x: 0, y: 0 },
-            isDragging: false,
-            startDragPosition: { x: 0, y: 0 },
             chartData: {
-                labels: [],
+                labels: [ ' ', ' ', ' ' ],
                 datasets: [{
-                    backgroundColor: [],
-                    data: []
-                }]
+                    backgroundColor: 'white',
+                    label: " ",
+                    data: [null, null, null]
+                    }, {
+                    backgroundColor: 'white',
+                    label: " ",
+                    data: [null, null, null]
+                    }, {
+                    backgroundColor: 'white',
+                    label: " ",
+                    data: [null, null, null]
+                    }]
             },
             chartOptions: {
                 responsive: false,
@@ -198,7 +172,7 @@ export default defineComponent({
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Class Distribution.'
+                        text: 'Select image to see class distribution.'
                     },
                     legend: {
                         display: true,
@@ -251,19 +225,6 @@ export default defineComponent({
         viewer.show()
         },
         ...mapActions(['initializeStatus']),
-
-        // Modal section
-
-        openModal(imageSrc) {
-        this.zoomedImage = imageSrc;
-        this.scale = 1;
-        this.modalPosition = { x: 0, y: 0 };
-        },
-
-        closeModal() {
-        this.zoomedImage = null;
-        },
-
         async getDataset() {
             console.log("SU")
             console.log(this.isSuperUser)
@@ -281,51 +242,7 @@ export default defineComponent({
                 console.log(error)
             })
         },
-
-        getModalScale() {
-            return this.scale || 1; 
-        },
-
-        handleModalMouseWheel(event) {
-            
-            this.scale = this.scale || 1; 
-            this.scale += event.deltaY > 0 ? -0.1 : 0.1;
-
-            this.scale = Math.min(Math.max(this.scale, 0.5), 3);
-
-            event.preventDefault();
-            
-        },
-
-        startDrag(event) {
-            this.isDragging = true;
-            this.startDragPosition = {
-                x: event.clientX - this.modalPosition.x,
-                y: event.clientY - this.modalPosition.y
-            };
-            event.preventDefault();
-        },
         
-        handleDrag(event) {
-            if (this.isDragging) {
-                this.modalPosition = {
-                    x: 0.8 * event.clientX - 0.8 * this.startDragPosition.x,
-                    y: 0.8 * event.clientY - 0.8 * this.startDragPosition.y
-                };
-                event.preventDefault();
-            }
-        },
-        
-        stopDrag() {
-            this.isDragging = false;
-        },
-
-        getTransformStyle() {
-        return `scale(${this.getModalScale()}) translate(${this.modalPosition.x}px, ${this.modalPosition.y}px)`;
-        },
-                
-        // Analysis section
-
         setSelectedMlModel() {
              this.selectedMlModel = this.Models.filter(model => model.model_name == this.selectedMlModel)[0]
         },
@@ -357,6 +274,46 @@ export default defineComponent({
             .catch(error => {
                 console.log(error)
             })
+        },
+
+        async fetchClassDistribution(image) {
+            const imageUrl = image; 
+            const maskUrl = this.getMaskUrl(imageUrl); 
+            try {
+                const response = await axios.get('api/v1/masks/');
+                const maskData = response.data;
+
+                const matchingMask = maskData.find(mask => mask.mask === maskUrl);
+
+                if (matchingMask && matchingMask.class_distributions) {
+                    if (this.checkExcludeBackground) {
+                        const classDistributions = JSON.parse(matchingMask.class_distributions);
+                        const class_names = Object.keys(classDistributions.class_distributions)
+                        for (let i = 0; i < class_names.length; i++) {
+                            if (class_names[i].includes('background')) {
+                                delete classDistributions.class_distributions[class_names[i]];
+                            }
+                            if (classDistributions.class_colors[i].name.includes('background')) {
+                                delete classDistributions.class_colors[i];
+                            }
+                        }
+                        console.log(classDistributions.class_distributions)
+                        return classDistributions;
+                    } else {
+                        console.log(JSON.parse(matchingMask.class_distributions))
+                        return JSON.parse(matchingMask.class_distributions);
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching class distribution:", error);
+            }
+            return null;
+        },
+
+        getImageName(imageUrl) {
+            const parts = imageUrl.split('/');
+            const filename = parts[parts.length - 1];
+            return filename;
         },
 
         async handleAnalyses() {
@@ -406,42 +363,6 @@ export default defineComponent({
                     'X-CSRFToken': '{{ csrftoken }}'
                 },
             })
-        },
-
-        // Results section & Visualization
-
-        async fetchClassDistribution(image) {
-            const imageUrl = image; 
-            const maskUrl = this.getMaskUrl(imageUrl); 
-            try {
-                const response = await axios.get('api/v1/masks/');
-                const maskData = response.data;
-
-                const matchingMask = maskData.find(mask => mask.mask === maskUrl);
-
-                if (matchingMask && matchingMask.class_distributions) {
-                    if (this.checkExcludeBackground) {
-                        const classDistributions = JSON.parse(matchingMask.class_distributions);
-                        const class_names = Object.keys(classDistributions.class_distributions)
-                        for (let i = 0; i < class_names.length; i++) {
-                            if (class_names[i].includes('background')) {
-                                delete classDistributions.class_distributions[class_names[i]];
-                            }
-                            if (classDistributions.class_colors[i].name.includes('background')) {
-                                delete classDistributions.class_colors[i];
-                            }
-                        }
-                        console.log(classDistributions.class_distributions)
-                        return classDistributions;
-                    } else {
-                        console.log(JSON.parse(matchingMask.class_distributions))
-                        return JSON.parse(matchingMask.class_distributions);
-                    }
-                }
-            } catch (error) {
-                console.error("Error fetching class distribution:", error);
-            }
-            return null;
         },
 
         excludeBackground() {
@@ -547,10 +468,6 @@ export default defineComponent({
             return this.enlargedIndexes.includes(index);
         },
 
-        getScale(index) {
-            return this.scales[index] || 1; 
-        },
-
         handleMouseWheel(index, event) {
             if (this.isEnlarged(index)) {
                 this.scales[index] = this.scales[index] || 1; 
@@ -562,16 +479,8 @@ export default defineComponent({
             }
         },
 
-        showOverlay() {
-            this.setOverlay = !this.setOverlay
-        },
-        
-        // Image and mask section
-
-        getImageName(imageUrl) {
-            const parts = imageUrl.split('/');
-            const filename = parts[parts.length - 1];
-            return filename;
+        getScale(index) {
+            return this.scales[index] || 1; 
         },
 
         getMaskUrl(item) {
@@ -586,6 +495,10 @@ export default defineComponent({
 
         handleMaskImageError(event) {
             event.target.style.display = 'none';
+        },
+
+        showOverlay() {
+            this.setOverlay = !this.setOverlay
         },
 
         setDeleteAlert() {
@@ -642,7 +555,6 @@ export default defineComponent({
             return url
         },
 
-        // Data download section
         downloadAllImagesCSV() {
             this.$store.commit('setLoading', true);
             
@@ -864,7 +776,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-
 .blinking {
     animation: blink 0.2s infinite;
 }
@@ -909,10 +820,6 @@ export default defineComponent({
     width: 100% !important;
 }
 
-.checkbox {
-    margin-right: 10px;
-}
-
 .column.is-half {
     align-items: center;
     display: flex;
@@ -923,6 +830,10 @@ export default defineComponent({
 .columns.is-mobile {
     display: flex;
     justify-content: space-between;
+}
+
+.checkbox {
+    margin-right: 10px;
 }
 
 .image-container {
@@ -965,74 +876,15 @@ export default defineComponent({
     width: 100%;
 }
 
-.image-wrapper:hover {
-    transform: scale(1.01);
-    z-index: 10;
-}
-
-.info-container {
-  position: absolute;
-  display: inline-block;
-  z-index: 11;
-  left: 5px;
-  top: 5px;
-}
-
-.info-container:hover .tooltip {
-  visibility: visible;
-}
-
-.info-icon {
-  cursor: pointer;
-  font-size: 18px;
-}
-
-.modal-overlay {
-    /* position: fixed; */
-    margin: auto;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgb(256, 256, 256);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    border-radius: 10px;
-}
-
-.modal-content {
-    background: rgb(256, 256, 256);
-    border-radius: 10px;
-    max-width: 90%;
-    max-height: 90%;
-    overflow: visible;
-    cursor: move;
-}
-
-.modal-content.dragging {
-    cursor: grabbing;
-}
-
-.overlay-mask {
-    border-radius: 10px;
-    height: 100%;
-    left: 0;
-    opacity: 0.6;
-    position: absolute;
-    top: 0;
-    width: 100%;
-}
-
+.overlay-mask,
 .overlay-mask-large {
     border-radius: 10px;
+    height: 100%;
     left: 0;
     opacity: 0.6;
     position: absolute;
     top: 0;
     width: 100%;
-    object-fit: contain;
 }
 
 .page-dataset {
@@ -1061,20 +913,6 @@ export default defineComponent({
 
 .title {
     margin-bottom: 1rem;
-}
-
-.tooltip {
-  visibility: hidden;
-  background-color: black;
-  color: #fff;
-  text-align: center;
-  padding: 5px;
-  border-radius: 5px;
-  position: absolute;
-  top: 20px;
-  left: 0;
-  z-index: 11;
-  white-space: nowrap;
 }
 
 @keyframes blink {
