@@ -39,22 +39,13 @@
                             @mousemove="handleDrag($event)"
                             @mouseup="stopDrag"
                             @mouseleave="stopDrag">
-                            <img :src="this.zoomedImage.img" class="image-large" :style="{ transform: getTransformStyle() }">
+                            <img :src="this.zoomedImage.img" class="image" :style="{ transform: getTransformStyle() }">
                             <img :src="getMaskUrl(this.zoomedImage)" class="overlay-mask-large" :style="{ transform: getTransformStyle() }" @error="handleMaskImageError" v-if="setOverlay">
                         </div>
                     </div>
                     <div v-else>
                         <div class="image-grid" v-if="!this.$store.loading">
                             <div v-for="(item, index) in Images" :key="index" class="image-container" >
-                                <!-- <div class="image-wrapper" 
-                                        @click="() => { toggleEnlarge(index); handleImageClick(item); openModal(item) }"
-                                        @wheel="handleMouseWheel(index, $event)"
-                                        :style="{ zIndex: isEnlarged(index) ? 1 : 0 }">
-                                    <img :src="item.img" class="image-small" v-if="!isEnlarged(index)">
-                                    <img :src="item.img" class="image-large" :style="{ transform: `scale(${getScale(index)})` }" v-if="isEnlarged(index)">
-                                    <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
-                                    <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${getScale(index)})` }" @error="handleMaskImageError" v-if="setOverlay && isEnlarged(index)">
-                                </div> -->
                                 <div class="info-container" v-if="index == 0">
                                     <span class="info-icon">ℹ️</span>
                                     <div class="tooltip">Click: Select image <br> Double-click: Expand image</div>
@@ -62,8 +53,8 @@
                                 <div class="image-wrapper" 
                                         @dblclick="() => { openModal(item) }"
                                         @click="() => { handleImageClick(item) }">
-                                    <img :src="item.img" class="image-small" v-if="!isEnlarged(index)">
-                                    <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
+                                    <img :src="item.img" class="image">
+                                    <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay">
                                 </div>
                             </div>
                         </div>
@@ -533,35 +524,6 @@ export default defineComponent({
             }
         },
 
-        toggleEnlarge(index) {        
-            if (this.enlargedIndexes.includes(index)) {
-                this.enlargedIndexes = this.enlargedIndexes.filter(i => i !== index);
-            } else {
-                this.scales = {};
-                this.enlargedIndexes = [];
-                this.enlargedIndexes.push(index);
-            }
-        },
-
-        isEnlarged(index) {
-            return this.enlargedIndexes.includes(index);
-        },
-
-        getScale(index) {
-            return this.scales[index] || 1; 
-        },
-
-        handleMouseWheel(index, event) {
-            if (this.isEnlarged(index)) {
-                this.scales[index] = this.scales[index] || 1; 
-                this.scales[index] += event.deltaY > 0 ? -0.1 : 0.1;
-
-                this.scales[index] = Math.min(Math.max(this.scales[index], 0.5), 3);
-
-                event.preventDefault();
-            }
-        },
-
         showOverlay() {
             this.setOverlay = !this.setOverlay
         },
@@ -643,6 +605,7 @@ export default defineComponent({
         },
 
         // Data download section
+
         downloadAllImagesCSV() {
             this.$store.commit('setLoading', true);
             
@@ -951,8 +914,7 @@ export default defineComponent({
     width: 100vw;
 }
 
-.image-large,
-.image-small {
+.image {
     border-radius: 10px;
     height: 100%;
     object-fit: cover;
