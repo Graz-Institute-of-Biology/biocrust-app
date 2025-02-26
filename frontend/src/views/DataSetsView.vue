@@ -8,8 +8,9 @@
                 <RouterLink :to="{ name: 'AddDataset' }" class="button is-primary">Add Dataset</RouterLink>
             </div>
         </div>
+
+        <!-- Datasets Grid Column -->
         <div class="columns">
-            <!-- Datasets Grid Column -->
             <div class="column is-8">
                 <div class="columns is-multiline">
                     <div 
@@ -19,7 +20,7 @@
                     >
                         <div class="box dataset-box" @click="selectDataset(dataset)">
                             <h3 class="is-size-4"> {{ dataset.dataset_name }} </h3>
-                            <p> {{ dataset.dataset_type }} </p>                            
+                            <p> {{ dataset.dataset_type || '&nbsp;' }} </p>                            
                             <div class="buttons">
                                 <RouterLink :to="{ name: 'DataSetView', params: { id: dataset.id }}" class="button is-link">Show</RouterLink>
                                 <button class="button is-info" @click.stop="showDatasetDistribution(dataset.id)">
@@ -30,11 +31,11 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Chart Column -->
             <div class="column" v-if="selectedDataset">
                 <h3 class="title is-3">Class Distribution</h3>
-                <button class="button is-small is-primary" @click="downloadDatasetCSV" :disabled="!chartDataReady">
+                <button class="button is-primary" @click="downloadDatasetCSV" :disabled="!chartDataReady" style="margin-bottom: 10px;">
                         Download CSV
                     </button>
                 <div v-if="loadingChart" class="has-text-centered">
@@ -49,7 +50,7 @@
                         :options="chartOptions" 
                     />
                 </div>
-                <input type="checkbox" id="exclude-background" v-model="excludeBackground" @change="updateChartWithFilter">
+                <input type="checkbox" class="checkbox" id="exclude-background" v-model="excludeBackground" @change="updateChartWithFilter">
                 <label for="exclude-background">Exclude Background</label>
                 <div class="table-container" v-if="chartDataReady">
                     <table class="table is-bordered is-striped is-narrow is-hoverable">
@@ -168,7 +169,7 @@ export default {
                 return a.localeCompare(b)
             })
             
-            let csvContent = "DATASET CLASS DISTRIBUTION\n"
+            let csvContent = "ANALYSIS RESULTS\n"
             csvContent += `Dataset Name,${datasetName}\n`
             csvContent += `Total Images,${this.datasetImages.length}\n`
             csvContent += `Total Masks Analyzed,${this.allMasks.length}\n`
@@ -188,7 +189,7 @@ export default {
             const url = URL.createObjectURL(blob)
             
             link.setAttribute('href', url)
-            link.setAttribute('download', `${datasetName}_class_distribution.csv`)
+            link.setAttribute('download', `cc-explorer-${datasetName}_results.csv`)
             link.style.visibility = 'hidden'
             document.body.appendChild(link)
             link.click()
@@ -428,6 +429,10 @@ export default {
     flex: 1;
     flex-direction: column;
     position: relative;
+}
+
+.checkbox {
+    margin-right: 10px;
 }
 
 .dataset-box {

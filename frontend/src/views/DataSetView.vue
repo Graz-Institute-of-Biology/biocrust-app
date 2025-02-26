@@ -25,8 +25,9 @@
                 </div>
             </div>
         </div>
+
+        <!-- Image Grid Column -->
         <div class="columns">
-            <!-- Image Grid Column -->
             <div class="column is-two-thirds">
                 <div class="image-grid-container">
                     <!-- Popup Modal -->
@@ -54,15 +55,15 @@
                                     <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
                                     <img :src="getMaskUrl(item)" class="overlay-mask-large" :style="{ transform: `scale(${getScale(index)})` }" @error="handleMaskImageError" v-if="setOverlay && isEnlarged(index)">
                                 </div> -->
+                                <div class="info-container" v-if="index == 0">
+                                    <span class="info-icon">ℹ️</span>
+                                    <div class="tooltip">Click: Select image <br> Double-click: Expand image</div>
+                                </div>
                                 <div class="image-wrapper" 
                                         @dblclick="() => { openModal(item) }"
                                         @click="() => { handleImageClick(item) }">
                                     <img :src="item.img" class="image-small" v-if="!isEnlarged(index)">
                                     <img :src="getMaskUrl(item)" class="overlay-mask" @error="handleMaskImageError" v-if="setOverlay && !isEnlarged(index)">
-                                </div>
-                                <div class="info-container">
-                                    <span class="info-icon">ℹ️</span>
-                                    <div class="tooltip">Click: Select image <br> Double-click: Expand image</div>
                                 </div>
                             </div>
                         </div>
@@ -908,6 +909,10 @@ export default defineComponent({
     width: 100% !important;
 }
 
+.checkbox {
+    margin-right: 10px;
+}
+
 .column.is-half {
     align-items: center;
     display: flex;
@@ -918,10 +923,6 @@ export default defineComponent({
 .columns.is-mobile {
     display: flex;
     justify-content: space-between;
-}
-
-.checkbox {
-    margin-right: 10px;
 }
 
 .image-container {
