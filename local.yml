@@ -80,6 +80,31 @@ services:
     ports:
       - '81:80'
 
+  redis:
+    image: redis:7
+    container_name: biocrust_app_redis
+    restart: unless-stopped
+    env_file:
+      - ./.envs/.local/.redis
+    volumes:
+      - ./redis_data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - "6379:6379"
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: biocrust_app_redis_commander
+    restart: unless-stopped
+    env_file:
+      - ./.envs/.local/.redis-commander
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+
   # pgadmin:
   #   image: dpage/pgadmin4
   #   container_name: biocrust_app_local_pgadmin

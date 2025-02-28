@@ -1,0 +1,7 @@
+# Redis Commander
+# ------------------------------------------------------------------------------
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_PASSWORD=test_password
+HTTP_USER=admin
+HTTP_PASSWORD=admin_password

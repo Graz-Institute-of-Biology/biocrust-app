@@ -10,17 +10,32 @@
                         <RouterLink :to="{ name: 'AddModel', params: { id: dataset.id }}" class="button is-link" v-if="isSuperUser">Add Model</RouterLink>
                     </div>
                     <div class="column is-half right">
-                        <div class="button is-primary" @click="handleAnalyses" v-if="!this.$store.loading && isSuperUser || this.allowActions">Analyze Images ({{ this.items.length }})</div>
+                        <div class="button is-primary"
+                            @click="analysisPossible ? handleAnalyses : null"
+                            disabled
+                            v-if="!this.$store.loading && !analysisPossible && (isSuperUser || this.allowActions)">
+                            Analyze Images ({{ this.items.length }})
+                        </div>
+                        <div class="button is-primary"
+                            @click="handleAnalyses"
+                            v-if="!this.$store.loading && analysisPossible && (isSuperUser || this.allowActions)">
+                            Analyze Images ({{ this.items.length }})
+                        </div>
                         <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading && isSuperUser || this.mask_items.length > 0">Show Overlay</div>
                         <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading && isSuperUser">Delete dataset</div>
                     </div>
                 </div>
                 <div class="columns is-mobile">
-                    <div class="select is-success" :class="{ 'blinking': selectModelWarning }" v-if="isSuperUser || this.allowActions">
-                        <select class="is-focused" v-model="selectedMlModel" >
-                            <option disabled value="">Select ML-Model</option>
-                            <option v-for="(item, index) in Models" :key="index">{{ item.model_name }}</option>
-                        </select>
+                    <div class="column is-half">
+                        <h1 class="title is-3">Images</h1>
+                    </div>
+                    <div class="column is-half right">
+                        <div class="select is-success" :class="{ 'blinking': selectModelWarning }" v-if="isSuperUser || this.allowActions">
+                            <select class="is-focused" v-model="selectedMlModel" >
+                                <option disabled value="">Ml-Model</option>
+                                <option v-for="(item, index) in Models" :key="index">{{ item.model_name }}</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -160,6 +175,7 @@ export default defineComponent({
             selectedMlModelId: null,
             setOverlay: false,
             allowActions: true,
+            analysisPossible: false,
             scale: 1,
             mask_items: [],
             enlarged: false,
@@ -234,7 +250,50 @@ export default defineComponent({
         this.getAnalyses()
     },
     computed: {
-        ...mapGetters(['getShowProcessingQueue', 'isSuperUser'])
+        ...mapGetters(['getShowProcessingQueue', 'isSuperUser']),
+    },
+    watch: {
+        selectedMlModel(newVal) {
+            let analyzed_image_ids = []
+            let notAnalysedImages = []
+            let selectedMlModelId = null
+            for (let i = 0; i < this.Models.length; i++) {
+                if (this.Models[i].model_name == newVal) {
+                    selectedMlModelId = this.Models[i].id
+                }
+            }
+
+            for (let i = 0; i < this.Analyses.length; i++) {
+                if (selectedMlModelId == this.Analyses[i].ml_model_id) {
+                    analyzed_image_ids.push(this.Analyses[i].parent_img_id)
+                }
+            }
+            
+            for (let i = 0; i < this.Images.length; i++) {
+                if (!analyzed_image_ids.includes(this.Images[i].id)) {
+                    notAnalysedImages.push(this.Images[i].id)
+                }
+            }
+
+            let img_items = []
+            for (let i = 0; i < this.Images.length; i++) {
+                console.log(notAnalysedImages)
+                console.log(this.Images[i].id)
+                if (notAnalysedImages.includes(this.Images[i].id)) {
+                    img_items.push(this.Images[i].img)
+                }
+            }
+
+            this.items = img_items
+
+
+            if (notAnalysedImages.length > 0) {
+                this.analysisPossible = true
+            }
+            else {
+                this.analysisPossible = false
+            }
+        },
     },
     methods: {
         show () {
@@ -381,6 +440,7 @@ export default defineComponent({
             },
 
         async sendAnalysisRequest(image) {
+            console.log("SENDING REQUEST")
             let formData = new FormData()
             formData.append('owner', localStorage.getItem('username'))
             formData.append('slug', image.slug)
@@ -570,11 +630,11 @@ export default defineComponent({
                 await axios.get('api/v1/images/')
                 .then(response => {
                     this.Images = response.data.filter(image => image.dataset == this.$route.params.id)
-                    let img_items = response.data.filter(image => image.dataset == this.$route.params.id)
-                    for (let i = 0; i < img_items.length; i++) {
-                        this.items.push(img_items[i].img) //.replace('http', 'https'))
-                        // this.items.push(img_items[i].img)
-                    }
+                    // let img_items = response.data.filter(image => image.dataset == this.$route.params.id)
+                    // for (let i = 0; i < img_items.length; i++) {
+                    //     this.items.push(img_items[i].img) //.replace('http', 'https'))
+                    //     // this.items.push(img_items[i].img)
+                    // }
                 })
                 .catch(error => {
                     console.log(error)
