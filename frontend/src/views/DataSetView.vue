@@ -635,7 +635,7 @@ export default defineComponent({
                         uniqueClasses.set(label, {
                             name: label,
                             index: labelIndices.indexOf(label),
-                            label: `${indexNumber} ${label}` // convention - to be discussed
+                            label: `${label}`
                         });
                     });
                     
