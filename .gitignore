@@ -295,8 +295,9 @@ Session.vim
 # Auto-generated tag files
 tags
 
-# Redis dump file
-dump.rdb
+# Redis dumps
+*.rdb
+*.aof
 
 ### Project template
 biocrust_app/media/
@@ -316,6 +317,7 @@ biocrust_app/datasets/migrations
 
 # confidential stuff
 conf.yml
+redis.conf
 biocrust_app/test_model.pth
 biocrust_app/datasets/ontology.json
 production.yml
