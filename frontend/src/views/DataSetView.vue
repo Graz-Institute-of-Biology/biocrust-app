@@ -632,11 +632,9 @@ export default defineComponent({
                             classOverallCoverage.set(label, 0);
                         }
                         classOverallCoverage.set(label, classOverallCoverage.get(label) + value);
-                        
-                        const indexNumber = parseInt(label, 10) || 0;
                         uniqueClasses.set(label, {
                             name: label,
-                            index: indexNumber,
+                            index: labelIndices.indexOf(label),
                             label: `${indexNumber} ${label}` // convention - to be discussed
                         });
                     });
@@ -817,7 +815,6 @@ export default defineComponent({
                 classColumns.forEach(classInfo => {
                     const percentage = classInfo.overallCoverage * 100
                     csvContent += `${classInfo.index},${classInfo.name},${percentage.toFixed(2)}\n`;
-                    console.log(percentage.toFixed(2))
                 });
             }
             
