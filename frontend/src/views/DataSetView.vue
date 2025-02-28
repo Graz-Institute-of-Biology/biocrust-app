@@ -31,6 +31,7 @@
             <div class="column is-two-thirds">
                 <div class="image-grid-container">
                     <!-- Popup Modal -->
+                    <button v-if="this.zoomedImage" class="button is-danger delete-image-btn" @click="deleteImage">Delete Image</button>
                     <div v-if="this.zoomedImage" class="modal-overlay" 
                         @dblclick="closeModal"
                         @wheel="handleModalMouseWheel($event)">
@@ -604,6 +605,38 @@ export default defineComponent({
             return url
         },
 
+        async deleteImage() {
+            if (this.zoomedImage) {
+                try {
+                    await axios.delete(`api/v1/images/${this.zoomedImage.id}/`, {
+                        headers: {
+                            //"X-CSRFToken": "{{ csrftoken }}",
+                            "Content-Type": "application/json"
+                        },
+                    });
+                    
+                    const maskUrl = this.getMaskUrl(this.zoomedImage);
+                    if (maskUrl) {
+                        const maskItem = this.mask_items.find(mask => mask.mask === maskUrl);
+                        if (maskItem) {
+                            await axios.delete(`api/v1/masks/${maskItem.id}/`, {
+                                headers: {
+                                    //"X-CSRFToken": "{{ csrftoken }}",
+                                    "Content-Type": "application/json"
+                                },
+                            });
+                            this.mask_items = this.mask_items.filter(mask => mask.id !== maskItem.id);
+                        }
+                    }
+
+                    this.Images = this.Images.filter(image => image.id !== this.zoomedImage.id);
+                    this.closeModal();
+                } catch (error) {
+                    console.error("Error deleting image or mask:", error);
+                }
+            }
+        },
+        
         // Data download section
 
         async collectAllImageData() {
