@@ -73,7 +73,7 @@
             <div v-if="this.clickedImage" class="column">
                 <h1 class="title is-3">Class Distribution</h1>
                 <div v-if="this.showChart" class="chart-table">
-                    <button class="button is-primary" @click="downloadAllImagesCSV" style="margin-bottom: 10px;">Download CSV </button>
+                    <button class="button is-primary" @click="downloadAllImagesCSV(); downloadMetadataCSV()" style="margin-bottom: 10px;">Download CSV </button>
                 </div>
                 <div class="chart-container">
                     <Doughnut :data="chartData" :options="chartOptions" />
@@ -606,61 +606,11 @@ export default defineComponent({
 
         // Data download section
 
-        downloadAllImagesCSV() {
-            this.$store.commit('setLoading', true);
-            
-            this.collectAllImageData()
-                .then(allData => {
-                    console.log("Data collection done:", {
-                        imageCount: allData.imageData.length,
-                        classCount: allData.classColumns.length,
-                        hasMetadata: !!allData.metadata
-                    });
-                    
-                    const csvContent = this.generateAllImagesCSVContent(allData);
-                    console.log("CSV content, length:", csvContent.length);
-                    
-                    if (!csvContent.trim()) {
-                        console.error("CSV content empty!");
-                        this.$store.commit('setLoading', false);
-                        return;
-                    }
-                    
-                    const datasetName = this.dataset.dataset_name || "dataset";
-                    const fileName = `${datasetName}_all_images_data.csv`;
-                    
-                    try {
-                        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                        if (window.navigator.msSaveOrOpenBlob) {
-                            window.navigator.msSaveBlob(blob, fileName);
-                        } else {
-                            const link = document.createElement('a');
-                            const url = URL.createObjectURL(blob);
-                            link.setAttribute('href', url);
-                            link.setAttribute('download', fileName);
-                            link.style.visibility = 'hidden';
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                        }
-                        console.log("CSV download started");
-                    } catch (error) {
-                        console.error("Error during file download:", error);
-                    }
-                    
-                    this.$store.commit('setLoading', false);
-                })
-                .catch(error => {
-                    console.error("Error in data collection process:", error);
-                    alert("Error generating CSV. Check console for details.");
-                    this.$store.commit('setLoading', false);
-                });
-        },
-        
         async collectAllImageData() {
             console.log(`No. images: ${this.Images.length} images`);
             const allImageData = [];
             const uniqueClasses = new Map();
+            const classOverallCoverage = new Map();
             
             for (const image of this.Images) {
                 try {
@@ -672,16 +622,18 @@ export default defineComponent({
                         continue;
                     }
                     
-                    if (!classDistribution.class_distributions) {
-                        console.warn(`Invalid class distribution for: ${image.name || image.img}`, classDistribution);
-                        continue;
-                    }
-                    
                     const labelIndices = Object.keys(classDistribution.class_distributions);
                     console.log(`No. classes: ${labelIndices.length}`);
                     
-                    labelIndices.forEach((label, index) => {
-                        const indexNumber = parseInt(label, 10) || index;
+                    labelIndices.forEach(label => {
+                        const value = classDistribution.class_distributions[label] || 0;
+                        
+                        if (!classOverallCoverage.has(label)) {
+                            classOverallCoverage.set(label, 0);
+                        }
+                        classOverallCoverage.set(label, classOverallCoverage.get(label) + value);
+                        
+                        const indexNumber = parseInt(label, 10) || 0;
                         uniqueClasses.set(label, {
                             name: label,
                             index: indexNumber,
@@ -697,13 +649,28 @@ export default defineComponent({
                     console.error(`Error processing: ${image.img}:`, error);
                 }
             }
-                        
+            
+            const totalImages = allImageData.length;
             const sortedClasses = Array.from(uniqueClasses.values())
                 .sort((a, b) => a.index - b.index);
             
-            console.log("Sorted class list:", sortedClasses);
+            sortedClasses.forEach(classInfo => {
+                const totalClassCoverage = classOverallCoverage.get(classInfo.name) || 0;
+                const overallCoveragePercent = totalImages > 0 ? totalClassCoverage / totalImages : 0;
+                classInfo.overallCoverage = overallCoveragePercent;
+                
+                let imagesWithClass = 0;
+                allImageData.forEach(image => {
+                    if (image.distribution && image.distribution[classInfo.name] > 0) {
+                        imagesWithClass++;
+                    }
+                });
+                classInfo.presencePercent = totalImages > 0 ? (imagesWithClass / totalImages) * 100 : 0;
+            });
             
-            const metadata = this.collectDatasetMetadata();
+            console.log("Sorted class list with overall coverage:", sortedClasses);
+            
+            const metadata = this.collectDatasetMetadata(sortedClasses);
             console.log("Metadata:", metadata);
             
             return {
@@ -712,8 +679,92 @@ export default defineComponent({
                 metadata: metadata
             };
         },
-        
-        collectDatasetMetadata() {
+
+        downloadAllImagesCSV() {
+            this.$store.commit('setLoading', true);
+            
+            this.collectAllImageData()
+                .then(allData => {
+                    console.log("Data collection done:", {
+                        imageCount: allData.imageData.length,
+                        classCount: allData.classColumns.length,
+                        hasMetadata: !!allData.metadata
+                    });
+                    
+                    const csvContent = this.generateClassDistributionCSV(allData);
+                    console.log("CSV content, length:", csvContent.length);
+                    
+                    if (!csvContent.trim()) {
+                        console.error("CSV content empty!");
+                        this.$store.commit('setLoading', false);
+                        return;
+                    }
+                    
+                    const datasetName = this.dataset.dataset_name || "dataset";
+                    const fileName = `${datasetName}_class_distribution.csv`;
+                    
+                    try {
+                        this.downloadCSV(csvContent, fileName);
+                    } catch (error) {
+                        console.error("Error during file download:", error);
+                    }
+                    
+                    this.$store.commit('setLoading', false);
+                })
+                .catch(error => {
+                    console.error("Error in data collection process:", error);
+                    this.$store.commit('setLoading', false);
+                });
+        },
+
+        downloadMetadataCSV() {
+            this.$store.commit('setLoading', true);
+            
+            this.collectAllImageData()
+                .then(allData => {
+                    const metadataCSV = this.generateMetadataCSV(allData);
+                    console.log("CSV length:", metadataCSV.length);
+                    
+                    if (!metadataCSV.trim()) {
+                        console.error("Metadata CSV content empty!");
+                        this.$store.commit('setLoading', false);
+                        return;
+                    }
+                    
+                    const datasetName = this.dataset.dataset_name || "dataset";
+                    const fileName = `${datasetName}_metadata.csv`;
+                    
+                    try {
+                        this.downloadCSV(metadataCSV, fileName);
+                    } catch (error) {
+                        console.error("Error during metadata file download:", error);
+                    }
+                    
+                    this.$store.commit('setLoading', false);
+                })
+                .catch(error => {
+                    console.error("Error in metadata generation process:", error);
+                    this.$store.commit('setLoading', false);
+                });
+        },
+
+        downloadCSV(csvContent, fileName) {
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            if (window.navigator.msSaveOrOpenBlob) {
+                window.navigator.msSaveBlob(blob, fileName);
+            } else {
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', fileName);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        },
+
+        collectDatasetMetadata(classColumns) {
             const totalImages = this.Images.length;
             const totalMasks = this.mask_items.length;
             const modelCount = this.Models.length;
@@ -723,8 +774,6 @@ export default defineComponent({
                 "Dataset Name": this.dataset.dataset_name || "Unnamed Dataset",
                 "Dataset ID": this.dataset.id || "Unknown",
                 "Owner": this.dataset.owner || "Unknown",
-                "Creation Date": this.dataset.created_at || new Date().toISOString(),
-                "Last Modified": this.dataset.updated_at || new Date().toISOString(),
                 "Total Images": totalImages,
                 "Total Masks": totalMasks,
                 "Available Models": modelCount,
@@ -740,10 +789,42 @@ export default defineComponent({
                 }
             }
             
+            if (classColumns && classColumns.length > 0) {
+                classColumns.forEach(classInfo => {
+                    datasetInfo[`Class ${classInfo.index} (${classInfo.name}) Overall Coverage`] = 
+                        `${classInfo.overallCoverage*100}%`;
+                });
+            }
+            
             return datasetInfo;
         },
-        
-        generateAllImagesCSVContent({ imageData, classColumns, metadata }) {
+
+        generateMetadataCSV({ metadata, classColumns }) {
+            let csvContent = "DATASET METADATA\n";
+            
+            Object.entries(metadata || {}).forEach(([key, value]) => {
+                if (!key.includes('Class ')) {
+                    csvContent += `${key},${value}\n`;
+                }
+            });
+            
+            csvContent += "\n";
+            
+            if (classColumns && classColumns.length > 0) {
+                csvContent += "CLASS DISTRIBUTION SUMMARY\n";
+                csvContent += "Class Index,Class Name,Overall Coverage (%)\n";
+                
+                classColumns.forEach(classInfo => {
+                    const percentage = classInfo.overallCoverage * 100
+                    csvContent += `${classInfo.index},${classInfo.name},${percentage.toFixed(2)}\n`;
+                    console.log(percentage.toFixed(2))
+                });
+            }
+            
+            return csvContent;
+        },
+
+        generateClassDistributionCSV({ imageData, classColumns }) {
             console.log("Starting CSV generation");
             
             if (!imageData || imageData.length === 0) {
@@ -759,60 +840,27 @@ export default defineComponent({
             let csvContent = "";
             
             try {
-                csvContent += "DATASET METADATA\n";
-                Object.entries(metadata || {}).forEach(([key, value]) => {
-                    csvContent += `${key},${value}\n`;
+                csvContent += "Image";
+                classColumns.forEach(classInfo => {
+                    csvContent += `,${classInfo.label}`;
                 });
                 csvContent += "\n";
                 
-                if (imageData.length > 0 && classColumns.length > 0) {
-                    csvContent += "CLASS SUMMARY\n";
-                    classColumns.forEach(classInfo => {
-                        let totalCoverage = 0;
-                        let imagesWithClass = 0;
-                        
-                        imageData.forEach(image => {
-                            if (image.distribution && classInfo.name in image.distribution) {
-                                const value = image.distribution[classInfo.name] || 0;
-                                if (value > 0) {
-                                    totalCoverage += value;
-                                    imagesWithClass++;
-                                }
-                            }
-                        });
-                        
-                        const avgCoverage = imagesWithClass > 0 ? totalCoverage / imagesWithClass : 0;
-                        const percentImagesWithClass = (imagesWithClass / imageData.length) * 100;
-                        console.log('Class info:');
-                        console.log({classInfo});
-                        csvContent += `${classInfo.index},${classInfo.name},Avg Coverage: ${avgCoverage.toFixed(2)}%,Present in: ${percentImagesWithClass.toFixed(2)}% of images\n`;
-                    });
-                    csvContent += "\n";
+                imageData.forEach(image => {
+                    if (!image.distribution) {
+                        console.warn(`Missing distribution data for image: ${image.imageName}`);
+                        return;
+                    }
                     
-                    csvContent += "Image";
-                    classColumns.forEach(classInfo => {
-                        csvContent += `,${classInfo.label}`;
-                    });
-                    csvContent += "\n";
+                    csvContent += `${image.imageName}`;
                     
-                    imageData.forEach(image => {
-                        if (!image.distribution) {
-                            console.warn(`Missing distribution data for image: ${image.imageName}`);
-                            return;
-                        }
-                        
-                        csvContent += `${image.imageName}`;
-                        
-                        classColumns.forEach(classInfo => {
-                            const value = image.distribution[classInfo.name] || 0;
-                            csvContent += `,${value}`;
-                        });
-                        
-                        csvContent += "\n";
+                    classColumns.forEach(classInfo => {
+                        const value = image.distribution[classInfo.name] || 0;
+                        csvContent += `,${value}`;
                     });
-                } else {
-                    csvContent += "Insufficient data to generate class summary\n";
-                }
+                    
+                    csvContent += "\n";
+                });
                 
                 console.log(`CSV generation done!`);
                 return csvContent;

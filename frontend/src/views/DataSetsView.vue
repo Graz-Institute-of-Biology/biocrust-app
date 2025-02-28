@@ -8,9 +8,8 @@
                 <RouterLink :to="{ name: 'AddDataset' }" class="button is-primary">Add Dataset</RouterLink>
             </div>
         </div>
-
-        <!-- Datasets Grid Column -->
         <div class="columns">
+            <!-- Datasets Grid Column -->
             <div class="column is-8">
                 <div class="columns is-multiline">
                     <div 
@@ -31,13 +30,9 @@
                     </div>
                 </div>
             </div>
-
             <!-- Chart Column -->
             <div class="column" v-if="selectedDataset">
                 <h3 class="title is-3">Class Distribution</h3>
-                <button class="button is-primary" @click="downloadDatasetCSV" :disabled="!chartDataReady" style="margin-bottom: 10px;">
-                        Download CSV
-                    </button>
                 <div v-if="loadingChart" class="has-text-centered">
                     <p class="is-size-5">Loading chart data...</p>
                 </div>
@@ -141,59 +136,6 @@ export default {
         
         selectDataset(dataset) {
             this.selectedDataset = dataset
-        },
-        
-        // CSV download section
-
-        downloadDatasetCSV() {
-            if (!this.rawDistributionData) return
-            
-            const { distributions } = this.rawDistributionData
-            const datasetName = this.selectedDataset.dataset_name || "dataset"
-            const filteredDistributions = { ...distributions }
-            
-            if (this.excludeBackground) {
-                for (const classKey in filteredDistributions) {
-                    if (classKey.toLowerCase().includes('background')) {
-                        delete filteredDistributions[classKey]
-                    }
-                }
-            }
-            
-            const filteredTotalPixels = Object.values(filteredDistributions).reduce((sum, count) => sum + count, 0)
-            
-            const sortedKeys = Object.keys(filteredDistributions).sort((a, b) => {
-                const numA = parseInt(a)
-                const numB = parseInt(b)
-                if (!isNaN(numA) && !isNaN(numB)) return numA - numB
-                return a.localeCompare(b)
-            })
-            
-            let csvContent = "ANALYSIS RESULTS\n"
-            csvContent += `Dataset Name,${datasetName}\n`
-            csvContent += `Total Images,${this.datasetImages.length}\n`
-            csvContent += `Total Masks Analyzed,${this.allMasks.length}\n`
-            csvContent += `Export Date,${new Date().toISOString()}\n\n`
-            
-            csvContent += "Class Index,Class Name,Pixel Count,Coverage Percentage\n"
-            
-            for (const classKey of sortedKeys) {
-                const pixelCount = filteredDistributions[classKey]
-                const percentage = (pixelCount / filteredTotalPixels) * 100
-                
-                csvContent += `${classKey},${classKey},${pixelCount},${percentage.toFixed(2)}%\n`
-            }
-            
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-            const link = document.createElement('a')
-            const url = URL.createObjectURL(blob)
-            
-            link.setAttribute('href', url)
-            link.setAttribute('download', `cc-explorer-${datasetName}_results.csv`)
-            link.style.visibility = 'hidden'
-            document.body.appendChild(link)
-            link.click()
-            document.body.removeChild(link)
         },
 
         // Class distribution section
