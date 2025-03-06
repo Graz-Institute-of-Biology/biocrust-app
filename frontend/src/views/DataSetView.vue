@@ -14,12 +14,12 @@
                             @click="analysisPossible ? handleAnalyses : null"
                             disabled
                             v-if="!this.$store.loading && !analysisPossible && (isSuperUser || this.allowActions)">
-                            Analyze Images ({{ this.items.length }})
+                            Analyze Images ({{ this.imgsAnalyze.length }})
                         </div>
                         <div class="button is-primary"
                             @click="handleAnalyses"
                             v-if="!this.$store.loading && analysisPossible && (isSuperUser || this.allowActions)">
-                            Analyze Images ({{ this.items.length }})
+                            Analyze Images ({{ this.imgsAnalyze.length }})
                         </div>
                         <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading && isSuperUser || this.mask_items.length > 0">Show Overlay</div>
                         <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading && isSuperUser">Delete dataset</div>
@@ -36,6 +36,16 @@
                                 <option v-for="(item, index) in Models" :key="index">{{ item.model_name }}</option>
                             </select>
                         </div>
+                        <div class="button is-focused"
+                        @click="showAnalysisTable"
+                        v-if="!this.$store.loading && this.allowActions && !this.getShowProcessingQueue">
+                        Show Analysis
+                    </div>
+                    <div class="button is-focused"
+                        @click="showAnalysisTable"
+                        v-if="!this.$store.loading && this.allowActions && this.getShowProcessingQueue">
+                        Hide Analysis
+                    </div>
                     </div>
                 </div>
             </div>
@@ -169,7 +179,7 @@ export default defineComponent({
             blinkDuration: 1000,
             imageProcessingList: [],
             Images: [],
-            items: [],
+            imgsAnalyze: [],
             Models: [],
             selectedMlModel: '',
             selectedMlModelId: null,
@@ -254,17 +264,24 @@ export default defineComponent({
     },
     watch: {
         selectedMlModel(newVal) {
-            let analyzed_image_ids = []
-            let notAnalysedImages = []
-            let selectedMlModelId = null
+
             for (let i = 0; i < this.Models.length; i++) {
                 if (this.Models[i].model_name == newVal) {
-                    selectedMlModelId = this.Models[i].id
+                    this.selectedMlModelId = this.Models[i].id
                 }
             }
+            
+            this.updateAnalysisItems()
+
+        },
+    },
+    methods: {
+        updateAnalysisItems() {
+            let analyzed_image_ids = []
+            let notAnalysedImages = []
 
             for (let i = 0; i < this.Analyses.length; i++) {
-                if (selectedMlModelId == this.Analyses[i].ml_model_id) {
+                if (this.selectedMlModelId == this.Analyses[i].ml_model_id) {
                     analyzed_image_ids.push(this.Analyses[i].parent_img_id)
                 }
             }
@@ -275,16 +292,14 @@ export default defineComponent({
                 }
             }
 
-            let img_items = []
+            let imgsAnalyze = []
             for (let i = 0; i < this.Images.length; i++) {
-                console.log(notAnalysedImages)
-                console.log(this.Images[i].id)
                 if (notAnalysedImages.includes(this.Images[i].id)) {
-                    img_items.push(this.Images[i].img)
+                    imgsAnalyze.push(this.Images[i])
                 }
             }
 
-            this.items = img_items
+            this.imgsAnalyze = imgsAnalyze
 
 
             if (notAnalysedImages.length > 0) {
@@ -294,8 +309,6 @@ export default defineComponent({
                 this.analysisPossible = false
             }
         },
-    },
-    methods: {
         show () {
         const viewer = this.$el.querySelector('.images').$viewer
         viewer.show()
@@ -419,11 +432,17 @@ export default defineComponent({
             } else {
                 this.setSelectedMlModel()
             }
+            console.log(this.imgsAnalyze)
+            // console.log(this.Images)
             this.$store.commit('setShowProcessingQueue', true)
-            for (let i = 0; i < this.Images.length; i++) {
-                await this.analyzeImage(this.Images[i])
-                this.imageProcessingList.push(this.Images[i].name)
+
+
+            for (let i = 0; i < this.imgsAnalyze.length; i++) {
+                await this.analyzeImage(this.imgsAnalyze[i])
+                this.imageProcessingList.push(this.imgsAnalyze[i].name)
             }
+
+            this.updateAnalysisItems()
         },
 
         async analyzeImage(image) {
@@ -457,6 +476,14 @@ export default defineComponent({
                     'X-CSRFToken': '{{ csrftoken }}'
                 },
             })
+        },
+
+        showAnalysisTable() {
+            if (this.getShowProcessingQueue) {
+                this.$store.commit('setShowProcessingQueue', false)
+            } else {
+                this.$store.commit('setShowProcessingQueue', true)
+            }
         },
 
         // Results section & Visualization
@@ -1071,8 +1098,10 @@ export default defineComponent({
 }
 
 .select {
-    margin-left: 0;
-    margin-right: 10px;
+    margin-bottom: 2%;
+    /* margin-left: 10px; */
+    margin-right: 0px;
+    /* width: 130px; */
 }
 
 .table-container {
