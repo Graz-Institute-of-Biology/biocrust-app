@@ -1,5 +1,6 @@
 <template>
     <div class="info-window">
+      <button class="delete is-pulled-right" aria-label="close" @click="closeInfoWindow"></button>
       <div class="content">
         <ul>
           <div>
@@ -39,26 +40,56 @@ import ClipLoader from 'vue-spinner/src/ClipLoader.vue'
       return {
         Analyses: [],
         timer: null,
-        intervallTime: 6000,
         timerCalls: 0,
+        initialInterval: 1000, // ms
+        longerInterval: 10000,
+        callThreshold: 5,
+        maxAttempts: 100,
         loading: true,
         size: '20px',
         color: '#3B8070'
       }
     },
     created () {
+        this.timerCalls = 0
         this.getAnalyses()
-    },
-    mounted: function() {
-        this.timer = setInterval(() => {
-            this.getAnalyses()
-            this.timerCalls++
-        }, this.intervallTime)
+        this.startPolling()
     },
     props: {
       processingList: Array // Define a prop to accept an array
     },
     methods: {
+      startPolling() {
+          this.stopPolling()
+          
+          const currentInterval = this.timerCalls >= this.callThreshold 
+            ? this.longerInterval 
+            : this.initialInterval
+          
+          this.timer = setInterval(() => {
+            this.getAnalyses()
+            this.timerCalls++
+            console.log("Timer calls: ", this.timerCalls)
+            if (this.timerCalls === this.callThreshold) {
+              this.restartPollingWithNewInterval()
+            }
+            
+            if ((this.Analyses.length == 0 && this.timerCalls >= this.callThreshold) || this.timerCalls > this.maxAttempts) {
+              this.stopPolling()
+              this.$store.commit('setShowProcessingQueue', false)
+            }
+          }, currentInterval)
+        },
+        restartPollingWithNewInterval() {
+          this.stopPolling()
+          this.startPolling() // This will use the longer interval now
+        },
+        stopPolling() {
+          if (this.timer) {
+            clearInterval(this.timer)
+            this.timer = null
+          }
+        },
         async getAnalyses() {
             console.log(this.Analyses)
             await axios.get('api/v1/analyses/')
@@ -68,10 +99,6 @@ import ClipLoader from 'vue-spinner/src/ClipLoader.vue'
             .catch(error => {
                 console.log(error)
             })
-            if (this.Analyses.length == 0) {
-                this.$store.commit('setShowProcessingQueue', false)
-                clearInterval(this.timer)
-            }
         },
         getStatusText(status) {
             if (status == 'processing') {
@@ -90,11 +117,18 @@ import ClipLoader from 'vue-spinner/src/ClipLoader.vue'
             }
         },
         getImageName(image) {
-            return image.split('/')[6]
+            console.log(image)
+            const getFileName = url => new URL(url).pathname.split('/').pop();
+            const fileName = getFileName(image)
+            return fileName
+        },
+        closeInfoWindow() {
+            this.$store.commit('setShowProcessingQueue', false)
         }
     },
     beforeUnmount() {
         clearInterval(this.timer)
+        this.timerCalls = 0
     }
   }
   </script>
