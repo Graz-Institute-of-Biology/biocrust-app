@@ -635,6 +635,7 @@ export default defineComponent({
                     console.error("Error deleting image or mask:", error);
                 }
             }
+            this.getImages()
         },
         
         // Data download section
