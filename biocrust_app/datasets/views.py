@@ -193,6 +193,7 @@ class Analysis_ModelViewSet(viewsets.ModelViewSet, PublicDatasetFilterMixin):
         # Production:
         # ml_url = 'https://ml.cc-explorer.com/api/v1/predict'
         ml_url = 'https://it245151.uni-graz.at/ml/api/v1/predict' # always use production domain
+        print("DOMAIN: ", settings.DOMAIN)
 
         if settings.DOMAIN == 'localhost:8080': # if running locally overwrite production domain
                     print("Using LOCAL domain settings!")

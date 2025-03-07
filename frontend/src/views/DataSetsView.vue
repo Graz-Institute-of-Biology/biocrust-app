@@ -4,8 +4,8 @@
             <div class="column is-10 header-col">
                 <h2 class="is-size-2">Datasets</h2>
             </div>
-            <div class="column is-2 button-col">
-                <RouterLink :to="{ name: 'AddDataset' }" class="button is-primary">Add Dataset</RouterLink>
+            <div v-if="getUserLoaded" class="column is-2 button-col">
+                <RouterLink v-if="isUploader || isSuperUser" :to="{ name: 'AddDataset' }" class="button is-primary">Add Dataset</RouterLink>
             </div>
         </div>
         <div class="columns">
@@ -74,6 +74,7 @@
 import axios from 'axios'
 import { Chart as ChartJS, Title, Tooltip, Legend, DoughnutController, CategoryScale, ArcElement } from 'chart.js'
 import { Doughnut } from 'vue-chartjs'
+import { mapGetters, mapActions } from 'vuex'
 
 ChartJS.register(Title, Tooltip, Legend, DoughnutController, CategoryScale, ArcElement)
 
@@ -120,9 +121,16 @@ export default {
     created() {
         this.getDatasets()
     },
+    computed: {
+        ...mapGetters(['isUploader', 'getUserLoaded', 'isSuperUser'])
+    },
+    mounted() {
+        this.initializeStatus()
+    },
     methods: {
 
         // Datasets section
+        ...mapActions(['initializeStatus']),
 
         getDatasets() {
             axios.get('api/v1/datasets/')

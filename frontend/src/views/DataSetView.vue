@@ -10,17 +10,42 @@
                         <RouterLink :to="{ name: 'AddModel', params: { id: dataset.id }}" class="button is-link" v-if="isSuperUser">Add Model</RouterLink>
                     </div>
                     <div class="column is-half right">
-                        <div class="button is-primary" @click="handleAnalyses" v-if="!this.$store.loading && isSuperUser || this.allowActions">Analyze Images ({{ this.items.length }})</div>
+                        <div class="button is-primary"
+                            @click="analysisPossible ? handleAnalyses : null"
+                            disabled
+                            v-if="!this.$store.loading && !analysisPossible && (isSuperUser || this.allowActions)">
+                            Analyze Images ({{ this.imgsAnalyze.length }})
+                        </div>
+                        <div class="button is-primary"
+                            @click="handleAnalyses"
+                            v-if="!this.$store.loading && analysisPossible && (isSuperUser || this.allowActions)">
+                            Analyze Images ({{ this.imgsAnalyze.length }})
+                        </div>
                         <div class="button is-primary" @click="showOverlay" v-if="!this.$store.loading && isSuperUser || this.mask_items.length > 0">Show Overlay</div>
                         <div class="button delete-button is-danger" @click="setDeleteAlert" v-if="!this.$store.loading && isSuperUser">Delete dataset</div>
                     </div>
                 </div>
                 <div class="columns is-mobile">
-                    <div class="select is-success" :class="{ 'blinking': selectModelWarning }" v-if="isSuperUser || this.allowActions">
-                        <select class="is-focused" v-model="selectedMlModel" >
-                            <option disabled value="">Select ML-Model</option>
-                            <option v-for="(item, index) in Models" :key="index">{{ item.model_name }}</option>
-                        </select>
+                    <div class="column is-half">
+                        <h1 class="title is-3">Images</h1>
+                    </div>
+                    <div class="column is-half right">
+                        <div class="select is-success" :class="{ 'blinking': selectModelWarning }" v-if="isSuperUser || this.allowActions">
+                            <select class="is-focused" v-model="selectedMlModel" >
+                                <option disabled value="">Ml-Model</option>
+                                <option v-for="(item, index) in Models" :key="index">{{ item.model_name }}</option>
+                            </select>
+                        </div>
+                        <div class="button is-focused"
+                        @click="showAnalysisTable"
+                        v-if="!this.$store.loading && this.allowActions && !this.getShowProcessingQueue">
+                        Show Analysis
+                    </div>
+                    <div class="button is-focused"
+                        @click="showAnalysisTable"
+                        v-if="!this.$store.loading && this.allowActions && this.getShowProcessingQueue">
+                        Hide Analysis
+                    </div>
                     </div>
                 </div>
             </div>
@@ -154,12 +179,13 @@ export default defineComponent({
             blinkDuration: 1000,
             imageProcessingList: [],
             Images: [],
-            items: [],
+            imgsAnalyze: [],
             Models: [],
             selectedMlModel: '',
             selectedMlModelId: null,
             setOverlay: false,
             allowActions: true,
+            analysisPossible: false,
             scale: 1,
             mask_items: [],
             enlarged: false,
@@ -234,9 +260,55 @@ export default defineComponent({
         this.getAnalyses()
     },
     computed: {
-        ...mapGetters(['getShowProcessingQueue', 'isSuperUser'])
+        ...mapGetters(['getShowProcessingQueue', 'isSuperUser']),
+    },
+    watch: {
+        selectedMlModel(newVal) {
+
+            for (let i = 0; i < this.Models.length; i++) {
+                if (this.Models[i].model_name == newVal) {
+                    this.selectedMlModelId = this.Models[i].id
+                }
+            }
+            
+            this.updateAnalysisItems()
+
+        },
     },
     methods: {
+        updateAnalysisItems() {
+            let analyzed_image_ids = []
+            let notAnalysedImages = []
+
+            for (let i = 0; i < this.Analyses.length; i++) {
+                if (this.selectedMlModelId == this.Analyses[i].ml_model_id) {
+                    analyzed_image_ids.push(this.Analyses[i].parent_img_id)
+                }
+            }
+            
+            for (let i = 0; i < this.Images.length; i++) {
+                if (!analyzed_image_ids.includes(this.Images[i].id)) {
+                    notAnalysedImages.push(this.Images[i].id)
+                }
+            }
+
+            let imgsAnalyze = []
+            for (let i = 0; i < this.Images.length; i++) {
+                if (notAnalysedImages.includes(this.Images[i].id)) {
+                    imgsAnalyze.push(this.Images[i])
+                }
+            }
+
+            this.imgsAnalyze = imgsAnalyze
+
+
+            if (notAnalysedImages.length > 0) {
+                this.analysisPossible = true
+            }
+            else {
+                this.analysisPossible = false
+            }
+        },
         show () {
         const viewer = this.$el.querySelector('.images').$viewer
         viewer.show()
@@ -360,11 +432,17 @@ export default defineComponent({
             } else {
                 this.setSelectedMlModel()
             }
+            console.log(this.imgsAnalyze)
+            // console.log(this.Images)
             this.$store.commit('setShowProcessingQueue', true)
-            for (let i = 0; i < this.Images.length; i++) {
-                await this.analyzeImage(this.Images[i])
-                this.imageProcessingList.push(this.Images[i].name)
+
+
+            for (let i = 0; i < this.imgsAnalyze.length; i++) {
+                await this.analyzeImage(this.imgsAnalyze[i])
+                this.imageProcessingList.push(this.imgsAnalyze[i].name)
             }
+
+            this.updateAnalysisItems()
         },
 
         async analyzeImage(image) {
@@ -381,6 +459,7 @@ export default defineComponent({
             },
 
         async sendAnalysisRequest(image) {
+            console.log("SENDING REQUEST")
             let formData = new FormData()
             formData.append('owner', localStorage.getItem('username'))
             formData.append('slug', image.slug)
@@ -397,6 +476,14 @@ export default defineComponent({
                     'X-CSRFToken': '{{ csrftoken }}'
                 },
             })
+        },
+
+        showAnalysisTable() {
+            if (this.getShowProcessingQueue) {
+                this.$store.commit('setShowProcessingQueue', false)
+            } else {
+                this.$store.commit('setShowProcessingQueue', true)
+            }
         },
 
         // Results section & Visualization
@@ -570,11 +657,11 @@ export default defineComponent({
                 await axios.get('api/v1/images/')
                 .then(response => {
                     this.Images = response.data.filter(image => image.dataset == this.$route.params.id)
-                    let img_items = response.data.filter(image => image.dataset == this.$route.params.id)
-                    for (let i = 0; i < img_items.length; i++) {
-                        this.items.push(img_items[i].img) //.replace('http', 'https'))
-                        // this.items.push(img_items[i].img)
-                    }
+                    // let img_items = response.data.filter(image => image.dataset == this.$route.params.id)
+                    // for (let i = 0; i < img_items.length; i++) {
+                    //     this.items.push(img_items[i].img) //.replace('http', 'https'))
+                    //     // this.items.push(img_items[i].img)
+                    // }
                 })
                 .catch(error => {
                     console.log(error)
@@ -1056,8 +1143,10 @@ export default defineComponent({
 }
 
 .select {
-    margin-left: 0;
-    margin-right: 10px;
+    margin-bottom: 2%;
+    /* margin-left: 10px; */
+    margin-right: 0px;
+    /* width: 130px; */
 }
 
 .table-container {
