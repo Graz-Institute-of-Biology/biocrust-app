@@ -6,6 +6,7 @@ import environ
 
 # set debug in .env file
 # DEBUG = True
+ROOT_URLCONF = 'config.urls'
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 # biocrust_app/
@@ -170,6 +171,7 @@ STATICFILES_FINDERS = [
 MEDIA_ROOT = str(APPS_DIR / "media")
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = "django/media/"
+WHITENOISE_STATIC_PREFIX = '/django/static/'
 
 # TEMPLATES
 # ------------------------------------------------------------------------------

@@ -71,6 +71,9 @@ COPY ./compose/local/django/start /start
 RUN sed -i 's/\r$//g' /start
 RUN chmod +x /start
 
+COPY ./compose/local/django/start_gunicorn /start_gunicorn
+RUN sed -i 's/\r$//g' /start_gunicorn
+RUN chmod +x /start_gunicorn
 
 
 # copy application code to WORKDIR
