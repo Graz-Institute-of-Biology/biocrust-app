@@ -3,6 +3,10 @@ from io import BytesIO
 from PIL import Image
 from django.core.files import File
 from datetime import datetime
+import os
+from django.dispatch import receiver
+from django.conf import settings
+
 
 def dataset_image_path(instance, filename):
         return str(str(instance.dataset.id) + '/images/' + filename)
@@ -21,7 +25,7 @@ class Dataset_Model(models.Model):
     dataset_created = models.DateTimeField(auto_now_add=True)
     description = models.TextField(blank=True, null=True)
     dataset_type = models.CharField(max_length=255, blank=True)
-
+       
     is_public = models.BooleanField(
         'is_public',
         default=False,
@@ -120,8 +124,11 @@ class Image_Model(models.Model):
 
         return thumbnail
     
-
-
+@receiver(models.signals.post_delete, sender=Image_Model)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    if instance.img:
+        if os.path.isfile(instance.img.path):
+            os.remove(instance.img.path)
 class Mask_Model(models.Model):
     dataset = models.ForeignKey(Dataset_Model, related_name='masks', on_delete=models.CASCADE)
     parent_image = models.ForeignKey(Image_Model, related_name='masks', on_delete=models.CASCADE)
@@ -139,7 +146,6 @@ class Mask_Model(models.Model):
     is_categorical = models.BooleanField(default=True)
     class_distributions = models.TextField(blank=True, null=True, default="")
 
-
     class Meta:
         ordering = ('-date_added',)
 
@@ -148,6 +154,12 @@ class Mask_Model(models.Model):
     
     def get_absolute_url(self):
         return f'/{self.dataset.slug}/{self.slug}/'
+    
+@receiver(models.signals.post_delete, sender=Mask_Model)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    if instance.mask:
+        if os.path.isfile(instance.mask.path):
+            os.remove(instance.mask.path)
     
 
 class Analysis_Model(models.Model):
