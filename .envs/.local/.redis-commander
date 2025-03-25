@@ -2,6 +2,5 @@
 # ------------------------------------------------------------------------------
 REDIS_HOST=redis
 REDIS_PORT=6379
-REDIS_PASSWORD=test_password
-HTTP_USER=admin
-HTTP_PASSWORD=admin_password
+# HTTP_USER=admin
+# HTTP_PASSWORD="DN0h_xU1e9U1U9zM"

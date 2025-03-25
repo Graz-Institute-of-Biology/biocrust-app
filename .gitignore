@@ -325,3 +325,11 @@ production_n.yml
 
 
 save/*
+rclone/config/*
+rclone/docker-compose.yml
+rclone/Dockerfile
+rclone/entrypoint.sh
+rclone/run_rclone_copy.sh
+
+backup_db.sh
+backup_media.sh

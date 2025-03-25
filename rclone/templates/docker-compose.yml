@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  rclone-sync:
+    build: .
+    volumes:
+      - backups:/data
+      - rclone/config:/config/.config/rclone

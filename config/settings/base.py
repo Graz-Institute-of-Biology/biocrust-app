@@ -50,7 +50,7 @@ LOCALE_PATHS = [str(BASE_DIR / "locale")]
 # DATABASES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
-# always use postres (in docker container)
+# always use postgres (in docker container)
 DATABASES = {"default": env.db("DATABASE_URL")}
 
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
@@ -234,8 +234,9 @@ EMAIL_TIMEOUT = 5
 
 # ADMIN
 # ------------------------------------------------------------------------------
-# Django Admin URL.
-ADMIN_URL = "admin/"
+
+
+
 # https://docs.djangoproject.com/en/dev/ref/settings/#admins
 ADMINS = [("philipp.faulhammer@gmail.com")]
 # https://docs.djangoproject.com/en/dev/ref/settings/#managers

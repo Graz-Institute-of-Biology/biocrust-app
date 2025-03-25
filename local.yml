@@ -18,6 +18,7 @@ services:
     env_file:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
+      - ./.envs/.local/.redis
     ports:
       - '8000:8000'
     command: /start
@@ -27,8 +28,9 @@ services:
     build:
       context: .
       dockerfile: ./compose/local/ml-api/Dockerfile
-    environment:
-      - ML_ENV=staging
+    env_file:
+      - ./.envs/.local/.ml-api
+      - ./.envs/.local/.redis
     image: biocrust_app_local_ml-api
     container_name: biocrust_app_local_ml-api
     depends_on:
@@ -81,18 +83,18 @@ services:
       - '81:80'
 
   redis:
-    image: redis:7
+    build:
+      context: .
+      dockerfile: ./compose/local/redis/Dockerfile
+    image: biocrust_app_production_redis
     container_name: biocrust_app_redis
     restart: unless-stopped
     env_file:
       - ./.envs/.local/.redis
     volumes:
       - ./redis_data:/data
-      - ./redis.conf:/usr/local/etc/redis/redis.conf
     ports:
       - "6379:6379"
-    command: redis-server /usr/local/etc/redis/redis.conf
-
   
   redis-commander:
     image: rediscommander/redis-commander:latest
@@ -100,6 +102,7 @@ services:
     restart: unless-stopped
     env_file:
       - ./.envs/.local/.redis-commander
+      - ./.envs/.local/.redis
     ports:
       - "8081:8081"
     depends_on:

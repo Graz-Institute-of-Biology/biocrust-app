@@ -21,4 +21,3 @@ django-cors-headers==4.2.0
 stripe==6.4.0
 django-decouple==2.1
 numpy==1.26.2
-gunicorn==23.0.0

@@ -16,17 +16,14 @@ ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "django", "it245151.uni-gr
 # ALLOWED_HOSTS = ["167.99.251.188"]
 # ALLOWED_HOSTS = ["cc-explorer.com", "api.cc-explorer.com", "167.99.251.188", "django"]
 
+# Django Admin URL.
+ADMIN_URL = "admin/"
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://localhost:8080",
     "http://localhost:81",
     "http://frontend:81",
-    "http://167.99.251.188:81",
-    "http://167.99.251.188",
-    "https://cc-explorer.com",
-    "https://api.cc-explorer.com",
-    "https://ml.cc-explorer.com",
     "https://it245151.uni-graz.at"
     ]
 # CORS_ALLOW_ALL_ORIGINS = True
