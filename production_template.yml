@@ -1,0 +1,133 @@
+version: '3'
+
+volumes:
+  production_postgres_data: {}
+  production_postgres_data_backups: {}
+  production_traefik: {}
+
+services:
+  frontend:
+    container_name: frontend
+    restart: always
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: biocrust_app_frontend
+    depends_on:
+      - django
+    volumes:
+      - ./frontend/nginx:/etc/nginx/conf.d
+    expose:
+      - 80
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`cc-explorer.com`)"
+      # - "traefik.http.services.frontend.loadbalancer.server.port=80"
+      # - "traefik.http.routers.frontend.middlewares=traefik-https-redirect"
+      # - "traefik.http.middlewares.traefik-https-redirect.redirectscheme.scheme=https"
+      # - "traefik.http.routers.frontend-secure.entrypoints=websecure"
+      # - "traefik.http.routers.frontend-secure.rule=Host(`cc-explorer.com`)"
+      # - "traefik.http.routers.frontend-secure.service=frontend"
+      # - "traefik.http.routers.frontend-secure.tls=true"
+      # - "traefik.http.routers.frontend-secure.tls.certresolver=cloudflare"
+
+  ml-api:
+    build:
+      context: .
+      dockerfile: ./compose/local/ml-api/Dockerfile
+    environment:
+      - ML_ENV=staging
+    image: biocrust_app_local_ml-api
+    container_name: biocrust_app_local_ml-api
+    depends_on:
+      - django
+    ports:
+      - "8082:8082"
+
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/local/django/Dockerfile
+    image: biocrust_app_local_django
+    container_name: biocrust_app_local_django
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app:z
+    env_file:
+      - ./.envs/.local/.django
+      - ./.envs/.local/.postgres
+    ports:
+      - '8000:8000'
+    command: /start
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/production/postgres/Dockerfile
+    image: biocrust_app_production_postgres
+    container_name: biocrust_app_local_postgres
+    volumes:
+      - production_postgres_data:/var/lib/postgresql/data
+      - production_postgres_data_backups:/backups
+    ports:
+      - '5432:5432'
+    env_file:
+      - ./.envs/.local/.postgres
+
+  traefik:
+    build:
+      context: .
+      dockerfile: ./compose/production/traefik/Dockerfile
+    image: biocrust_app_production_traefik
+    container_name: biocrust_app_production_traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    depends_on:
+      - django
+    volumes:
+      - ./compose/production/traefik:/etc/traefik/acme
+      - ./compose/production/traefik
+      - ./compose/production/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.entrypoints=http"
+      - "traefik.http.routers.traefik.rule=Host(`cc-explorer.com`)"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=USER:BASIC_AUTH_PASSWORD"
+      - "traefik.http.middlewares.traefik-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.routers.traefik.middlewares=traefik-https-redirect"
+      - "traefik.http.routers.traefik-secure.entrypoints=https"
+      - "traefik.http.routers.traefik-secure.rule=Host(`cc-explorer.com`)"
+      - "traefik.http.routers.traefik-secure.middlewares=traefik-auth"
+      - "traefik.http.routers.traefik-secure.tls=true"
+      - "traefik.http.routers.traefik-secure.tls.certresolver=cloudflare"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].main=cc-explorer.com"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].sans=*.cc-explorer.com"
+      - "traefik.http.routers.traefik-secure.service=api@internal"
+    ports:
+      - '80:80'
+      - '443:443'
+
+    env_file:
+      - ./.envs/.production/.traefik
+
+  # redis:
+  #   image: redis:6
+
+  # awscli:
+  #   build:
+  #     context: .
+  #     dockerfile: ./compose/production/aws/Dockerfile
+  #   env_file:
+  #     - ./.envs/.production/.django
+  #   volumes:
+  #     - production_postgres_data_backups:/backups:z
+
+networks:
+  proxy:
+    external: true

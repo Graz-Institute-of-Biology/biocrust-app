@@ -171,7 +171,7 @@ STATICFILES_FINDERS = [
 MEDIA_ROOT = str(APPS_DIR / "media")
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = "django/media/"
-WHITENOISE_STATIC_PREFIX = '/django/static/'
+# WHITENOISE_STATIC_PREFIX = '/django/static/'
 
 # TEMPLATES
 # ------------------------------------------------------------------------------
